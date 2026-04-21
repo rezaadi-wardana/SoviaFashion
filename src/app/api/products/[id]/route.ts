@@ -12,7 +12,7 @@ export async function GET(
     where: { id },
     include: { 
       category: true,
-      variations: true,
+      variants: true,
     },
   })
 

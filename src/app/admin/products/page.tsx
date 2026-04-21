@@ -23,13 +23,10 @@ interface Product {
   description: string | null
   price: number
   images: string | null
-  sizes: string | null
-  colors: string | null
-  stock: number
   sku: string
   category: { id: string; name: string } | null
   isFeatured: boolean
-  variations: { id: string; name: string; value: string; imageIndex: number }[]
+  variants: { id: string; name: string; stock: number; image: string | null; sizes: string | null }[]
 }
 
 interface Category {
@@ -44,6 +41,7 @@ export default function AdminProductsPage() {
   const [search, setSearch] = useState("")
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [showModal, setShowModal] = useState(false)
+  const [viewingProduct, setViewingProduct] = useState<Product | null>(null)
 
   useEffect(() => {
     fetchData()
@@ -88,6 +86,20 @@ export default function AdminProductsPage() {
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.sku?.toLowerCase().includes(search.toLowerCase())
   )
+
+  if (viewingProduct) {
+    return (
+      <ProductDetailModal
+        product={viewingProduct}
+        onClose={() => setViewingProduct(null)}
+        onEdit={() => {
+          setViewingProduct(null)
+          setEditingProduct(viewingProduct)
+          setShowModal(true)
+        }}
+      />
+    )
+  }
 
   if (showModal) {
     return (
@@ -185,10 +197,18 @@ export default function AdminProductsPage() {
               </tr>
             ) : (
               filteredProducts.map((product) => (
-                <tr key={product.id} className="border-b border-stone-100">
+                <tr 
+                  key={product.id} 
+                  className="border-b border-stone-100 cursor-pointer hover:bg-stone-50"
+                  onClick={() => setViewingProduct(product)}
+                >
                   <td className="py-5 px-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-16 bg-stone-200 rounded-sm flex-shrink-0 overflow-hidden">
+                      <Link 
+                        href={`/catalog?product=${product.id}`}
+                        className="w-12 h-16 bg-stone-200 rounded-sm flex-shrink-0 overflow-hidden hover:opacity-80"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <img
                           src={
                             getProductImages(product.images)[0] ||
@@ -197,13 +217,17 @@ export default function AdminProductsPage() {
                           alt={product.name}
                           className="w-full h-full object-cover"
                         />
-                      </div>
+                      </Link>
                       <div>
-                        <p className="text-stone-900 text-base font-semibold">
+                        <Link 
+                          href={`/catalog?product=${product.id}`}
+                          className="text-stone-900 text-base font-semibold hover:text-stone-600"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           {product.name}
-                        </p>
+                        </Link>
                         <p className="text-stone-700 text-xs">
-                          {product.colors || "No color"}
+                          {product.variants?.length || 0} variants
                         </p>
                       </div>
                     </div>
@@ -222,21 +246,21 @@ export default function AdminProductsPage() {
                   <td className="py-5 px-4">
                     <span
                       className={`px-3 py-1 rounded-xl text-xs ${
-                        product.stock > 10
+                        (product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 10
                           ? "bg-stone-600 text-white"
-                          : product.stock > 0
+                          : (product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 0
                           ? "bg-yellow-100 text-yellow-700"
                           : "bg-stone-400 text-white"
                       }`}
                     >
-                      {product.stock > 10
+                      {(product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 10
                         ? "In Stock"
-                        : product.stock > 0
+                        : (product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 0
                         ? "Low Stock"
                         : "Out of Stock"}
                     </span>
                   </td>
-                  <td className="py-5 px-4 text-right">
+                  <td className="py-5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
                     <div className="flex justify-end gap-2">
                       <button
                         onClick={() => {
@@ -302,18 +326,14 @@ function ProductFormModal({
     description: product?.description || "",
     price: product?.price || 0,
     images: Array.isArray(existingImages) ? existingImages : product?.images ? [product.images] : [],
-    sizes: product?.sizes || "S,M,L,XL",
-    colors: product?.colors || "",
-    stock: product?.stock || 0,
     sku: product?.sku || "",
     categoryId: product?.category?.id || "",
     isFeatured: product?.isFeatured || false,
   })
-  const [variations, setVariations] = useState<{id?: string, name: string, value: string, imageIndex: number}[]>(
-    product?.variations || []
+  const [variants, setVariants] = useState<{id?: string, name: string, stock: number, image: string, sizes: string}[]>(
+    product?.variants?.map(v => ({ id: v.id, name: v.name, stock: v.stock, image: v.image || "", sizes: v.sizes || "" })) || [{ name: "", stock: 0, image: "", sizes: "" }]
   )
   const [saving, setSaving] = useState(false)
-  const [uploading, setUploading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -326,6 +346,7 @@ function ProductFormModal({
       const productData = {
         ...formData,
         images: JSON.stringify(formData.images),
+        variants: variants.filter(v => v.name.trim() !== ""),
       }
 
       const res = await fetch(url, {
@@ -338,14 +359,14 @@ function ProductFormModal({
         const savedProduct = await res.json()
         
         if (product) {
-          await fetch(`/api/products/${product.id}/variations`, {
+          await fetch(`/api/products/${product.id}/variants`, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ variationId: "all" }),
+            body: JSON.stringify({ variantId: "all" }),
           }).catch(() => {})
           
-          for (const v of variations) {
-            await fetch(`/api/products/${product.id}/variations`, {
+          for (const v of variants.filter(v => v.name.trim() !== "")) {
+            await fetch(`/api/products/${product.id}/variants`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify(v),
@@ -393,37 +414,23 @@ function ProductFormModal({
               className="w-full py-2 px-4 bg-stone-100 rounded-lg"
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-stone-700 text-sm block mb-2">Price (Rp)</label>
-              <input
-                type="number"
-                value={formData.price || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })
-                }
-                className="w-full py-2 px-4 bg-stone-100 rounded-lg"
-                required
-                min="0"
-                step="1000"
-              />
-            </div>
-            <div>
-              <label className="text-stone-700 text-sm block mb-2">Stock</label>
-              <input
-                type="number"
-                value={formData.stock || ""}
-                onChange={(e) =>
-                  setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })
-                }
-                className="w-full py-2 px-4 bg-stone-100 rounded-lg"
-                min="0"
-              />
-            </div>
+          <div>
+            <label className="text-stone-700 text-sm block mb-2">Price (Rp)</label>
+            <input
+              type="number"
+              value={formData.price || ""}
+              onChange={(e) =>
+                setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })
+              }
+              className="w-full py-2 px-4 bg-stone-100 rounded-lg"
+              required
+              min="0"
+              step="1000"
+            />
           </div>
           <div>
             <label className="text-stone-700 text-sm block mb-2">
-              Product Images (max 10)
+              Product Images (max 5)
             </label>
             <div className="grid grid-cols-5 gap-2 mb-2">
               {formData.images.map((img, idx) => (
@@ -445,13 +452,13 @@ function ProductFormModal({
                 </div>
               ))}
             </div>
-            {formData.images.length < 10 && (
+            {formData.images.length < 5 && (
               <input
                 type="file"
                 accept="image/*"
                 onChange={async (e) => {
                   const file = e.target.files?.[0]
-                  if (file && formData.images.length < 10) {
+                  if (file && formData.images.length < 5) {
                     const formDataUpload = new FormData()
                     formDataUpload.append("file", file)
                     try {
@@ -472,42 +479,16 @@ function ProductFormModal({
               />
             )}
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-stone-700 text-sm block mb-2">SKU</label>
-              <input
-                type="text"
-                value={formData.sku}
-                onChange={(e) =>
-                  setFormData({ ...formData, sku: e.target.value })
-                }
-                className="w-full py-2 px-4 bg-stone-100 rounded-lg"
-                placeholder="SKU-001"
-              />
-            </div>
-            <div>
-              <label className="text-stone-700 text-sm block mb-2">Sizes</label>
-              <input
-                type="text"
-                value={formData.sizes}
-                onChange={(e) =>
-                  setFormData({ ...formData, sizes: e.target.value })
-                }
-                className="w-full py-2 px-4 bg-stone-100 rounded-lg"
-                placeholder="S,M,L,XL"
-              />
-            </div>
-          </div>
           <div>
-            <label className="text-stone-700 text-sm block mb-2">Colors</label>
+            <label className="text-stone-700 text-sm block mb-2">SKU (optional)</label>
             <input
               type="text"
-              value={formData.colors}
+              value={formData.sku}
               onChange={(e) =>
-                setFormData({ ...formData, colors: e.target.value })
+                setFormData({ ...formData, sku: e.target.value })
               }
               className="w-full py-2 px-4 bg-stone-100 rounded-lg"
-              placeholder="Red,Blue,Green"
+              placeholder="SKU-001"
             />
           </div>
           <div>
@@ -543,66 +524,135 @@ function ProductFormModal({
           </div>
           
           <div>
-            <label className="text-stone-700 text-sm block mb-2">
-              Variations (max 8) - Link to Image
+            <label className="text-stone-700 text-sm block mb-2 font-semibold">
+              Product Variants (min 1, max 10) *
             </label>
-            <div className="space-y-2 mb-2">
-              {variations.map((v, idx) => (
-                <div key={idx} className="flex gap-2 items-center">
-                  <input
-                    type="text"
-                    placeholder="Name (e.g. Color, Model)"
-                    value={v.name}
-                    onChange={(e) => {
-                      const newVars = [...variations]
-                      newVars[idx] = { ...newVars[idx], name: e.target.value }
-                      setVariations(newVars)
-                    }}
-                    className="flex-1 py-2 px-3 bg-stone-100 rounded-lg text-sm"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Value (e.g. Red, L)"
-                    value={v.value}
-                    onChange={(e) => {
-                      const newVars = [...variations]
-                      newVars[idx] = { ...newVars[idx], value: e.target.value }
-                      setVariations(newVars)
-                    }}
-                    className="flex-1 py-2 px-3 bg-stone-100 rounded-lg text-sm"
-                  />
-                  <select
-                    value={v.imageIndex}
-                    onChange={(e) => {
-                      const newVars = [...variations]
-                      newVars[idx] = { ...newVars[idx], imageIndex: parseInt(e.target.value) }
-                      setVariations(newVars)
-                    }}
-                    className="w-20 py-2 px-2 bg-stone-100 rounded-lg text-sm"
-                  >
-                    {formData.images.map((_, imgIdx) => (
-                      <option key={imgIdx} value={imgIdx}>
-                        Img {imgIdx + 1}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={() => setVariations(variations.filter((_, i) => i !== idx))}
-                    className="p-2 bg-red-100 text-red-500 rounded-lg"
-                  >
-                    ×
-                  </button>
+            <p className="text-stone-500 text-xs mb-4">
+              Each variant has its own stock, sizes, and optional image. At least 1 variant is required.
+            </p>
+            <div className="space-y-4 mb-4">
+              {variants.map((v, idx) => (
+                <div key={idx} className="p-4 bg-stone-50 rounded-lg border border-stone-200">
+                  <div className="flex justify-between items-center mb-3">
+                    <span className="text-sm font-medium text-stone-700">Variant #{idx + 1}</span>
+                    {variants.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setVariants(variants.filter((_, i) => i !== idx))}
+                        className="p-1 bg-red-100 text-red-500 rounded hover:bg-red-200 text-xs"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-stone-600 text-xs block mb-1">Variant Name *</label>
+                      <input
+                        type="text"
+                        placeholder="e.g., Size S, Size M, Color Red, Color Blue"
+                        value={v.name}
+                        onChange={(e) => {
+                          const newVars = [...variants]
+                          newVars[idx] = { ...newVars[idx], name: e.target.value }
+                          setVariants(newVars)
+                        }}
+                        className="w-full py-2 px-3 bg-white rounded-lg text-sm"
+                        required
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-stone-600 text-xs block mb-1">Stock *</label>
+                        <input
+                          type="number"
+                          placeholder="0"
+                          value={v.stock || ""}
+                          onChange={(e) => {
+                            const newVars = [...variants]
+                            newVars[idx] = { ...newVars[idx], stock: parseInt(e.target.value) || 0 }
+                            setVariants(newVars)
+                          }}
+                          className="w-full py-2 px-3 bg-white rounded-lg text-sm"
+                          min="0"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-stone-600 text-xs block mb-1">Sizes (optional)</label>
+                        <input
+                          type="text"
+                          placeholder="e.g., L/M/... or 13/14/15/..."
+                          value={v.sizes}
+                          onChange={(e) => {
+                            const newVars = [...variants]
+                            newVars[idx] = { ...newVars[idx], sizes: e.target.value }
+                            setVariants(newVars)
+                          }}
+                          className="w-full py-2 px-3 bg-white rounded-lg text-sm"
+                        />
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="text-stone-600 text-xs block mb-1">Variant Image (optional)</label>
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              const formDataUpload = new FormData()
+                              formDataUpload.append("file", file)
+                              try {
+                                const res = await fetch("/api/upload", {
+                                  method: "POST",
+                                  body: formDataUpload,
+                                })
+                                const data = await res.json()
+                                if (data.url) {
+                                  const newVars = [...variants]
+                                  newVars[idx] = { ...newVars[idx], image: data.url }
+                                  setVariants(newVars)
+                                }
+                              } catch (error) {
+                                console.error("Upload failed:", error)
+                              }
+                            }
+                          }}
+                          className="flex-1 py-2 px-3 bg-white rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-stone-600 file:text-white"
+                        />
+                        {v.image && (
+                          <div className="relative w-12 h-12">
+                            <img src={v.image} alt="Variant" className="w-full h-full object-cover rounded" />
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newVars = [...variants]
+                                newVars[idx] = { ...newVars[idx], image: "" }
+                                setVariants(newVars)
+                              }}
+                              className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
-            {variations.length < 8 && (
+            {variants.length < 10 && (
               <button
                 type="button"
-                onClick={() => setVariations([...variations, { name: "", value: "", imageIndex: 0 }])}
-                className="text-sm text-stone-600 hover:text-stone-900"
+                onClick={() => setVariants([...variants, { name: "", stock: 0, image: "", sizes: "" }])}
+                className="text-sm text-stone-600 hover:text-stone-900 flex items-center gap-1"
               >
-                + Add Variation
+                + Add Variant
               </button>
             )}
           </div>
@@ -624,6 +674,90 @@ function ProductFormModal({
             </button>
           </div>
         </form>
+      </div>
+    </div>
+  )
+}
+
+function ProductDetailModal({
+  product,
+  onClose,
+  onEdit,
+}: {
+  product: Product
+  onClose: () => void
+  onEdit: () => void
+}) {
+  const productImages = getProductImages(product.images)
+  
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex justify-between items-start mb-6">
+          <h2 className="text-stone-900 text-2xl font-serif">Product Details</h2>
+          <button onClick={onClose} className="text-stone-400 hover:text-stone-600 text-2xl">×</button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div>
+            <div className="grid grid-cols-3 gap-2 mb-4">
+              {productImages.map((img, idx) => (
+                <div key={idx} className="relative aspect-square rounded-lg overflow-hidden bg-stone-100">
+                  <img src={img} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-cover" />
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <div>
+              <p className="text-stone-500 text-sm">Product Name</p>
+              <p className="text-stone-900 text-lg font-semibold">{product.name}</p>
+            </div>
+            <div>
+              <p className="text-stone-500 text-sm">Category</p>
+              <p className="text-stone-900">{product.category?.name || "Uncategorized"}</p>
+            </div>
+            <div>
+              <p className="text-stone-500 text-sm">Price</p>
+              <p className="text-stone-900 text-xl font-serif">{formatPrice(product.price)}</p>
+            </div>
+            <div>
+              <p className="text-stone-500 text-sm">SKU</p>
+              <p className="text-stone-900">{product.sku || "-"}</p>
+            </div>
+            <div>
+              <p className="text-stone-500 text-sm">Description</p>
+              <p className="text-stone-700">{product.description || "-"}</p>
+            </div>
+            <div>
+              <p className="text-stone-500 text-sm">Total Stock</p>
+              <p className="text-stone-900">{product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0} units</p>
+            </div>
+            <div>
+              <p className="text-stone-500 text-sm mb-2">Variants ({product.variants?.length || 0})</p>
+              <div className="space-y-2">
+                {product.variants?.map((v) => (
+                  <div key={v.id} className="flex justify-between items-center p-3 bg-stone-50 rounded-lg">
+                    <div className="flex items-center gap-3">
+                      {v.image && <img src={v.image} alt={v.name} className="w-10 h-10 object-cover rounded" />}
+                      <span className="text-stone-900 font-medium">{v.name}</span>
+                    </div>
+                    <div className="text-right">
+                      <span className={`text-sm ${v.stock > 0 ? "text-stone-700" : "text-red-500"}`}>{v.stock} stock</span>
+                      {v.sizes && <p className="text-xs text-stone-500">Sizes: {v.sizes}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex gap-4 mt-8 pt-6 border-t">
+          <button onClick={onClose} className="flex-1 py-3 border border-stone-300 rounded-lg text-stone-600">Close</button>
+          <button onClick={onEdit} className="flex-1 py-3 bg-stone-600 text-white rounded-lg">Edit Product</button>
+        </div>
       </div>
     </div>
   )

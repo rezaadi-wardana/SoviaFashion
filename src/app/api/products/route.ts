@@ -6,7 +6,7 @@ export async function GET() {
   const products = await prisma.product.findMany({
     include: { 
       category: true,
-      variations: true,
+      variants: true,
     },
     orderBy: { createdAt: "desc" },
   })
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { name, description, price, images, sizes, colors, stock, sku, categoryId, isFeatured } = body
+  const { name, description, price, images, sku, categoryId, isFeatured, variants } = body
 
   const product = await prisma.product.create({
     data: {
@@ -28,14 +28,23 @@ export async function POST(request: Request) {
       description,
       price: parseFloat(price) || 0,
       images,
-      sizes,
-      colors,
-      stock: parseInt(stock) || 0,
       sku: sku || null,
       categoryId: categoryId || null,
       isFeatured: isFeatured || false,
     },
   })
+
+  if (variants && variants.length > 0) {
+    await prisma.productVariant.createMany({
+      data: variants.map((v: { name: string; stock: number; sizes?: string; image?: string }) => ({
+        name: v.name,
+        stock: parseInt(v.stock) || 0,
+        sizes: v.sizes || null,
+        image: v.image || null,
+        productId: product.id,
+      })),
+    })
+  }
 
   return NextResponse.json(product)
 }

@@ -102,9 +102,6 @@ model Product {
   description String?   @db.Text
   price       Float
   images      String?   @db.Text
-  sizes       String?
-  colors     String?
-  stock       Int       @default(0)
   sku         String?   @unique
   isFeatured  Boolean  @default(false)
   categoryId  String?
@@ -114,15 +111,16 @@ model Product {
 
   cartItems    CartItem[]
   orderItems  OrderItem[]
-  variations  ProductVariation[]
+  variants   ProductVariant[]
 }
 
-model ProductVariation {
-  id          String   @id @default(cuid())
-  name       String
-  value      String
-  imageIndex Int      @default(0)
-  productId  String
+model ProductVariant {
+  id        String   @id @default(cuid())
+  name      String
+  stock     Int      @default(0)
+  sizes     String?
+  image     String?
+  productId String
   product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
