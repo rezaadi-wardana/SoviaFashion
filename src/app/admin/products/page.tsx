@@ -16,7 +16,7 @@ interface Product {
   sizes: string | null
   colors: string | null
   stock: number
-  sku: string | null
+  sku: string
   category: { id: string; name: string } | null
   isFeatured: boolean
 }
@@ -78,10 +78,10 @@ export default function AdminProductsPage() {
     p.sku?.toLowerCase().includes(search.toLowerCase())
   )
 
-  if (showModal && editingProduct) {
+  if (showModal) {
     return (
       <ProductFormModal
-        product={editingProduct}
+        product={editingProduct || undefined}
         categories={categories}
         onClose={() => {
           setShowModal(false)
@@ -295,6 +295,7 @@ function ProductFormModal({
     sizes: product?.sizes || "S,M,L,XL",
     colors: product?.colors || "",
     stock: product?.stock || 0,
+    sku: product?.sku || "",
     categoryId: product?.category?.id || "",
     isFeatured: product?.isFeatured || false,
   })
@@ -357,42 +358,88 @@ function ProductFormModal({
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-stone-700 text-sm block mb-2">Price</label>
+              <label className="text-stone-700 text-sm block mb-2">Price (Rp)</label>
               <input
                 type="number"
-                value={formData.price}
+                value={formData.price || ""}
                 onChange={(e) =>
-                  setFormData({ ...formData, price: parseFloat(e.target.value) })
+                  setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })
                 }
                 className="w-full py-2 px-4 bg-stone-100 rounded-lg"
                 required
+                min="0"
+                step="1000"
               />
             </div>
             <div>
               <label className="text-stone-700 text-sm block mb-2">Stock</label>
               <input
                 type="number"
-                value={formData.stock}
+                value={formData.stock || ""}
                 onChange={(e) =>
-                  setFormData({ ...formData, stock: parseInt(e.target.value) })
+                  setFormData({ ...formData, stock: parseInt(e.target.value) || 0 })
                 }
                 className="w-full py-2 px-4 bg-stone-100 rounded-lg"
+                min="0"
               />
             </div>
           </div>
           <div>
-            <label className="text-stone-700 text-sm block mb-2">Image URL</label>
+            <label className="text-stone-700 text-sm block mb-2">Product Image</label>
             <input
-              type="text"
-              value={formData.images}
-              onChange={(e) =>
-                setFormData({ ...formData, images: e.target.value })
-              }
-              className="w-full py-2 px-4 bg-stone-100 rounded-lg"
-              placeholder="https://..."
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  const formDataUpload = new FormData()
+                  formDataUpload.append("file", file)
+                  try {
+                    const res = await fetch("/api/upload", {
+                      method: "POST",
+                      body: formDataUpload,
+                    })
+                    const data = await res.json()
+                    if (data.url) {
+                      setFormData({ ...formData, images: data.url })
+                    }
+                  } catch (error) {
+                    console.error("Upload failed:", error)
+                  }
+                }
+              }}
+              className="w-full py-2 px-4 bg-stone-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-stone-600 file:text-white file:cursor-pointer"
             />
+            {formData.images && (
+              <div className="mt-2 relative w-24 h-24">
+                <img
+                  src={formData.images}
+                  alt="Preview"
+                  className="w-full h-full object-cover rounded"
+                />
+                <button
+                  type="button"
+                  onClick={() => setFormData({ ...formData, images: "" })}
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs"
+                >
+                  ×
+                </button>
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-stone-700 text-sm block mb-2">SKU</label>
+              <input
+                type="text"
+                value={formData.sku}
+                onChange={(e) =>
+                  setFormData({ ...formData, sku: e.target.value })
+                }
+                className="w-full py-2 px-4 bg-stone-100 rounded-lg"
+                placeholder="SKU-001"
+              />
+            </div>
             <div>
               <label className="text-stone-700 text-sm block mb-2">Sizes</label>
               <input
@@ -405,18 +452,18 @@ function ProductFormModal({
                 placeholder="S,M,L,XL"
               />
             </div>
-            <div>
-              <label className="text-stone-700 text-sm block mb-2">Colors</label>
-              <input
-                type="text"
-                value={formData.colors}
-                onChange={(e) =>
-                  setFormData({ ...formData, colors: e.target.value })
-                }
-                className="w-full py-2 px-4 bg-stone-100 rounded-lg"
-                placeholder="Red,Blue,Green"
-              />
-            </div>
+          </div>
+          <div>
+            <label className="text-stone-700 text-sm block mb-2">Colors</label>
+            <input
+              type="text"
+              value={formData.colors}
+              onChange={(e) =>
+                setFormData({ ...formData, colors: e.target.value })
+              }
+              className="w-full py-2 px-4 bg-stone-100 rounded-lg"
+              placeholder="Red,Blue,Green"
+            />
           </div>
           <div>
             <label className="text-stone-700 text-sm block mb-2">Category</label>
