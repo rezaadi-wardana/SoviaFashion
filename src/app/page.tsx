@@ -4,6 +4,16 @@ import { prisma } from "@/lib/prisma"
 import { formatPrice } from "@/lib/utils"
 import { auth } from "@/lib/auth"
 
+function getProductImages(images: string | null): string[] {
+  if (!images) return []
+  try {
+    const parsed = JSON.parse(images)
+    return Array.isArray(parsed) ? parsed : [images]
+  } catch {
+    return [images]
+  }
+}
+
 async function getHeroSliders() {
   return await prisma.hero.findMany({
     where: { isActive: true },
@@ -51,7 +61,6 @@ export default async function HomePage() {
 
 
   const session = await auth();
-  console.log(session);
 
 
   return (
@@ -121,7 +130,7 @@ export default async function HomePage() {
                 <div className="bg-white rounded-lg overflow-hidden mb-5">
                   <div className="relative h-[466px]">
                     <Image
-                      src={product.images || "https://placehold.co/373x467/fafaf9/1c1917?text=Product"}
+                      src={getProductImages(product.images)[0] || "https://placehold.co/373x467/fafaf9/1c1917?text=Product"}
                       alt={product.name}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-300"
@@ -194,7 +203,7 @@ export default async function HomePage() {
               <div className="relative h-[708px]">
                 <Image
                   src={
-                    latestProducts[0]?.images ||
+                    getProductImages(latestProducts[0]?.images)[0] ||
                     "https://placehold.co/696x708/fafaf9/1c1917?text=Latest"
                   }
                   alt="Latest Product"
@@ -223,7 +232,7 @@ export default async function HomePage() {
               <div className="flex-1 relative bg-white rounded-lg overflow-hidden">
                 <Image
                   src={
-                    latestProducts[1]?.images ||
+                    getProductImages(latestProducts[1]?.images)[0] ||
                     "https://placehold.co/488x306/fafaf9/1c1917?text=Pleated"
                   }
                   alt="Pleated Maxi"

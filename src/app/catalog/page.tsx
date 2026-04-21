@@ -17,11 +17,22 @@ interface Product {
   colors: string | null
   stock: number
   category: { id: string; name: string } | null
+  variations: { id: string; name: string; value: string; imageIndex: number }[]
 }
 
 interface Category {
   id: string
   name: string
+}
+
+function getProductImages(images: string | null): string[] {
+  if (!images) return []
+  try {
+    const parsed = JSON.parse(images)
+    return Array.isArray(parsed) ? parsed : [images]
+  } catch {
+    return [images]
+  }
 }
 
 function CatalogContent() {
@@ -201,7 +212,7 @@ function CatalogContent() {
                 >
                   <div className="relative aspect-[3/4]">
                     <Image
-                      src={product.images || "/placeholder.jpg"}
+                      src={getProductImages(product.images)[0] || "/placeholder.jpg"}
                       alt={product.name}
                       fill
                       className="object-cover"

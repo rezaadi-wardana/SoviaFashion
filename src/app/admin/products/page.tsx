@@ -7,6 +7,16 @@ import { Plus, Search, Filter, Edit, Trash2, Eye } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
 
+function getProductImages(images: string | null): string[] {
+  if (!images) return []
+  try {
+    const parsed = JSON.parse(images)
+    return Array.isArray(parsed) ? parsed : [images]
+  } catch {
+    return [images]
+  }
+}
+
 interface Product {
   id: string
   name: string
@@ -19,6 +29,7 @@ interface Product {
   sku: string
   category: { id: string; name: string } | null
   isFeatured: boolean
+  variations: { id: string; name: string; value: string; imageIndex: number }[]
 }
 
 interface Category {
@@ -178,14 +189,12 @@ export default function AdminProductsPage() {
                   <td className="py-5 px-4">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-16 bg-stone-200 rounded-sm flex-shrink-0 overflow-hidden">
-                        <Image
+                        <img
                           src={
-                            product.images ||
+                            getProductImages(product.images)[0] ||
                             "https://placehold.co/48x64/fafaf9/1c1917?text=Product"
                           }
                           alt={product.name}
-                          width={48}
-                          height={64}
                           className="w-full h-full object-cover"
                         />
                       </div>
@@ -287,11 +296,12 @@ function ProductFormModal({
   onClose: () => void
   onSave: () => void
 }) {
+  const existingImages = product?.images ? JSON.parse(product.images) : []
   const [formData, setFormData] = useState({
     name: product?.name || "",
     description: product?.description || "",
     price: product?.price || 0,
-    images: product?.images || "",
+    images: Array.isArray(existingImages) ? existingImages : product?.images ? [product.images] : [],
     sizes: product?.sizes || "S,M,L,XL",
     colors: product?.colors || "",
     stock: product?.stock || 0,
@@ -299,7 +309,11 @@ function ProductFormModal({
     categoryId: product?.category?.id || "",
     isFeatured: product?.isFeatured || false,
   })
+  const [variations, setVariations] = useState<{id?: string, name: string, value: string, imageIndex: number}[]>(
+    product?.variations || []
+  )
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -309,13 +323,36 @@ function ProductFormModal({
       const url = product ? `/api/products/${product.id}` : "/api/products"
       const method = product ? "PUT" : "POST"
 
+      const productData = {
+        ...formData,
+        images: JSON.stringify(formData.images),
+      }
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(productData),
       })
 
       if (res.ok) {
+        const savedProduct = await res.json()
+        
+        if (product) {
+          await fetch(`/api/products/${product.id}/variations`, {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ variationId: "all" }),
+          }).catch(() => {})
+          
+          for (const v of variations) {
+            await fetch(`/api/products/${product.id}/variations`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(v),
+            })
+          }
+        }
+        
         toast.success(product ? "Product updated" : "Product created")
         onSave()
       } else {
@@ -385,46 +422,54 @@ function ProductFormModal({
             </div>
           </div>
           <div>
-            <label className="text-stone-700 text-sm block mb-2">Product Image</label>
-            <input
-              type="file"
-              accept="image/*"
-              onChange={async (e) => {
-                const file = e.target.files?.[0]
-                if (file) {
-                  const formDataUpload = new FormData()
-                  formDataUpload.append("file", file)
-                  try {
-                    const res = await fetch("/api/upload", {
-                      method: "POST",
-                      body: formDataUpload,
-                    })
-                    const data = await res.json()
-                    if (data.url) {
-                      setFormData({ ...formData, images: data.url })
+            <label className="text-stone-700 text-sm block mb-2">
+              Product Images (max 10)
+            </label>
+            <div className="grid grid-cols-5 gap-2 mb-2">
+              {formData.images.map((img, idx) => (
+                <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-stone-200">
+                  <img src={img} alt={`Image ${idx + 1}`} className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newImages = formData.images.filter((_, i) => i !== idx)
+                      setFormData({ ...formData, images: newImages })
+                    }}
+                    className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs rounded-bl"
+                  >
+                    ×
+                  </button>
+                  <span className="absolute bottom-0 left-0 bg-stone-900/70 text-white text-xs px-1">
+                    {idx + 1}
+                  </span>
+                </div>
+              ))}
+            </div>
+            {formData.images.length < 10 && (
+              <input
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0]
+                  if (file && formData.images.length < 10) {
+                    const formDataUpload = new FormData()
+                    formDataUpload.append("file", file)
+                    try {
+                      const res = await fetch("/api/upload", {
+                        method: "POST",
+                        body: formDataUpload,
+                      })
+                      const data = await res.json()
+                      if (data.url) {
+                        setFormData({ ...formData, images: [...formData.images, data.url] })
+                      }
+                    } catch (error) {
+                      console.error("Upload failed:", error)
                     }
-                  } catch (error) {
-                    console.error("Upload failed:", error)
                   }
-                }
-              }}
-              className="w-full py-2 px-4 bg-stone-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-stone-600 file:text-white file:cursor-pointer"
-            />
-            {formData.images && (
-              <div className="mt-2 relative w-24 h-24">
-                <img
-                  src={formData.images}
-                  alt="Preview"
-                  className="w-full h-full object-cover rounded"
-                />
-                <button
-                  type="button"
-                  onClick={() => setFormData({ ...formData, images: "" })}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs"
-                >
-                  ×
-                </button>
-              </div>
+                }}
+                className="w-full py-2 px-4 bg-stone-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-stone-600 file:text-white file:cursor-pointer"
+              />
             )}
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -496,6 +541,72 @@ function ProductFormModal({
               Featured Product
             </label>
           </div>
+          
+          <div>
+            <label className="text-stone-700 text-sm block mb-2">
+              Variations (max 8) - Link to Image
+            </label>
+            <div className="space-y-2 mb-2">
+              {variations.map((v, idx) => (
+                <div key={idx} className="flex gap-2 items-center">
+                  <input
+                    type="text"
+                    placeholder="Name (e.g. Color, Model)"
+                    value={v.name}
+                    onChange={(e) => {
+                      const newVars = [...variations]
+                      newVars[idx] = { ...newVars[idx], name: e.target.value }
+                      setVariations(newVars)
+                    }}
+                    className="flex-1 py-2 px-3 bg-stone-100 rounded-lg text-sm"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Value (e.g. Red, L)"
+                    value={v.value}
+                    onChange={(e) => {
+                      const newVars = [...variations]
+                      newVars[idx] = { ...newVars[idx], value: e.target.value }
+                      setVariations(newVars)
+                    }}
+                    className="flex-1 py-2 px-3 bg-stone-100 rounded-lg text-sm"
+                  />
+                  <select
+                    value={v.imageIndex}
+                    onChange={(e) => {
+                      const newVars = [...variations]
+                      newVars[idx] = { ...newVars[idx], imageIndex: parseInt(e.target.value) }
+                      setVariations(newVars)
+                    }}
+                    className="w-20 py-2 px-2 bg-stone-100 rounded-lg text-sm"
+                  >
+                    {formData.images.map((_, imgIdx) => (
+                      <option key={imgIdx} value={imgIdx}>
+                        Img {imgIdx + 1}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setVariations(variations.filter((_, i) => i !== idx))}
+                    className="p-2 bg-red-100 text-red-500 rounded-lg"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+            {variations.length < 8 && (
+              <button
+                type="button"
+                onClick={() => setVariations([...variations, { name: "", value: "", imageIndex: 0 }])}
+                className="text-sm text-stone-600 hover:text-stone-900"
+              >
+                + Add Variation
+              </button>
+            )}
+          </div>
+          
           <div className="flex gap-4 pt-4">
             <button
               type="button"
