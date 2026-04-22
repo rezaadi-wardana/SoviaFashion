@@ -581,17 +581,33 @@ function ProductFormModal({
                       </div>
                       <div>
                         <label className="text-stone-600 text-xs block mb-1">Sizes (optional)</label>
-                        <input
-                          type="text"
-                          placeholder="e.g., L/M/... or 13/14/15/..."
-                          value={v.sizes}
-                          onChange={(e) => {
-                            const newVars = [...variants]
-                            newVars[idx] = { ...newVars[idx], sizes: e.target.value }
-                            setVariants(newVars)
-                          }}
-                          className="w-full py-2 px-3 bg-white rounded-lg text-sm"
-                        />
+                        <div className="flex gap-2 flex-wrap">
+                          {["S", "M", "L", "XL", "XXL"].map((size) => {
+                            const selectedSizes = v.sizes ? v.sizes.split(",").filter(Boolean) : []
+                            const isChecked = selectedSizes.includes(size)
+                            return (
+                              <label key={size} className="flex items-center gap-1 cursor-pointer">
+                                <input
+                                  type="checkbox"
+                                  checked={isChecked}
+                                  onChange={(e) => {
+                                    const newVars = [...variants]
+                                    let currentSizes = newVars[idx].sizes ? newVars[idx].sizes.split(",").filter(Boolean) : []
+                                    if (e.target.checked) {
+                                      currentSizes = [...currentSizes, size]
+                                    } else {
+                                      currentSizes = currentSizes.filter((s) => s !== size)
+                                    }
+                                    newVars[idx] = { ...newVars[idx], sizes: currentSizes.join(",") }
+                                    setVariants(newVars)
+                                  }}
+                                  className="w-4 h-4"
+                                />
+                                <span className="text-sm text-stone-700">{size}</span>
+                              </label>
+                            )
+                          })}
+                        </div>
                       </div>
                     </div>
                     
