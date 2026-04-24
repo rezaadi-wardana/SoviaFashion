@@ -138,7 +138,7 @@ export default async function HomePage() {
                   </div>
                   <div className="pt-5">
                     <h3 className="text-stone-900 text-xl font-serif">{product.name}</h3>
-                    <p className="text-stone-700 text-sm mt-1">{product.colors || "Various Colors"}</p>
+                    <p className="text-stone-700 text-sm mt-1">View Details</p>
                     <p className="text-stone-900 text-base font-medium mt-1">
                       {formatPrice(product.price)}
                     </p>

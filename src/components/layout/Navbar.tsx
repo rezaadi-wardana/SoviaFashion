@@ -16,17 +16,24 @@ export function Navbar() {
   const { data: session, status } = useSession()
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [cartCount, setCartCount] = useState(0)
 
   const isAdmin = session?.user?.role === "ADMIN"
 
-  console.log("Session di navbar:", session);
-  console.log("Role user:", session?.user?.role);
-  
   useEffect(() => {
     if (session?.user) {
-      fetch("/api/auth/role", { credentials: "include" }).catch(() => { });
+      fetch("/api/cart")
+        .then(res => res.ok ? res.json() : [])
+        .then(data => {
+          if (Array.isArray(data)) {
+            setCartCount(data.length)
+          }
+        })
+        .catch(() => {})
+    } else {
+      setCartCount(0)
     }
-  }, [session]);
+  }, [session])
 
   return (
     <nav className="fixed
@@ -58,9 +65,14 @@ export function Navbar() {
             <>
               <Link
                 href="/cart"
-                className="p-2 hover:bg-stone-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-stone-100 rounded-lg transition-colors relative"
               >
                 <ShoppingCart className="w-5 h-5 text-stone-600" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                    {cartCount > 9 ? "9+" : cartCount}
+                  </span>
+                )}
               </Link>
               <Link
                 href="/profile"

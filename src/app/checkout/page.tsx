@@ -1,12 +1,22 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import { Check, Edit, X, QrCode } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
+
+interface DirectOrder {
+  productId: string
+  productName: string
+  productPrice: number
+  productImage: string | null
+  quantity: number
+  size: string | null
+  color: string | null
+}
 
 interface CartItem {
   id: string
@@ -35,6 +45,7 @@ export default function CheckoutPage() {
   const router = useRouter()
   const [items, setItems] = useState<CartItem[]>([])
   const [loading, setLoading] = useState(true)
+  const [directOrder, setDirectOrder] = useState<DirectOrder | null>(null)
   const [userData, setUserData] = useState<UserData>({
     name: session?.user?.name || "",
     phone: "",
@@ -45,35 +56,75 @@ export default function CheckoutPage() {
   const [shippingMethod, setShippingMethod] = useState<"EXPEDITION" | "COD">("EXPEDITION")
   const [submitting, setSubmitting] = useState(false)
 
-  useEffect(() => {
-    if (session) {
-      fetchData()
+  const fetchData = useCallback(async () => {
+    const userId = session?.user?.id
+    if (!userId) {
+      if (status === "unauthenticated") {
+        router.push("/auth/signin")
+      }
+      return
     }
-  }, [session])
-
-  async function fetchData() {
     try {
-      const [cartRes, userRes] = await Promise.all([
-        fetch("/api/cart"),
-        fetch(`/api/users/${session?.user?.id}`),
-      ])
-      const cartData = await cartRes.json()
-      const userData = await userRes.json()
+      setLoading(true)
+      
+      const storedDirectOrder = sessionStorage.getItem("directOrder")
+      let directOrderData: DirectOrder | null = null
+      
+      if (storedDirectOrder) {
+        directOrderData = JSON.parse(storedDirectOrder)
+        sessionStorage.removeItem("directOrder")
+        setDirectOrder(directOrderData)
+      }
 
-      setItems(cartData)
+      const userRes = await fetch(`/api/users/${userId}`)
+
+      if (!userRes.ok) {
+        throw new Error("Failed to fetch data")
+      }
+
+      const userDataResult = await userRes.json()
+
       setUserData({
-        name: userData.name || session?.user?.name || "",
-        phone: userData.phone || "",
-        address: userData.address || "",
-        lat: userData.lat || 0,
-        lng: userData.lng || 0,
+        name: userDataResult.name || session?.user?.name || "",
+        phone: userDataResult.phone || "",
+        address: userDataResult.address || "",
+        lat: userDataResult.lat || 0,
+        lng: userDataResult.lng || 0,
       })
+
+      if (directOrderData) {
+        setItems([{
+          id: "direct",
+          quantity: directOrderData.quantity,
+          size: directOrderData.size,
+          color: directOrderData.color,
+          product: {
+            id: directOrderData.productId,
+            name: directOrderData.productName,
+            price: directOrderData.productPrice,
+            images: directOrderData.productImage,
+            colors: directOrderData.color,
+          }
+        }])
+      } else {
+        const cartRes = await fetch("/api/cart")
+        if (!cartRes.ok) {
+          throw new Error("Failed to fetch data")
+        }
+        const cartData = await cartRes.json()
+        setItems(cartData)
+      }
     } catch (error) {
       console.error("Error fetching data:", error)
+      toast.error("Failed to load checkout data")
     } finally {
       setLoading(false)
     }
-  }
+  }, [session?.user?.id, status])
+
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
 
   async function handleSubmit() {
     if (!userData.name || !userData.phone || !userData.address) {
@@ -148,7 +199,7 @@ export default function CheckoutPage() {
     )
   }
 
-  if (!session) {
+  if (status === "unauthenticated" || !session) {
     router.push("/auth/signin")
     return null
   }

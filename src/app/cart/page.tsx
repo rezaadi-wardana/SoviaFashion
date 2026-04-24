@@ -8,6 +8,16 @@ import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
 
+function getProductImages(images: string | null): string[] {
+  if (!images) return []
+  try {
+    const parsed = JSON.parse(images)
+    return Array.isArray(parsed) ? parsed : [images]
+  } catch {
+    return [images]
+  }
+}
+
 interface CartItem {
   id: string
   quantity: number
@@ -18,8 +28,6 @@ interface CartItem {
     name: string
     price: number
     images: string | null
-    colors: string | null
-    stock: number
   }
 }
 
@@ -154,7 +162,7 @@ export default function CartPage() {
                   <div className="w-20 h-24 bg-stone-200 rounded flex-shrink-0 overflow-hidden">
                     <Image
                       src={
-                        item.product.images ||
+                        getProductImages(item.product.images)[0] ||
                         "https://placehold.co/80x96/fafaf9/1c1917?text=Item"
                       }
                       alt={item.product.name}

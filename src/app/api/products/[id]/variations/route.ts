@@ -8,7 +8,7 @@ export async function GET(
 ) {
   const { id } = await params
   
-  const variations = await prisma.productVariation.findMany({
+  const variations = await prisma.productVariant.findMany({
     where: { productId: id },
     orderBy: { createdAt: "asc" },
   })
@@ -27,21 +27,22 @@ export async function POST(
 
   const { id } = await params
   const body = await request.json()
-  const { name, value, imageIndex } = body
+  const { name, stock, sizes, image } = body
 
-  const existingCount = await prisma.productVariation.count({
+  const existingCount = await prisma.productVariant.count({
     where: { productId: id },
   })
 
-  if (existingCount >= 8) {
-    return NextResponse.json({ error: "Maximum 8 variations allowed" }, { status: 400 })
+  if (existingCount >= 10) {
+    return NextResponse.json({ error: "Maximum 10 variants allowed" }, { status: 400 })
   }
 
-  const variation = await prisma.productVariation.create({
+  const variation = await prisma.productVariant.create({
     data: {
       name,
-      value,
-      imageIndex: imageIndex || 0,
+      stock: parseInt(stock) || 0,
+      sizes: sizes || null,
+      image: image || null,
       productId: id,
     },
   })
@@ -59,14 +60,15 @@ export async function PUT(
   }
 
   const { id } = await params
-  const { variationId, name, value, imageIndex } = await request.json()
+  const { variationId, name, stock, sizes, image } = await request.json()
 
-  const variation = await prisma.productVariation.update({
+  const variation = await prisma.productVariant.update({
     where: { id: variationId },
     data: {
       name,
-      value,
-      imageIndex: imageIndex || 0,
+      stock: parseInt(stock) || 0,
+      sizes: sizes || null,
+      image: image || null,
     },
   })
 
@@ -87,11 +89,11 @@ export async function DELETE(
   const { variationId } = body
 
   if (variationId === "all") {
-    await prisma.productVariation.deleteMany({
+    await prisma.productVariant.deleteMany({
       where: { productId: id },
     })
   } else {
-    await prisma.productVariation.delete({
+    await prisma.productVariant.delete({
       where: { id: variationId },
     })
   }

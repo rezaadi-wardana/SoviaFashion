@@ -4,8 +4,10 @@ import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
 import { useSearchParams } from "next/navigation"
 import Image from "next/image"
-import { Search, Filter, ShoppingCart } from "lucide-react"
+import { useSession } from "next-auth/react"
+import { Search, Filter, ShoppingCart, ArrowRight, Plus } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface Product {
   id: string
@@ -14,7 +16,7 @@ interface Product {
   price: number
   images: string | null
   category: { id: string; name: string } | null
-  variants: { id: string; name: string; stock: number; image: string | null }[]
+  variants: { id: string; name: string; stock: number; image: string | null; sizes: string | null }[]
 }
 
 interface Category {
@@ -33,10 +35,70 @@ function getProductImages(images: string | null): string[] {
 }
 
 function ProductModal({ product, onClose }: { product: Product; onClose: () => void }) {
+  const { data: session } = useSession()
   const [selectedVariant, setSelectedVariant] = useState<{id: string, name: string, stock: number, image: string | null, sizes: string | null} | null>(null)
   const [selectedSize, setSelectedSize] = useState<string>("")
+  const [quantity, setQuantity] = useState<number>(1)
+  const [loading, setLoading] = useState(false)
   const productImages = getProductImages(product.images)
   const variantSizes = selectedVariant?.sizes ? selectedVariant.sizes.split(",").map(s => s.trim()) : []
+
+  async function handleAddToCart() {
+    if (!selectedVariant) return
+
+    if (!session?.user?.id) {
+      toast.error("Please login to add to cart")
+      return
+    }
+
+    setLoading(true)
+    try {
+      const cartRes = await fetch("/api/cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          productId: product.id,
+          quantity,
+          size: selectedSize || selectedVariant.sizes || null,
+          color: selectedVariant.name,
+        }),
+      })
+
+      if (cartRes.ok) {
+        toast.success("Added to cart!")
+      } else {
+        const data = await cartRes.json()
+        toast.error(data.error || "Failed to add to cart")
+      }
+    } catch {
+      toast.error("An error occurred")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  async function handleBuyNow() {
+    if (!selectedVariant) return
+
+    if (!session?.user?.id) {
+      toast.error("Please login to purchase")
+      return
+    }
+
+    const directOrderData = {
+      productId: product.id,
+      productName: product.name,
+      productPrice: product.price,
+      productImage: selectedVariant?.image || productImages[0] || null,
+      quantity,
+      size: selectedSize || selectedVariant.sizes || null,
+      color: selectedVariant.name,
+      price: product.price,
+    }
+
+    sessionStorage.setItem("directOrder", JSON.stringify(directOrderData))
+    window.location.href = "/checkout"
+  }
   
   return (
     <div
@@ -135,17 +197,49 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
               </div>
             )}
 
+            {selectedVariant && (
+              <div className="mb-6">
+                <label className="text-stone-600 text-sm mb-2 block">
+                  Quantity
+                </label>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="w-10 h-10 border border-stone-300 rounded-lg hover:bg-stone-100 transition-colors"
+                  >
+                    -
+                  </button>
+                  <span className="w-12 text-center text-lg font-medium">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(Math.min(selectedVariant.stock, quantity + 1))}
+                    disabled={quantity >= selectedVariant.stock}
+                    className="w-10 h-10 border border-stone-300 rounded-lg hover:bg-stone-100 transition-colors disabled:opacity-50"
+                  >
+                    +
+                  </button>
+                </div>
+                <p className="text-stone-500 text-sm mt-1">
+                  Stock: {selectedVariant.stock}
+                </p>
+              </div>
+            )}
+
             <div className="mt-auto flex gap-4">
               <button
-                disabled={!selectedVariant || selectedVariant.stock === 0}
-                className="flex-1 bg-stone-900 text-white py-3 rounded-lg hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                onClick={handleAddToCart}
+                disabled={!selectedVariant || selectedVariant.stock === 0 || loading}
+                className="flex-1 bg-white border border-stone-900 text-stone-900 py-3 rounded-lg hover:bg-stone-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 <ShoppingCart className="w-5 h-5" />
-                {!selectedVariant
-                  ? "Select Variant"
-                  : selectedVariant.stock === 0
-                  ? "Out of Stock"
-                  : "Add to Cart"}
+                Add Cart
+              </button>
+              <button
+                onClick={handleBuyNow}
+                disabled={!selectedVariant || selectedVariant.stock === 0 || loading}
+                className="flex-1 bg-stone-900 text-white py-3 rounded-lg hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                <ArrowRight className="w-5 h-5" />
+                Buy Now
               </button>
             </div>
           </div>
@@ -314,13 +408,6 @@ function CatalogContent() {
                       fill
                       className="object-cover"
                     />
-                    {product.stock === 0 && (
-                      <div className="absolute inset-0 bg-stone-900/50 flex items-center justify-center">
-                        <span className="text-white text-lg font-medium">
-                          Out of Stock
-                        </span>
-                      </div>
-                    )}
                   </div>
                   <div className="p-4">
                     <p className="text-stone-500 text-sm mb-1">
