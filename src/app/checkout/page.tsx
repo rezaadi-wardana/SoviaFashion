@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
-import { Check, Edit, X, QrCode } from "lucide-react"
+import { Check, QrCode, Truck, Package, MapPin, Loader2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
 
@@ -55,6 +55,28 @@ interface UserData {
   lng: number
 }
 
+interface ShippingRate {
+  courierName: string
+  courierCode: string
+  serviceName: string
+  serviceCode: string
+  description: string
+  duration: string
+  price: number
+  shipmentDurationRange: string
+  shipmentDurationUnit: string
+  type: string
+}
+
+interface SelectedCourier {
+  courierName: string
+  courierCode: string
+  serviceName: string
+  serviceCode: string
+  price: number
+  duration: string
+}
+
 export default function CheckoutPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -71,6 +93,14 @@ export default function CheckoutPage() {
   const [shippingMethod, setShippingMethod] = useState<"EXPEDITION" | "COD">("EXPEDITION")
   const [submitting, setSubmitting] = useState(false)
 
+  // Shipping rates state
+  const [shippingRates, setShippingRates] = useState<ShippingRate[]>([])
+  const [codRates, setCodRates] = useState<ShippingRate[]>([])
+  const [loadingRates, setLoadingRates] = useState(false)
+  const [ratesError, setRatesError] = useState<string | null>(null)
+  const [selectedCourier, setSelectedCourier] = useState<SelectedCourier | null>(null)
+  const [showAllCouriers, setShowAllCouriers] = useState(false)
+
   const fetchData = useCallback(async () => {
     const userId = session?.user?.id
     if (!userId) {
@@ -81,10 +111,10 @@ export default function CheckoutPage() {
     }
     try {
       setLoading(true)
-      
+
       const storedDirectOrder = sessionStorage.getItem("directOrder")
       let directOrderData: DirectOrder | null = null
-      
+
       if (storedDirectOrder) {
         directOrderData = JSON.parse(storedDirectOrder)
         sessionStorage.removeItem("directOrder")
@@ -142,15 +172,149 @@ export default function CheckoutPage() {
     fetchData()
   }, [fetchData])
 
+  // Fetch shipping rates when user data and items are available
+  const fetchShippingRates = useCallback(async () => {
+    if (!userData.lat || !userData.lng || items.length === 0) return
+
+    setLoadingRates(true)
+    setRatesError(null)
+
+    try {
+      const itemsPayload = items.map((item) => ({
+        name: item.product.name,
+        price: item.product.price,
+        quantity: item.quantity,
+        weight: 300, // Default 300g per item (fashion items)
+      }))
+
+      // Fetch regular rates
+      const [regularRes, codRes] = await Promise.all([
+        fetch("/api/shipping/rates", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            destinationLat: userData.lat,
+            destinationLng: userData.lng,
+            items: itemsPayload,
+            isCod: false,
+          }),
+        }),
+        fetch("/api/shipping/rates", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            destinationLat: userData.lat,
+            destinationLng: userData.lng,
+            items: itemsPayload,
+            isCod: true,
+          }),
+        }),
+      ])
+
+      const regularData = await regularRes.json()
+      const codData = await codRes.json()
+
+      if (regularData.success) {
+        setShippingRates(regularData.rates || [])
+        // Auto-select cheapest regular courier
+        if (regularData.rates?.length > 0) {
+          const cheapest = regularData.rates.reduce(
+            (min: ShippingRate, rate: ShippingRate) =>
+              rate.price < min.price ? rate : min,
+            regularData.rates[0]
+          )
+          setSelectedCourier({
+            courierName: cheapest.courierName,
+            courierCode: cheapest.courierCode,
+            serviceName: cheapest.serviceName,
+            serviceCode: cheapest.serviceCode,
+            price: cheapest.price,
+            duration: cheapest.duration,
+          })
+        }
+      } else {
+        setRatesError(regularData.error || "Gagal mengambil tarif pengiriman")
+      }
+
+      if (codData.success) {
+        setCodRates(codData.rates || [])
+      }
+    } catch (error) {
+      console.error("Error fetching shipping rates:", error)
+      setRatesError("Terjadi kesalahan saat mengambil tarif pengiriman")
+    } finally {
+      setLoadingRates(false)
+    }
+  }, [userData.lat, userData.lng, items])
+
+  useEffect(() => {
+    if (userData.lat && userData.lng && items.length > 0) {
+      fetchShippingRates()
+    }
+  }, [fetchShippingRates])
+
+  // When switching to COD, auto-select cheapest COD courier
+  useEffect(() => {
+    if (shippingMethod === "COD" && codRates.length > 0) {
+      const cheapest = codRates.reduce(
+        (min, rate) => (rate.price < min.price ? rate : min),
+        codRates[0]
+      )
+      setSelectedCourier({
+        courierName: cheapest.courierName,
+        courierCode: cheapest.courierCode,
+        serviceName: cheapest.serviceName,
+        serviceCode: cheapest.serviceCode,
+        price: cheapest.price,
+        duration: cheapest.duration,
+      })
+    } else if (shippingMethod === "EXPEDITION" && shippingRates.length > 0) {
+      const cheapest = shippingRates.reduce(
+        (min, rate) => (rate.price < min.price ? rate : min),
+        shippingRates[0]
+      )
+      setSelectedCourier({
+        courierName: cheapest.courierName,
+        courierCode: cheapest.courierCode,
+        serviceName: cheapest.serviceName,
+        serviceCode: cheapest.serviceCode,
+        price: cheapest.price,
+        duration: cheapest.duration,
+      })
+    }
+  }, [shippingMethod, codRates, shippingRates])
+
+  function handleSelectCourier(rate: ShippingRate) {
+    setSelectedCourier({
+      courierName: rate.courierName,
+      courierCode: rate.courierCode,
+      serviceName: rate.serviceName,
+      serviceCode: rate.serviceCode,
+      price: rate.price,
+      duration: rate.duration,
+    })
+  }
+
   async function handleSubmit() {
     if (!userData.name || !userData.phone || !userData.address) {
-      toast.error("Please complete your profile with delivery details")
+      toast.error("Lengkapi data profil pengiriman terlebih dahulu")
+      router.push("/profile")
+      return
+    }
+
+    if (!userData.lat || !userData.lng) {
+      toast.error("Lokasi pengiriman belum ditentukan. Silakan atur di profil Anda.")
       router.push("/profile")
       return
     }
 
     if (items.length === 0) {
-      toast.error("Your cart is empty")
+      toast.error("Keranjang belanja kosong")
+      return
+    }
+
+    if (!selectedCourier) {
+      toast.error("Pilih kurir pengiriman terlebih dahulu")
       return
     }
 
@@ -165,11 +329,8 @@ export default function CheckoutPage() {
           size: item.size,
           color: item.color,
         })),
-        subtotal: items.reduce(
-          (sum, item) => sum + item.product.price * item.quantity,
-          0
-        ),
-        shippingCost: shippingMethod === "EXPEDITION" ? 25000 : 35000,
+        subtotal,
+        shippingCost: selectedCourier.price,
         shippingMethod,
         paymentMethod: shippingMethod === "COD" ? "COD" : "QRIS",
         recipientName: userData.name,
@@ -177,6 +338,10 @@ export default function CheckoutPage() {
         address: userData.address,
         lat: userData.lat,
         lng: userData.lng,
+        courierName: selectedCourier.courierName,
+        courierCode: selectedCourier.courierCode,
+        courierService: `${selectedCourier.serviceName} (${selectedCourier.serviceCode})`,
+        isDirect: !!directOrder,
       }
 
       const res = await fetch("/api/orders", {
@@ -187,14 +352,14 @@ export default function CheckoutPage() {
 
       if (res.ok) {
         const order = await res.json()
-        toast.success("Order placed successfully!")
+        toast.success("Pesanan berhasil dibuat!")
         router.push(`/orders?order=${order.id}`)
       } else {
-        toast.error("Failed to place order")
+        toast.error("Gagal membuat pesanan")
       }
     } catch (error) {
       console.error("Error placing order:", error)
-      toast.error("An error occurred")
+      toast.error("Terjadi kesalahan")
     } finally {
       setSubmitting(false)
     }
@@ -204,8 +369,11 @@ export default function CheckoutPage() {
     (sum, item) => sum + item.product.price * item.quantity,
     0
   )
-  const shippingCost = shippingMethod === "EXPEDITION" ? 25000 : 35000
+  const shippingCost = selectedCourier?.price || 0
   const total = subtotal + shippingCost
+
+  const currentRates = shippingMethod === "COD" ? codRates : shippingRates
+  const displayedRates = showAllCouriers ? currentRates : currentRates.slice(0, 4)
 
   if (status === "loading" || loading) {
     return (
@@ -225,7 +393,7 @@ export default function CheckoutPage() {
       <div className="max-w-[1280px] mx-auto px-8">
         <h1 className="text-stone-900 text-4xl font-serif mb-8">Checkout</h1>
 
-        <div className="flex gap-12">
+        <div className="flex gap-12 flex-col lg:flex-row">
           <div className="flex-1 space-y-8">
             {/* Delivery Details */}
             <div>
@@ -234,28 +402,47 @@ export default function CheckoutPage() {
                   <div className="w-8 h-8 bg-stone-600 rounded-xl flex items-center justify-center">
                     <Check className="w-4 h-4 text-white" />
                   </div>
-                  <h2 className="text-stone-600 text-xl font-serif">Delivery Details</h2>
+                  <h2 className="text-stone-600 text-xl font-serif">Detail Pengiriman</h2>
                 </div>
                 <button
                   onClick={() => router.push("/profile")}
-                  className="text-stone-600 text-sm font-medium"
+                  className="text-stone-600 text-sm font-medium hover:underline"
                 >
                   Edit
                 </button>
               </div>
               <div className="bg-white rounded-lg p-6 space-y-4">
                 <div>
-                  <p className="text-stone-700 text-sm">Full Name</p>
+                  <p className="text-stone-700 text-sm">Nama Lengkap</p>
                   <p className="text-stone-900 font-medium">{userData.name}</p>
                 </div>
                 <div>
-                  <p className="text-stone-700 text-sm">Phone Number</p>
+                  <p className="text-stone-700 text-sm">Nomor Telepon</p>
                   <p className="text-stone-900 font-medium">{userData.phone || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-stone-700 text-sm">Address</p>
+                  <p className="text-stone-700 text-sm">Alamat</p>
                   <p className="text-stone-900 font-medium">{userData.address || "-"}</p>
                 </div>
+                {userData.lat && userData.lng ? (
+                  <div className="flex items-center gap-2 text-green-700 bg-green-50 px-3 py-2 rounded-lg">
+                    <MapPin className="w-4 h-4" />
+                    <span className="text-sm">Lokasi pengiriman terdeteksi</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-amber-700 bg-amber-50 px-3 py-2 rounded-lg">
+                    <AlertCircle className="w-4 h-4" />
+                    <span className="text-sm">
+                      Lokasi pengiriman belum ditentukan.{" "}
+                      <button
+                        onClick={() => router.push("/profile")}
+                        className="underline font-medium"
+                      >
+                        Atur sekarang
+                      </button>
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -264,52 +451,135 @@ export default function CheckoutPage() {
               <div className="flex justify-between items-center pb-2 border-b border-stone-200 mb-4">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl border border-stone-500 flex items-center justify-center">
-                    <div className="w-3 h-3 bg-stone-500" />
+                    <Truck className="w-4 h-4 text-stone-500" />
                   </div>
-                  <h2 className="text-stone-900 text-xl font-serif">Shipping Method</h2>
+                  <h2 className="text-stone-900 text-xl font-serif">Metode Pengiriman</h2>
                 </div>
               </div>
-              <div className="space-y-4">
+
+              {/* Method Toggle */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
                 <button
                   onClick={() => setShippingMethod("EXPEDITION")}
-                  className={`w-full p-6 rounded-lg outline outline-1 ${
+                  className={`p-4 rounded-lg outline outline-1 transition-all ${
                     shippingMethod === "EXPEDITION"
-                      ? "outline-stone-600 bg-stone-100"
-                      : "outline-stone-300 bg-white"
+                      ? "outline-stone-600 bg-stone-100 outline-2"
+                      : "outline-stone-300 bg-white hover:bg-stone-50"
                   }`}
                 >
-                  <div className="flex justify-between">
-                    <span className="text-stone-900 font-medium">
-                      Standard Expedition
-                    </span>
-                    <span className="text-stone-900 font-medium">
-                      {formatPrice(25000)}
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <Package className={`w-5 h-5 ${shippingMethod === "EXPEDITION" ? "text-stone-700" : "text-stone-400"}`} />
+                    <div className="text-left">
+                      <p className="text-stone-900 font-medium text-sm">Ekspedisi</p>
+                      <p className="text-stone-500 text-xs">Transfer via QRIS</p>
+                    </div>
                   </div>
-                  <p className="text-stone-700 text-sm mt-2">
-                    Estimated delivery: 2-3 Days
-                  </p>
                 </button>
                 <button
                   onClick={() => setShippingMethod("COD")}
-                  className={`w-full p-6 rounded-lg outline outline-1 ${
+                  className={`p-4 rounded-lg outline outline-1 transition-all ${
                     shippingMethod === "COD"
-                      ? "outline-stone-600 bg-stone-100"
-                      : "outline-stone-300 bg-white"
+                      ? "outline-stone-600 bg-stone-100 outline-2"
+                      : "outline-stone-300 bg-white hover:bg-stone-50"
                   }`}
                 >
-                  <div className="flex justify-between">
-                    <span className="text-stone-900 font-medium">
-                      Cash on Delivery
-                    </span>
-                    <span className="text-stone-900 font-medium">
-                      {formatPrice(35000)}
-                    </span>
+                  <div className="flex items-center gap-3">
+                    <Truck className={`w-5 h-5 ${shippingMethod === "COD" ? "text-stone-700" : "text-stone-400"}`} />
+                    <div className="text-left">
+                      <p className="text-stone-900 font-medium text-sm">COD</p>
+                      <p className="text-stone-500 text-xs">Bayar di tempat</p>
+                    </div>
                   </div>
-                  <p className="text-stone-700 text-sm mt-2">
-                    Pay when order arrives
-                  </p>
                 </button>
+              </div>
+
+              {/* Courier Selection */}
+              <div className="space-y-2">
+                {loadingRates ? (
+                  <div className="bg-white rounded-lg p-8 flex flex-col items-center justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-stone-400 mb-3" />
+                    <p className="text-stone-500 text-sm">Mengambil tarif pengiriman...</p>
+                    <p className="text-stone-400 text-xs mt-1">Menghitung jarak dan ongkos kirim dari Biteship</p>
+                  </div>
+                ) : ratesError ? (
+                  <div className="bg-red-50 rounded-lg p-6 text-center">
+                    <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-2" />
+                    <p className="text-red-700 text-sm font-medium">{ratesError}</p>
+                    <button
+                      onClick={fetchShippingRates}
+                      className="mt-3 text-red-600 text-sm underline hover:no-underline"
+                    >
+                      Coba lagi
+                    </button>
+                  </div>
+                ) : currentRates.length === 0 && !loadingRates ? (
+                  <div className="bg-stone-50 rounded-lg p-6 text-center">
+                    <Package className="w-8 h-8 text-stone-400 mx-auto mb-2" />
+                    <p className="text-stone-600 text-sm">
+                      {!userData.lat || !userData.lng
+                        ? "Atur lokasi pengiriman di profil untuk melihat tarif"
+                        : "Tidak ada kurir tersedia untuk lokasi ini"}
+                    </p>
+                  </div>
+                ) : (
+                  <>
+                    {displayedRates.map((rate, index) => (
+                      <button
+                        key={`${rate.courierCode}-${rate.serviceCode}-${index}`}
+                        onClick={() => handleSelectCourier(rate)}
+                        className={`w-full p-4 rounded-lg outline outline-1 transition-all text-left ${
+                          selectedCourier?.courierCode === rate.courierCode &&
+                          selectedCourier?.serviceCode === rate.serviceCode
+                            ? "outline-stone-700 bg-stone-100 outline-2"
+                            : "outline-stone-200 bg-white hover:bg-stone-50"
+                        }`}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-stone-900 font-semibold text-sm">
+                                {rate.courierName}
+                              </span>
+                              <span className="text-xs px-2 py-0.5 bg-stone-200 text-stone-600 rounded-full">
+                                {rate.serviceName}
+                              </span>
+                            </div>
+                            <p className="text-stone-500 text-xs mt-1">
+                              {rate.description || `Estimasi ${rate.duration}`}
+                            </p>
+                            {rate.shipmentDurationRange && (
+                              <p className="text-stone-400 text-xs mt-0.5">
+                                ⏱ {rate.shipmentDurationRange} {rate.shipmentDurationUnit}
+                              </p>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <span className="text-stone-900 font-semibold text-sm">
+                              {formatPrice(rate.price)}
+                            </span>
+                          </div>
+                        </div>
+                      </button>
+                    ))}
+
+                    {currentRates.length > 4 && (
+                      <button
+                        onClick={() => setShowAllCouriers(!showAllCouriers)}
+                        className="w-full py-3 text-stone-600 text-sm font-medium flex items-center justify-center gap-1 hover:text-stone-900 transition-colors"
+                      >
+                        {showAllCouriers ? (
+                          <>
+                            Tampilkan lebih sedikit <ChevronUp className="w-4 h-4" />
+                          </>
+                        ) : (
+                          <>
+                            Lihat {currentRates.length - 4} kurir lainnya <ChevronDown className="w-4 h-4" />
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </>
+                )}
               </div>
             </div>
 
@@ -320,33 +590,37 @@ export default function CheckoutPage() {
                   <div className="w-8 h-8 rounded-xl border border-stone-500 flex items-center justify-center">
                     <div className="w-3 h-3 bg-stone-500" />
                   </div>
-                  <h2 className="text-stone-900 text-xl font-serif">Payment</h2>
+                  <h2 className="text-stone-900 text-xl font-serif">Pembayaran</h2>
                 </div>
               </div>
               <div className="bg-white rounded-lg p-8 text-center">
                 {shippingMethod === "COD" ? (
                   <div>
                     <p className="text-stone-700 text-base mb-4">
-                      Payment will be collected upon delivery
+                      Pembayaran dilakukan saat barang diterima
                     </p>
                     <div className="inline-block px-6 py-3 bg-rose-100 rounded-lg">
                       <p className="text-stone-600 text-sm">Cash on Delivery</p>
                     </div>
+                    <p className="text-stone-500 text-xs mt-4">
+                      Total yang harus dibayar saat menerima:{" "}
+                      <span className="font-semibold text-stone-700">{formatPrice(total)}</span>
+                    </p>
                   </div>
                 ) : (
                   <div>
                     <p className="text-stone-700 text-base mb-4">
-                      Scan QRIS code to pay
+                      Scan kode QRIS untuk membayar
                     </p>
                     <div className="w-48 h-48 bg-stone-200 rounded-lg mx-auto flex items-center justify-center mb-4">
                       <QrCode className="w-24 h-24 text-stone-400" />
                     </div>
                     <p className="text-sm">
-                      Total to pay:{" "}
+                      Total pembayaran:{" "}
                       <span className="font-semibold">{formatPrice(total)}</span>
                     </p>
                     <p className="text-stone-700 text-xs mt-2">
-                      Awaiting payment confirmation...
+                      Menunggu konfirmasi pembayaran...
                     </p>
                   </div>
                 )}
@@ -355,10 +629,10 @@ export default function CheckoutPage() {
           </div>
 
           {/* Order Summary */}
-          <div className="w-96">
-            <div className="bg-stone-100 rounded-lg p-8">
+          <div className="w-full lg:w-96">
+            <div className="bg-stone-100 rounded-lg p-8 lg:sticky lg:top-32">
               <h2 className="text-stone-900 text-2xl font-serif mb-6">
-                Order Summary
+                Ringkasan Pesanan
               </h2>
               <div className="space-y-4 mb-6">
                 {items.map((item) => (
@@ -381,8 +655,8 @@ export default function CheckoutPage() {
                         {item.product.name}
                       </h3>
                       <p className="text-stone-700 text-sm">
-                        {item.color && `Variant: ${item.color}`}
-                        {item.size && ` | Size: ${item.size}`}
+                        {item.color && `Varian: ${item.color}`}
+                        {item.size && ` | Ukuran: ${item.size}`}
                       </p>
                       <div className="flex justify-between mt-2">
                         <span className="text-stone-700 text-sm">
@@ -398,7 +672,7 @@ export default function CheckoutPage() {
 
                 {items.length === 0 && (
                   <p className="text-stone-500 text-center py-4">
-                    No items in cart
+                    Keranjang kosong
                   </p>
                 )}
               </div>
@@ -411,9 +685,16 @@ export default function CheckoutPage() {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-stone-700 text-sm">Shipping</span>
+                  <div>
+                    <span className="text-stone-700 text-sm">Ongkos Kirim</span>
+                    {selectedCourier && (
+                      <p className="text-stone-400 text-xs">
+                        {selectedCourier.courierName} — {selectedCourier.serviceName}
+                      </p>
+                    )}
+                  </div>
                   <span className="text-stone-700 text-sm">
-                    {formatPrice(shippingCost)}
+                    {selectedCourier ? formatPrice(shippingCost) : "-"}
                   </span>
                 </div>
                 <div className="flex justify-between pt-3 border-t border-stone-200">
@@ -426,11 +707,17 @@ export default function CheckoutPage() {
 
               <button
                 onClick={handleSubmit}
-                disabled={submitting || items.length === 0}
-                className="w-full py-4 bg-gradient-to-r from-stone-600 to-red-300 text-white rounded-lg font-medium mt-6 disabled:opacity-60"
+                disabled={submitting || items.length === 0 || !selectedCourier || loadingRates}
+                className="w-full py-4 bg-gradient-to-r from-stone-600 to-red-300 text-white rounded-lg font-medium mt-6 disabled:opacity-60 transition-opacity"
               >
-                {submitting ? "Processing..." : "Confirm Order"}
+                {submitting ? "Memproses..." : "Konfirmasi Pesanan"}
               </button>
+
+              {!selectedCourier && !loadingRates && items.length > 0 && (
+                <p className="text-amber-600 text-xs text-center mt-3">
+                  Pilih kurir pengiriman untuk melanjutkan
+                </p>
+              )}
             </div>
           </div>
         </div>

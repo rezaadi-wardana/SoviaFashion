@@ -168,6 +168,9 @@ model Order {
   address      String
   lat          Float?
   lng          Float?
+  courierName    String?
+  courierCode    String?
+  courierService String?
   trackingNumber String?
   createdAt     DateTime      @default(now())
   updatedAt    DateTime      @updatedAt

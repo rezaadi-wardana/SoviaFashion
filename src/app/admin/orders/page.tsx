@@ -10,6 +10,8 @@ interface Order {
   status: string
   total: number
   shippingMethod: string
+  courierName: string | null
+  courierService: string | null
   address: string
   recipientName: string
   phone: string
@@ -160,6 +162,7 @@ export default function AdminOrdersPage() {
                         <p className="text-stone-700 text-sm">{order.address}</p>
                         <p className="text-stone-700 text-sm mt-2">
                           Method: {order.shippingMethod === "EXPEDITION" ? "Expedition" : "COD"}
+                          {order.courierService && ` (${order.courierService})`}
                         </p>
                       </div>
                       <div>

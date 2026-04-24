@@ -14,6 +14,8 @@ interface OrderItem {
   subtotal: number
   shippingCost: number
   shippingMethod: string
+  courierName: string | null
+  courierService: string | null
   paymentMethod: string
   address: string
   createdAt: string
@@ -163,6 +165,7 @@ export default function OrdersPage() {
                     <div>
                       <p className="text-stone-700 text-sm">
                         Shipping: {order.shippingMethod === "EXPEDITION" ? "Expedition" : "COD"}
+                        {order.courierService && ` (${order.courierService})`}
                       </p>
                       <p className="text-stone-700 text-xs">{order.address}</p>
                     </div>
