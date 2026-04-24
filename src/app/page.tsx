@@ -2,7 +2,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { prisma } from "@/lib/prisma"
 import { formatPrice } from "@/lib/utils"
-import { auth } from "@/lib/auth"
+import { HeroSlider } from "@/components/HeroSlider"
 
 function getProductImages(images: string | null): string[] {
   if (!images) return []
@@ -52,63 +52,10 @@ export default async function HomePage() {
     getCategories(),
   ])
 
-  const hero = heros[0] || {
-    title: "THE SUMMER COLLECTION",
-    subtitle: "Editorial Modesty",
-    description: "Discover fluid silhouettes and premium fabrics designed for the modern woman. Elegance in every drape.",
-    image: "https://placehold.co/1280x819/fafaf9/1c1917?text=Summer+Collection",
-  }
-
-
-  const session = await auth();
-
-
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="min-h-[819px] py-28 relative bg-stone-100 flex items-center justify-center overflow-hidden">
-        <div className="absolute inset-0">
-          <Image
-            src={hero.image}
-            alt="Hero"
-            fill
-            className="object-cover opacity-30 mix-blend-multiply"
-          />
-        </div>
-        <div className="max-w-[1024px] px-8 flex items-center gap-24 relative z-10">
-          <div className="w-96 flex flex-col gap-6">
-            <p className="text-stone-600 text-sm uppercase tracking-wider">
-              {hero.title}
-            </p>
-            <h1 className="text-stone-900 text-7xl font-serif leading-[72px]">
-              {hero.subtitle}
-            </h1>
-            <p className="text-stone-700 text-lg leading-7 max-w-96">
-              {hero.description}
-            </p>
-            <Link
-              href="/catalog"
-              className="px-8 py-4 bg-gradient-to-b from-stone-600 to-red-300 rounded-lg shadow-lg inline-flex items-center justify-center text-white text-lg font-medium"
-            >
-              Shop The Collection
-            </Link>
-          </div>
-          <div className="w-96 relative hidden lg:block">
-            <div className="bg-white rounded-lg shadow-xl overflow-hidden">
-              <Image
-                src={hero.image}
-                alt="Hero Product"
-                width={448}
-                height={597}
-                className="w-full h-[597px] object-cover"
-              />
-            </div>
-            <div className="px-6 py-3 absolute left-0 -bottom-4 bg-gray-400 rounded-xl shadow">
-              <p className="text-neutral-700 text-sm font-medium">Premium Silk Chiffon</p>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Hero Slider Section */}
+      <HeroSlider slides={heros} />
 
       {/* Curated For You */}
       <section className="max-w-[1280px] mx-auto px-8 py-24">
@@ -210,7 +157,7 @@ export default async function HomePage() {
                   fill
                   className="object-cover"
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-l from-white/90 to-transparent">
+                <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-r from-white/90 to-transparent">
                   <span className="px-3 py-1 bg-stone-50/80 rounded-xl text-stone-600 text-xs">
                     New Silhouette
                   </span>
@@ -237,9 +184,9 @@ export default async function HomePage() {
                   }
                   alt="Pleated Maxi"
                   fill
-                  className="object-cover"
+                  className="object-cover object-top"
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-l from-white/80 to-transparent">
+                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-r from-white/80 to-transparent">
                   <h3 className="text-stone-900 text-xl font-serif">
                     {latestProducts[1]?.name || "Pleated Maxi Skirts"}
                   </h3>
@@ -272,20 +219,38 @@ export default async function HomePage() {
             Shop by Category
           </h2>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {categories.length > 0 ? (
             categories.map((category) => (
               <Link
                 key={category.id}
                 href={`/catalog?category=${category.id}`}
-                className="bg-white rounded-lg p-8 text-center hover:shadow-lg transition-shadow"
+                className="group bg-white rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300"
               >
-                <h3 className="text-stone-900 text-xl font-serif">
-                  {category.name}
-                </h3>
-                <p className="text-stone-700 text-sm mt-2">
-                  {category.description || "Shop now"}
-                </p>
+                <div className="relative h-48 bg-stone-100 overflow-hidden">
+                  {category.image ? (
+                    <Image
+                      src={category.image}
+                      alt={category.name}
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-stone-100 to-rose-50">
+                      <span className="text-stone-300 text-5xl font-serif">
+                        {category.name.charAt(0)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+                <div className="p-5 text-center">
+                  <h3 className="text-stone-900 text-lg font-serif">
+                    {category.name}
+                  </h3>
+                  <p className="text-stone-500 text-sm mt-1">
+                    {category.description || "Lihat koleksi →"}
+                  </p>
+                </div>
               </Link>
             ))
           ) : (
@@ -293,8 +258,11 @@ export default async function HomePage() {
               <Link
                 key={cat}
                 href={`/catalog?category=${cat}`}
-                className="bg-white rounded-lg p-8 text-center hover:shadow-lg transition-shadow"
+                className="bg-white rounded-2xl p-8 text-center hover:shadow-lg transition-shadow"
               >
+                <div className="h-48 bg-gradient-to-br from-stone-100 to-rose-50 rounded-xl mb-4 flex items-center justify-center">
+                  <span className="text-stone-300 text-5xl font-serif">{cat.charAt(0)}</span>
+                </div>
                 <h3 className="text-stone-900 text-xl font-serif">{cat}</h3>
                 <p className="text-stone-700 text-sm mt-2">Shop now</p>
               </Link>

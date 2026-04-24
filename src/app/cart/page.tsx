@@ -28,6 +28,13 @@ interface CartItem {
     name: string
     price: number
     images: string | null
+    variants: {
+      id: string
+      name: string
+      stock: number
+      sizes: string | null
+      image: string | null
+    }[]
   }
 }
 
@@ -162,6 +169,7 @@ export default function CartPage() {
                   <div className="w-20 h-24 bg-stone-200 rounded flex-shrink-0 overflow-hidden">
                     <Image
                       src={
+                        item.product.variants.find(v => v.name === item.color)?.image ||
                         getProductImages(item.product.images)[0] ||
                         "https://placehold.co/80x96/fafaf9/1c1917?text=Item"
                       }
@@ -176,7 +184,7 @@ export default function CartPage() {
                       {item.product.name}
                     </h3>
                     <p className="text-stone-700 text-sm">
-                      {item.color && `Color: ${item.color}`}
+                      {item.color && `Variant: ${item.color}`}
                       {item.size && ` | Size: ${item.size}`}
                     </p>
                     <p className="text-stone-900 text-base font-medium mt-2">

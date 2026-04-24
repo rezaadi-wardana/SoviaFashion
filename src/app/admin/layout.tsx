@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
-import { LayoutDashboard, Package, ShoppingCart, Users, FileBarChart, Image, LogOut, Folder } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, Users, FileBarChart, Image, LogOut, Folder, Store } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const adminLinks = [
@@ -14,6 +14,7 @@ const adminLinks = [
   { href: "/admin/users", label: "Customers", icon: Users },
   { href: "/admin/reports", label: "Reports", icon: FileBarChart },
   { href: "/admin/hero", label: "Hero Slider", icon: Image },
+  { href: "/admin/store-profile", label: "Profil Toko", icon: Store },
 ]
 
 export default function AdminLayout({

@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Image from "next/image"
-import { Plus, Edit, Trash2, GripVertical } from "lucide-react"
+import { Plus, Edit, Trash2, GripVertical, Upload, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
 interface HeroSlide {
@@ -189,13 +189,43 @@ function HeroSlideModal({
     subtitle: slide?.subtitle || "",
     image: slide?.image || "",
     link: slide?.link || "",
-    order: slide?.order || 0,
+    order: slide?.order ?? 0,
     isActive: slide?.isActive ?? true,
   })
+  const [uploading, setUploading] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    try {
+      const uploadData = new FormData()
+      uploadData.append("file", file)
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: uploadData,
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setFormData({ ...formData, image: data.url })
+        toast.success("Image uploaded successfully")
+      } else {
+        toast.error("Failed to upload image")
+      }
+    } catch {
+      toast.error("Upload failed")
+    } finally {
+      setUploading(false)
+    }
+  }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 max-w-lg w-full">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[70]" onClick={onClose}>
+      <div className="bg-white rounded-lg p-8 max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
         <h2 className="text-stone-900 text-2xl font-serif mb-6">
           {slide ? "Edit Slide" : "New Slide"}
         </h2>
@@ -220,15 +250,44 @@ function HeroSlideModal({
             />
           </div>
           <div>
-            <label className="text-stone-700 text-sm block mb-2">Image URL</label>
-            <input
-              type="text"
-              value={formData.image}
-              onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-              className="w-full py-2 px-4 bg-stone-100 rounded-lg"
-              required
-              placeholder="https://..."
-            />
+            <label className="text-stone-700 text-sm block mb-2">Slide Image</label>
+            <div className="space-y-3">
+              {formData.image && (
+                <div className="relative w-full h-40 bg-stone-200 rounded-lg overflow-hidden">
+                  <Image
+                    src={formData.image}
+                    alt="Preview"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="w-full py-3 px-4 border-2 border-dashed border-stone-300 rounded-lg text-stone-600 hover:border-stone-500 hover:bg-stone-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              >
+                {uploading ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Uploading...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="w-5 h-5" />
+                    {formData.image ? "Change Image" : "Upload Image"}
+                  </>
+                )}
+              </button>
+            </div>
           </div>
           <div>
             <label className="text-stone-700 text-sm block mb-2">Link URL (optional)</label>
@@ -244,8 +303,11 @@ function HeroSlideModal({
               <label className="text-stone-700 text-sm block mb-2">Order</label>
               <input
                 type="number"
-                value={formData.order}
-                onChange={(e) => setFormData({ ...formData, order: parseInt(e.target.value) })}
+                value={String(formData.order ?? 0)}
+                onChange={(e) => {
+                  const val = e.target.value
+                  setFormData({ ...formData, order: val === "" ? 0 : parseInt(val) || 0 })
+                }}
                 className="w-full py-2 px-4 bg-stone-100 rounded-lg"
               />
             </div>
@@ -273,8 +335,18 @@ function HeroSlideModal({
           </button>
           <button
             type="button"
-            onClick={() => onSave(formData)}
-            className="flex-1 py-3 bg-stone-600 text-white rounded-lg"
+            onClick={() => {
+              if (!formData.title.trim()) {
+                toast.error("Judul slide wajib diisi")
+                return
+              }
+              if (!formData.image) {
+                toast.error("Gambar slide wajib diupload")
+                return
+              }
+              onSave(formData)
+            }}
+            className="flex-1 py-3 bg-stone-600 text-white rounded-lg hover:bg-stone-700 transition-colors"
           >
             {slide ? "Update" : "Create"} Slide
           </button>

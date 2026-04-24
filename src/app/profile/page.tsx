@@ -1,9 +1,19 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react"
+import dynamic from "next/dynamic"
 import { useSession } from "next-auth/react"
 import { User, MapPin, Save } from "lucide-react"
 import { toast } from "sonner"
+
+const MapPicker = dynamic(() => import("@/components/MapPicker"), {
+  ssr: false,
+  loading: () => (
+    <div className="h-80 bg-stone-200 rounded-xl animate-pulse flex items-center justify-center">
+      <p className="text-stone-400 text-sm">Memuat peta...</p>
+    </div>
+  ),
+})
 
 export default function ProfilePage() {
   const { data: session, update } = useSession()
@@ -16,8 +26,7 @@ export default function ProfilePage() {
     lng: 0,
     
   })
-  
-  const mapRef = useRef<HTMLDivElement>(null)
+
 
   useEffect(() => {
     const userId = session?.user?.id
@@ -238,28 +247,20 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            {/* Map Preview */}
-            <div
-              ref={mapRef}
-              className="h-96 bg-stone-200 rounded flex items-center justify-center relative overflow-hidden"
-            >
-              {formData.lat && formData.lng ? (
-                <div className="absolute inset-0 bg-gradient-to-l from-white/50 to-white/0">
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <div className="w-12 h-12 bg-stone-600/20 rounded-xl flex items-center justify-center">
-                      <MapPin className="w-6 h-6 text-stone-600" />
-                    </div>
-                  </div>
-                  <p className="absolute bottom-4 left-4 text-stone-600 text-sm">
-                    {formData.lat.toFixed(6)}, {formData.lng.toFixed(6)}
-                  </p>
-                </div>
-              ) : (
-                <div className="text-center text-stone-500">
-                  <MapPin className="w-12 h-12 mx-auto mb-2" />
-                  <p className="text-sm">Click location button to set GPS</p>
-                </div>
-              )}
+            {/* Interactive Map */}
+            <div className="mb-4">
+              <p className="text-stone-500 text-sm mb-3">
+                Klik pada peta atau geser pin untuk menentukan lokasi pengiriman
+              </p>
+              <MapPicker
+                lat={formData.lat}
+                lng={formData.lng}
+                onLocationChange={(lat, lng) => {
+                  setFormData((prev) => ({ ...prev, lat, lng }))
+                  toast.success("Lokasi berhasil ditentukan!")
+                }}
+                height="h-80"
+              />
             </div>
           </div>
         </div>

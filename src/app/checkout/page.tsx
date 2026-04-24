@@ -8,6 +8,16 @@ import { Check, Edit, X, QrCode } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
 
+function getProductImages(images: string | null): string[] {
+  if (!images) return []
+  try {
+    const parsed = JSON.parse(images)
+    return Array.isArray(parsed) ? parsed : [images]
+  } catch {
+    return [images]
+  }
+}
+
 interface DirectOrder {
   productId: string
   productName: string
@@ -29,6 +39,11 @@ interface CartItem {
     price: number
     images: string | null
     colors: string | null
+    variants: {
+      id: string
+      name: string
+      image: string | null
+    }[]
   }
 }
 
@@ -104,6 +119,7 @@ export default function CheckoutPage() {
             price: directOrderData.productPrice,
             images: directOrderData.productImage,
             colors: directOrderData.color,
+            variants: [],
           }
         }])
       } else {
@@ -350,7 +366,8 @@ export default function CheckoutPage() {
                     <div className="w-20 h-24 bg-stone-200 rounded flex-shrink-0 overflow-hidden">
                       <Image
                         src={
-                          item.product.images ||
+                          item.product.variants?.find(v => v.name === item.color)?.image ||
+                          getProductImages(item.product.images)[0] ||
                           "https://placehold.co/80x96/fafaf9/1c1917?text=Item"
                         }
                         alt={item.product.name}
@@ -364,7 +381,7 @@ export default function CheckoutPage() {
                         {item.product.name}
                       </h3>
                       <p className="text-stone-700 text-sm">
-                        {item.color && `Color: ${item.color}`}
+                        {item.color && `Variant: ${item.color}`}
                         {item.size && ` | Size: ${item.size}`}
                       </p>
                       <div className="flex justify-between mt-2">

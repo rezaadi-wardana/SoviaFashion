@@ -12,7 +12,7 @@ export async function GET() {
     where: { userId: session.user.id },
     include: {
       product: {
-        include: { category: true },
+        include: { category: true, variants: true },
       },
     },
     orderBy: { createdAt: "desc" },
