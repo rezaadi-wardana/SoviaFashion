@@ -24,6 +24,14 @@ interface DashboardStats {
   revenueChange: number
   ordersByDay: { date: string; orders: number; revenue: number }[]
   topProducts: { name: string; sold: number; revenue: number }[]
+  recentOrders: {
+    id: string;
+    total: number;
+    status: string;
+    user: { name: string };
+    items: any[];
+  }[]
+  visitorsByDay: { date: string; visitors: number }[]
 }
 
 export default function AdminDashboard() {
@@ -35,6 +43,8 @@ export default function AdminDashboard() {
     revenueChange: 12,
     ordersByDay: [],
     topProducts: [],
+    recentOrders: [],
+    visitorsByDay: [],
   })
   const [loading, setLoading] = useState(true)
 
@@ -96,7 +106,7 @@ export default function AdminDashboard() {
           </p>
         </div>
         <Link
-          href="/admin/products/new"
+          href="/admin/products?new=true"
           className="px-6 py-3 bg-stone-600 text-white text-sm font-medium rounded-lg flex items-center gap-2"
         >
           <Package className="w-4 h-4" />
@@ -132,10 +142,10 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-3 gap-6 mb-12">
+      {/* Charts Row 1 */}
+      <div className="grid grid-cols-2 gap-6 mb-6">
         {/* Sales Trajectory */}
-        <div className="col-span-2 bg-white p-8 rounded-lg shadow-lg">
+        <div className="bg-white p-8 rounded-lg shadow-lg">
           <h2 className="text-stone-900 text-xl font-serif mb-6">Sales Trajectory</h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -162,8 +172,33 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {/* Visitor Traffic */}
+        <div className="bg-white p-8 rounded-lg shadow-lg">
+          <h2 className="text-stone-900 text-xl font-serif mb-6">Website Visitors</h2>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={stats.visitorsByDay}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
+                <XAxis dataKey="date" stroke="#78716c" fontSize={12} />
+                <YAxis stroke="#78716c" fontSize={12} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: "#fff",
+                    border: "1px solid #e7e5e4",
+                    borderRadius: "8px",
+                  }}
+                />
+                <Bar dataKey="visitors" fill="#44403c" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Row 2: Top Selling & Recent Orders */}
+      <div className="grid grid-cols-3 gap-6 mb-12">
         {/* Top Selling */}
-        <div className="bg-stone-100 p-8 rounded-lg">
+        <div className="col-span-1 bg-stone-100 p-8 rounded-lg">
           <h2 className="text-stone-900 text-xl font-serif mb-6">Top Selling Collections</h2>
           <div className="space-y-4">
             {stats.topProducts.length > 0 ? (
@@ -188,12 +223,11 @@ export default function AdminDashboard() {
             )}
           </div>
         </div>
-      </div>
 
-      {/* Recent Orders */}
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h2 className="text-stone-900 text-xl font-serif mb-6">Recent Orders</h2>
-        <div className="overflow-x-auto">
+        {/* Recent Orders */}
+        <div className="col-span-2 bg-white p-8 rounded-lg shadow-lg">
+          <h2 className="text-stone-900 text-xl font-serif mb-6">Recent Orders</h2>
+          <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-stone-200">
@@ -215,23 +249,40 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b border-stone-100">
-                <td className="py-4 px-4 text-stone-700 text-sm">#ORD001</td>
-                <td className="py-4 px-4 text-stone-700 text-sm">John Doe</td>
-                <td className="py-4 px-4 text-stone-700 text-sm">2 items</td>
-                <td className="py-4 px-4 text-stone-700 text-sm">
-                  Rp 850.000
-                </td>
-                <td className="py-4 px-4">
-                  <span className="px-3 py-1 bg-yellow-100 text-yellow-700 text-xs rounded-full">
-                    Pending
-                  </span>
-                </td>
-              </tr>
+              {stats.recentOrders.length > 0 ? (
+                stats.recentOrders.map((order) => (
+                  <tr key={order.id} className="border-b border-stone-100">
+                    <td className="py-4 px-4 text-stone-700 text-sm">#{order.id.slice(-8)}</td>
+                    <td className="py-4 px-4 text-stone-700 text-sm">{order.user?.name || "Guest"}</td>
+                    <td className="py-4 px-4 text-stone-700 text-sm">{order.items?.length || 0} items</td>
+                    <td className="py-4 px-4 text-stone-700 text-sm">
+                      {formatPrice(order.total)}
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className={`px-3 py-1 text-xs rounded-full ${
+                        order.status === "COMPLETED" ? "bg-green-100 text-green-700" :
+                        order.status === "SHIPPED" ? "bg-purple-100 text-purple-700" :
+                        order.status === "PACKING" ? "bg-blue-100 text-blue-700" :
+                        order.status === "CANCELLED" ? "bg-red-100 text-red-700" :
+                        "bg-yellow-100 text-yellow-700"
+                      }`}>
+                        {order.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="py-8 text-center text-stone-500 text-sm">
+                    No recent orders
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
+    </div>
     </div>
   )
 }

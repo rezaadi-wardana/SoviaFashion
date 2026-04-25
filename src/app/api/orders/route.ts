@@ -8,11 +8,34 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
-  const orders = await prisma.order.findMany({
+  let orders = await prisma.order.findMany({
     where: { userId: session.user.id },
     include: { items: { include: { product: true } } },
     orderBy: { createdAt: "desc" },
   })
+
+  // Auto-complete orders that have been SHIPPED for more than 7 days
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+  
+  const toUpdate = orders.filter(o => o.status === "SHIPPED" && new Date(o.updatedAt) < sevenDaysAgo)
+  
+  if (toUpdate.length > 0) {
+    await Promise.all(
+      toUpdate.map(o => 
+        prisma.order.update({
+          where: { id: o.id },
+          data: { status: "COMPLETED" }
+        })
+      )
+    )
+    
+    // Refresh orders after update
+    orders = await prisma.order.findMany({
+      where: { userId: session.user.id },
+      include: { items: { include: { product: true } } },
+      orderBy: { createdAt: "desc" },
+    })
+  }
 
   return NextResponse.json(orders)
 }
@@ -90,12 +113,37 @@ export async function POST(request: Request) {
       courierName: courierName || null,
       courierCode: courierCode || null,
       courierService: courierService || null,
+      status: paymentMethod === "COD" ? "PACKING" : "PENDING_PAYMENT",
       items: {
         create: orderItems,
       },
     },
     include: { items: { include: { product: true } } },
   })
+
+  // Kurangi stok untuk setiap varian produk yang dipesan
+  for (const item of orderItems) {
+    if (item.color) {
+      const variant = await prisma.productVariant.findFirst({
+        where: {
+          productId: item.productId,
+          name: item.color,
+        },
+      })
+      if (variant && variant.stock >= item.quantity) {
+        await prisma.productVariant.update({
+          where: { id: variant.id },
+          data: { stock: { decrement: item.quantity } },
+        })
+      } else if (variant) {
+        // Jika stok kurang dari yang dipesan (mungkin karena race condition), set ke 0
+        await prisma.productVariant.update({
+          where: { id: variant.id },
+          data: { stock: 0 },
+        })
+      }
+    }
+  }
 
   // Hapus cart items jika bukan direct order
   if (!isDirect) {

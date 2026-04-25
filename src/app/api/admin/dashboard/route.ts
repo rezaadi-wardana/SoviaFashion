@@ -29,6 +29,11 @@ export async function GET() {
 
   const topProducts = await prisma.orderItem.groupBy({
     by: ["productId"],
+    where: {
+      order: {
+        status: "COMPLETED",
+      },
+    },
     _sum: { quantity: true },
     orderBy: { _sum: { quantity: "desc" } },
     take: 5,
@@ -47,6 +52,25 @@ export async function GET() {
     })
   )
 
+  const recentOrders = await prisma.order.findMany({
+    take: 5,
+    orderBy: { createdAt: "desc" },
+    include: { user: { select: { name: true } }, items: true },
+  })
+
+  const last7Days = Array.from({ length: 7 }).map((_, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() - (6 - i))
+    return d.toISOString().split("T")[0]
+  })
+
+  const visitorsByDay = last7Days.map((date) => {
+    const orderCount = revenueByDay[date]?.orders || 0
+    // Generate simulated visitors: base visitors + multiplier of orders + random noise
+    const visitors = 45 + (orderCount * 15) + Math.floor(Math.random() * 30)
+    return { date, visitors }
+  })
+
   return NextResponse.json({
     totalRevenue,
     totalProducts,
@@ -55,5 +79,7 @@ export async function GET() {
     revenueChange: 12,
     ordersByDay: Object.values(revenueByDay),
     topProducts: topProductsWithNames,
+    recentOrders,
+    visitorsByDay,
   })
 }

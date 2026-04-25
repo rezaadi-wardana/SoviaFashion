@@ -27,11 +27,45 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   const body = await request.json()
-  const { status } = body
+  const { status, isConfirmed, trackingNumber } = body
+
+  const data: any = {}
+  if (status !== undefined) data.status = status
+  if (isConfirmed !== undefined) data.isConfirmed = isConfirmed
+  if (trackingNumber !== undefined) data.trackingNumber = trackingNumber
+
+  const existingOrder = await prisma.order.findUnique({
+    where: { id },
+    include: { items: true },
+  })
+
+  if (!existingOrder) {
+    return NextResponse.json({ error: "Order not found" }, { status: 404 })
+  }
+
+  // Jika status diubah menjadi CANCELLED dan sebelumnya belum CANCELLED
+  if (status === "CANCELLED" && existingOrder.status !== "CANCELLED") {
+    for (const item of existingOrder.items) {
+      if (item.color) {
+        const variant = await prisma.productVariant.findFirst({
+          where: {
+            productId: item.productId,
+            name: item.color,
+          },
+        })
+        if (variant) {
+          await prisma.productVariant.update({
+            where: { id: variant.id },
+            data: { stock: { increment: item.quantity } },
+          })
+        }
+      }
+    }
+  }
 
   const order = await prisma.order.update({
     where: { id },
-    data: { status },
+    data,
   })
 
   return NextResponse.json(order)

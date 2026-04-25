@@ -6,15 +6,35 @@ import { useSession, signOut } from "next-auth/react"
 import { LayoutDashboard, Package, ShoppingCart, Users, FileBarChart, Image, LogOut, Folder, Store } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const adminLinks = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/products", label: "Products", icon: Package },
-  { href: "/admin/categories", label: "Categories", icon: Folder },
-  { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
-  { href: "/admin/users", label: "Customers", icon: Users },
-  { href: "/admin/reports", label: "Reports", icon: FileBarChart },
-  { href: "/admin/hero", label: "Hero Slider", icon: Image },
-  { href: "/admin/store-profile", label: "Profil Toko", icon: Store },
+const adminGroups = [
+  {
+    title: "",
+    links: [
+      { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
+      { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
+    ]
+  },
+  {
+    title: "Management",
+    links: [
+      { href: "/admin/products", label: "Products", icon: Package },
+      { href: "/admin/categories", label: "Categories", icon: Folder },
+      { href: "/admin/users", label: "Customers", icon: Users },
+    ]
+  },
+  {
+    title: "Advanced",
+    links: [
+      { href: "/admin/store-profile", label: "Profil Toko", icon: Store },
+      { href: "/admin/hero", label: "Hero Slider", icon: Image },
+    ]
+  },
+  {
+    title: "Reports",
+    links: [
+      { href: "/admin/reports", label: "Report", icon: FileBarChart },
+    ]
+  }
 ]
 
 export default function AdminLayout({
@@ -69,25 +89,36 @@ export default function AdminLayout({
           </div>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
-          {adminLinks.map((link) => {
-            const isActive = pathname === link.href
-            return (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-rose-200 text-stone-600"
-                    : "text-stone-500 hover:bg-stone-100"
-                )}
-              >
-                <link.icon className="w-5 h-5" />
-                {link.label}
-              </Link>
-            )
-          })}
+        <nav className="flex-1 p-4 overflow-y-auto space-y-6">
+          {adminGroups.map((group, groupIdx) => (
+            <div key={groupIdx} className="space-y-1">
+              {group.title && (
+                <div className="px-4 mb-2">
+                  <h3 className="text-xs font-semibold text-stone-400 uppercase tracking-wider">
+                    {group.title}
+                  </h3>
+                </div>
+              )}
+              {group.links.map((link) => {
+                const isActive = pathname === link.href
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                      isActive
+                        ? "bg-rose-200 text-stone-600"
+                        : "text-stone-500 hover:bg-stone-100"
+                    )}
+                  >
+                    <link.icon className="w-5 h-5" />
+                    {link.label}
+                  </Link>
+                )
+              })}
+            </div>
+          ))}
         </nav>
 
         <div className="p-4 border-t border-stone-200/20 space-y-1">

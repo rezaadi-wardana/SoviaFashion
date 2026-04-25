@@ -341,6 +341,10 @@ function CatalogContent() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [selectedVariant, setSelectedVariant] = useState<string>("")
   const [selectedSize, setSelectedSize] = useState<string>("")
+  const [showAllCategories, setShowAllCategories] = useState(false)
+  const [selectedSizeFilter, setSelectedSizeFilter] = useState<string>("")
+
+  const SIZES = ["S", "M", "L", "XL", "XXL"]
 
   useEffect(() => {
     async function fetchData() {
@@ -367,8 +371,16 @@ function CatalogContent() {
     if (selectedCategory && product.category?.id !== selectedCategory) return false
     if (product.price < priceRange[0] || product.price > priceRange[1]) return false
     if (search && !product.name.toLowerCase().includes(search.toLowerCase())) return false
+    if (selectedSizeFilter) {
+      const hasSize = product.variants.some(v => 
+        v.sizes && v.sizes.split(",").map(s => s.trim().toUpperCase()).includes(selectedSizeFilter.toUpperCase())
+      );
+      if (!hasSize) return false;
+    }
     return true
   })
+
+  const displayedCategories = showAllCategories ? categories : categories.slice(0, 5)
 
   return (
     <div className="min-h-screen pt-24 pb-16">
@@ -412,9 +424,9 @@ function CatalogContent() {
                       : "bg-stone-100 text-stone-700 hover:bg-stone-200"
                   }`}
                 >
-                  All
+                  Semua
                 </button>
-                {categories.map((category) => (
+                {displayedCategories.map((category) => (
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
@@ -425,6 +437,46 @@ function CatalogContent() {
                     }`}
                   >
                     {category.name}
+                  </button>
+                ))}
+                {categories.length > 5 && (
+                  <button
+                    onClick={() => setShowAllCategories(!showAllCategories)}
+                    className="w-full text-left px-3 py-2 text-stone-500 text-sm hover:text-stone-900 transition-colors"
+                  >
+                    {showAllCategories ? "Tampilkan lebih sedikit" : `Lihat semua kategori (${categories.length})`}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* Size Filter */}
+            <div className="mb-6">
+              <label className="text-stone-600 text-sm mb-2 block">
+                Ukuran
+              </label>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setSelectedSizeFilter("")}
+                  className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${
+                    selectedSizeFilter === ""
+                      ? "bg-stone-900 text-white border-stone-900"
+                      : "bg-white text-stone-700 border-stone-300 hover:border-stone-900"
+                  }`}
+                >
+                  Semua
+                </button>
+                {SIZES.map((size) => (
+                  <button
+                    key={size}
+                    onClick={() => setSelectedSizeFilter(size)}
+                    className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${
+                      selectedSizeFilter === size
+                        ? "bg-stone-900 text-white border-stone-900"
+                        : "bg-white text-stone-700 border-stone-300 hover:border-stone-900"
+                    }`}
+                  >
+                    {size}
                   </button>
                 ))}
               </div>

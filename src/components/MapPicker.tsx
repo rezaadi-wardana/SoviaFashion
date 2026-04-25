@@ -20,23 +20,21 @@ export default function MapPicker({ lat, lng, onLocationChange, height = "h-80" 
   useEffect(() => {
     if (!mapContainerRef.current) return
 
-    // Cleanup any existing map on this container (fixes HMR / Strict Mode re-init)
-    const container = mapContainerRef.current as any
-    if (container._leaflet_id) {
-      container._leaflet_id = null
-      container.innerHTML = ""
-    }
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.remove()
-      mapInstanceRef.current = null
-      markerRef.current = null
-    }
-
+    let isMounted = true;
     let map: any = null
 
     async function initMap() {
       const L = (await import("leaflet")).default
       await import("leaflet/dist/leaflet.css")
+
+      if (!isMounted || !mapContainerRef.current) return;
+
+      // Cleanup any existing map on this container right before initializing
+      const container = mapContainerRef.current as any
+      if (container._leaflet_id) {
+        container._leaflet_id = null
+        container.innerHTML = ""
+      }
 
       // Fix default marker icon issue with webpack/next.js
       delete (L.Icon.Default.prototype as any)._getIconUrl
@@ -49,7 +47,7 @@ export default function MapPicker({ lat, lng, onLocationChange, height = "h-80" 
       const defaultLat = lat || -6.2088
       const defaultLng = lng || 106.8456
 
-      map = L.map(mapContainerRef.current!, {
+      map = L.map(mapContainerRef.current, {
         center: [defaultLat, defaultLng],
         zoom: lat && lng ? 15 : 5,
         zoomControl: true,
@@ -82,6 +80,7 @@ export default function MapPicker({ lat, lng, onLocationChange, height = "h-80" 
     initMap()
 
     return () => {
+      isMounted = false;
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove()
         mapInstanceRef.current = null

@@ -45,6 +45,14 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     fetchData()
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search)
+      if (urlParams.get("new") === "true") {
+        setShowModal(true)
+        // Clean up URL so it doesn't re-open on refresh
+        window.history.replaceState({}, document.title, window.location.pathname)
+      }
+    }
   }, [])
 
   async function fetchData() {
