@@ -2,7 +2,25 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const tryOnOnly = searchParams.get('tryOn') === 'true'
+
+  if (tryOnOnly) {
+    const variants = await prisma.productVariant.findMany({
+      where: { tryOnImage: { not: null } },
+      select: { id: true, name: true, tryOnImage: true, product: { select: { name: true } } }
+    })
+    
+    // Map to the shape expected by Virtual Try On
+    const formattedProducts = variants.map(v => ({
+      id: v.id,
+      name: `${v.product.name} - ${v.name}`,
+      tryOnImage: v.tryOnImage,
+    }))
+    return NextResponse.json(formattedProducts)
+  }
+
   const products = await prisma.product.findMany({
     include: { 
       category: true,
@@ -36,11 +54,12 @@ export async function POST(request: Request) {
 
   if (variants && variants.length > 0) {
     await prisma.productVariant.createMany({
-      data: variants.map((v: { name: string; stock: number; sizes?: string; image?: string }) => ({
+      data: variants.map((v: { name: string; stock: number; sizes?: string; image?: string; tryOnImage?: string }) => ({
         name: v.name,
         stock: Number(v.stock) || 0,
         sizes: v.sizes || null,
         image: v.image || null,
+        tryOnImage: v.tryOnImage || null,
         productId: product.id,
       })),
     })

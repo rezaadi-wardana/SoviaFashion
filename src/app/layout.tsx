@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Script from "next/script"
 import { Inter, Noto_Serif } from "next/font/google"
 import "./globals.css"
 import { Providers } from "@/components/Providers"
@@ -33,6 +34,9 @@ export default function RootLayout({
           <main className="flex-1 pt-16">{children}</main>
           <Footer />
         </Providers>
+        <Script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" strategy="beforeInteractive" />
+        <Script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" strategy="beforeInteractive" />
+        <Script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" strategy="beforeInteractive" />
       </body>
     </html>
   )

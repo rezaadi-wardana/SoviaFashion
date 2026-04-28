@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils"
 const navLinks = [
   { href: "/", label: "Beranda" },
   { href: "/catalog", label: "Katalog" },
+  { href: "/virtual-tryon", label: "Virtual Try-On" },
 ]
 
 export function Navbar() {

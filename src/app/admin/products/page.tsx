@@ -26,7 +26,7 @@ interface Product {
   sku: string
   category: { id: string; name: string } | null
   isFeatured: boolean
-  variants: { id: string; name: string; stock: number; image: string | null; sizes: string | null }[]
+  variants: { id: string; name: string; stock: number; image: string | null; sizes: string | null; tryOnImage?: string | null }[]
 }
 
 interface Category {
@@ -338,8 +338,8 @@ function ProductFormModal({
     categoryId: product?.category?.id || "",
     isFeatured: product?.isFeatured || false,
   })
-  const [variants, setVariants] = useState<{id?: string, name: string, stock: number, image: string, sizes: string}[]>(
-    product?.variants?.map(v => ({ id: v.id, name: v.name, stock: v.stock, image: v.image || "", sizes: v.sizes || "" })) || [{ name: "", stock: 0, image: "", sizes: "" }]
+  const [variants, setVariants] = useState<{id?: string, name: string, stock: number, image: string, sizes: string, tryOnImage?: string}[]>(
+    product?.variants?.map(v => ({ id: v.id, name: v.name, stock: v.stock, image: v.image || "", sizes: v.sizes || "", tryOnImage: v.tryOnImage || "" })) || [{ name: "", stock: 0, image: "", sizes: "", tryOnImage: "" }]
   )
   const [saving, setSaving] = useState(false)
 
@@ -619,51 +619,102 @@ function ProductFormModal({
                       </div>
                     </div>
                     
-                    <div>
-                      <label className="text-stone-600 text-xs block mb-1">Variant Image (optional)</label>
-                      <div className="flex items-center gap-3">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={async (e) => {
-                            const file = e.target.files?.[0]
-                            if (file) {
-                              const formDataUpload = new FormData()
-                              formDataUpload.append("file", file)
-                              try {
-                                const res = await fetch("/api/upload", {
-                                  method: "POST",
-                                  body: formDataUpload,
-                                })
-                                const data = await res.json()
-                                if (data.url) {
-                                  const newVars = [...variants]
-                                  newVars[idx] = { ...newVars[idx], image: data.url }
-                                  setVariants(newVars)
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className="text-stone-600 text-xs block mb-1">Variant Image (optional)</label>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0]
+                              if (file) {
+                                const formDataUpload = new FormData()
+                                formDataUpload.append("file", file)
+                                try {
+                                  const res = await fetch("/api/upload", {
+                                    method: "POST",
+                                    body: formDataUpload,
+                                  })
+                                  const data = await res.json()
+                                  if (data.url) {
+                                    const newVars = [...variants]
+                                    newVars[idx] = { ...newVars[idx], image: data.url }
+                                    setVariants(newVars)
+                                  }
+                                } catch (error) {
+                                  console.error("Upload failed:", error)
                                 }
-                              } catch (error) {
-                                console.error("Upload failed:", error)
                               }
-                            }
-                          }}
-                          className="flex-1 py-2 px-3 bg-white rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-stone-600 file:text-white"
-                        />
-                        {v.image && (
-                          <div className="relative w-12 h-12">
-                            <img src={v.image} alt="Variant" className="w-full h-full object-cover rounded" />
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const newVars = [...variants]
-                                newVars[idx] = { ...newVars[idx], image: "" }
-                                setVariants(newVars)
-                              }}
-                              className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
-                            >
-                              ×
-                            </button>
-                          </div>
-                        )}
+                            }}
+                            className="flex-1 py-2 px-3 bg-white rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-stone-600 file:text-white max-w-[200px] overflow-hidden text-ellipsis"
+                          />
+                          {v.image && (
+                            <div className="relative w-12 h-12 shrink-0">
+                              <img src={v.image} alt="Variant" className="w-full h-full object-cover rounded" />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newVars = [...variants]
+                                  newVars[idx] = { ...newVars[idx], image: "" }
+                                  setVariants(newVars)
+                                }}
+                                className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-stone-600 text-xs block mb-1">Try-On Image (optional)</label>
+                        <p className="text-[10px] text-stone-500 mb-1 leading-tight">Format PNG, tanpa background, untuk Virtual Try-On.</p>
+                        <div className="flex items-center gap-3">
+                          <input
+                            type="file"
+                            accept="image/png"
+                            onChange={async (e) => {
+                              const file = e.target.files?.[0]
+                              if (file) {
+                                const formDataUpload = new FormData()
+                                formDataUpload.append("file", file)
+                                try {
+                                  const res = await fetch("/api/upload", {
+                                    method: "POST",
+                                    body: formDataUpload,
+                                  })
+                                  const data = await res.json()
+                                  if (data.url) {
+                                    const newVars = [...variants]
+                                    newVars[idx] = { ...newVars[idx], tryOnImage: data.url }
+                                    setVariants(newVars)
+                                  }
+                                } catch (error) {
+                                  console.error("Upload failed:", error)
+                                }
+                              }
+                            }}
+                            className="flex-1 py-2 px-3 bg-white rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-pink-600 file:text-white max-w-[200px] overflow-hidden text-ellipsis"
+                          />
+                          {v.tryOnImage && (
+                            <div className="relative w-12 h-12 bg-gray-100 rounded shrink-0">
+                              <img src={v.tryOnImage} alt="Try On" className="w-full h-full object-contain rounded" />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const newVars = [...variants]
+                                  newVars[idx] = { ...newVars[idx], tryOnImage: "" }
+                                  setVariants(newVars)
+                                }}
+                                className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
+                              >
+                                ×
+                              </button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -673,7 +724,7 @@ function ProductFormModal({
             {variants.length < 10 && (
               <button
                 type="button"
-                onClick={() => setVariants([...variants, { name: "", stock: 0, image: "", sizes: "" }])}
+                onClick={() => setVariants([...variants, { name: "", stock: 0, image: "", sizes: "", tryOnImage: "" }])}
                 className="text-sm text-stone-600 hover:text-stone-900 flex items-center gap-1"
               >
                 + Add Variant
