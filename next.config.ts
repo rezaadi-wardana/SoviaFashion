@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
+    //   Baris di bawah ini adalah KUNCI SOLUSI
+  allowedDevOrigins: ['localhost', '*.ngrok-free.dev'],
+
 };
 
 export default nextConfig;
