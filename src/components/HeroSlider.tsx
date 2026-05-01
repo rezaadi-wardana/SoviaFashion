@@ -21,7 +21,7 @@ const defaultSlide: HeroSlide = {
   title: "THE SUMMER COLLECTION",
   subtitle: "Editorial Modesty",
   description: "Discover fluid silhouettes and premium fabrics designed for the modern woman. Elegance in every drape.",
-  image: "https://placehold.co/1280x819/fafaf9/1c1917?text=Summer+Collection",
+  image: "https://placehold.co/1280x819/F3EFE6/3C3228?text=Summer+Collection",
   link: "/catalog",
   order: 0,
   isActive: true,
@@ -57,7 +57,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   const currentSlide = heroSlides[currentIndex]
 
   return (
-    <section className="relative min-h-[819px] py-28 bg-stone-100 flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[819px] py-28 bg-accent-100 flex items-center justify-center overflow-hidden">
       {/* Background images with crossfade */}
       {heroSlides.map((slide, index) => (
         <div
@@ -79,14 +79,14 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
       <div className="max-w-[1024px] px-8 flex items-center gap-24 relative z-10">
         <div className="w-96 flex flex-col gap-6">
           <p
-            className="text-stone-600 text-sm uppercase tracking-wider transition-all duration-500"
+            className="text-sovia-600 text-sm uppercase tracking-wider transition-all duration-500"
             key={`title-${currentIndex}`}
             style={{ animation: "fadeInUp 0.6s ease-out" }}
           >
             {currentSlide.title}
           </p>
           <h1
-            className="text-stone-900 text-7xl font-serif leading-[72px] transition-all duration-500"
+            className="text-sovia-900 text-7xl font-serif leading-[72px] transition-all duration-500"
             key={`subtitle-${currentIndex}`}
             style={{ animation: "fadeInUp 0.6s ease-out 0.1s both" }}
           >
@@ -94,7 +94,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           </h1>
           {currentSlide.description && (
             <p
-              className="text-stone-700 text-lg leading-7 max-w-96 transition-all duration-500"
+              className="text-sovia-700 text-lg leading-7 max-w-96 transition-all duration-500"
               key={`desc-${currentIndex}`}
               style={{ animation: "fadeInUp 0.6s ease-out 0.2s both" }}
             >
@@ -103,7 +103,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           )}
           <Link
             href={currentSlide.link || "/catalog"}
-            className="px-8 py-4 bg-gradient-to-b from-stone-600 to-red-300 rounded-lg shadow-lg inline-flex items-center justify-center text-white text-lg font-medium w-fit hover:shadow-xl transition-shadow"
+            className="px-8 py-4 bg-sovia-500 rounded-lg shadow-lg inline-flex items-center justify-center text-white text-lg font-medium w-fit hover:shadow-xl transition-shadow"
           >
             Shop The Collection
           </Link>
@@ -118,7 +118,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
                 transform: index === currentIndex ? "scale(1)" : "scale(0.95)",
               }}
             >
-              <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+              <div className="bg-[#F3EFE6] rounded-lg shadow-xl overflow-hidden">
                 <Image
                   src={slide.image}
                   alt={slide.title}
@@ -132,7 +132,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           ))}
           {/* Keep static element for layout sizing */}
           <div className="invisible">
-            <div className="bg-white rounded-lg shadow-xl overflow-hidden">
+            <div className="bg-[#F3EFE6] rounded-lg shadow-xl overflow-hidden">
               <div className="w-full h-[597px]" />
             </div>
           </div>
@@ -144,17 +144,17 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
         <>
           <button
             onClick={goPrev}
-            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-[#F3EFE6]/80 hover:bg-[#F3EFE6] rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
             aria-label="Previous slide"
           >
-            <ChevronLeft className="w-6 h-6 text-stone-700" />
+            <ChevronLeft className="w-6 h-6 text-sovia-700" />
           </button>
           <button
             onClick={goNext}
-            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-white/80 hover:bg-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-[#F3EFE6]/80 hover:bg-[#F3EFE6] rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
             aria-label="Next slide"
           >
-            <ChevronRight className="w-6 h-6 text-stone-700" />
+            <ChevronRight className="w-6 h-6 text-sovia-700" />
           </button>
 
           {/* Dots indicator */}
@@ -165,8 +165,8 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
                 onClick={() => goToSlide(index)}
                 className={`transition-all duration-300 rounded-full ${
                   index === currentIndex
-                    ? "w-8 h-3 bg-stone-700"
-                    : "w-3 h-3 bg-stone-400/50 hover:bg-stone-400"
+                    ? "w-8 h-3 bg-sovia-700"
+                    : "w-3 h-3 bg-sovia-400/50 hover:bg-sovia-400"
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               />

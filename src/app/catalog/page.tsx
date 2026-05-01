@@ -153,11 +153,11 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
   
   return (
     <div
-      className="fixed inset-0 bg-stone-900/50 flex items-center justify-center z-50 p-4"
+      className="fixed inset-0 bg-sovia-900/50 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-[#F3EFE6] rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="grid grid-cols-1 md:grid-cols-2">
@@ -176,25 +176,25 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
           <div className="p-8 flex flex-col">
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-stone-400 hover:text-stone-600"
+              className="absolute top-4 right-4 text-sovia-400 hover:text-sovia-600"
             >
               ✕
             </button>
-            <p className="text-stone-500 text-sm mb-2">
+            <p className="text-sovia-500 text-sm mb-2">
               {product.category?.name}
             </p>
-            <h2 className="text-stone-900 text-2xl font-serif mb-2">
+            <h2 className="text-sovia-900 text-2xl font-serif mb-2">
               {product.name}
             </h2>
-            <p className="text-stone-900 text-xl font-serif mb-4">
+            <p className="text-sovia-900 text-xl font-serif mb-4">
               {formatPrice(product.price)}
             </p>
-            <p className="text-stone-600 mb-6">
+            <p className="text-sovia-600 mb-6">
               {product.description}
             </p>
 
             <div className="mb-6">
-              <label className="text-stone-600 text-sm mb-2 block">
+              <label className="text-sovia-600 text-sm mb-2 block">
                 Select Variant *
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -208,15 +208,15 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                     }}
                     className={`p-3 border rounded-lg text-left transition-colors ${
                       selectedVariant?.id === variant.id
-                        ? "border-stone-900 bg-stone-900 text-white"
+                        ? "border-sovia-900 bg-sovia-900 text-white"
                         : variant.stock === 0
-                        ? "border-stone-200 bg-stone-100 text-stone-400 cursor-not-allowed"
-                        : "border-stone-300 hover:border-stone-900"
+                        ? "border-sovia-200 bg-sovia-100 text-sovia-400 cursor-not-allowed"
+                        : "border-sovia-300 hover:border-sovia-900"
                     }`}
                   >
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">{variant.name}</span>
-                      <span className={`text-xs ${variant.stock === 0 ? "text-red-400" : "text-stone-500"}`}>
+                      <span className={`text-xs ${variant.stock === 0 ? "text-red-400" : "text-sovia-500"}`}>
                         {variant.stock > 0 ? `${variant.stock} avail` : "OOS"}
                       </span>
                     </div>
@@ -227,7 +227,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
             
             {selectedVariant && variantSizes.length > 0 && (
               <div className="mb-6">
-                <label className="text-stone-600 text-sm mb-2 block">
+                <label className="text-sovia-600 text-sm mb-2 block">
                   Select Size
                 </label>
                 <div className="flex flex-wrap gap-2">
@@ -237,8 +237,8 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                       onClick={() => setSelectedSize(size)}
                       className={`w-10 h-10 border rounded-lg transition-colors ${
                         selectedSize === size
-                          ? "border-stone-900 bg-stone-900 text-white"
-                          : "border-stone-300 hover:border-stone-900"
+                          ? "border-sovia-900 bg-sovia-900 text-white"
+                          : "border-sovia-300 hover:border-sovia-900"
                       }`}
                     >
                       {size}
@@ -250,13 +250,13 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
 
             {selectedVariant && (
               <div className="mb-6">
-                <label className="text-stone-600 text-sm mb-2 block">
+                <label className="text-sovia-600 text-sm mb-2 block">
                   Quantity
                 </label>
                 <div className="flex items-center gap-3">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-10 border border-stone-300 rounded-lg hover:bg-stone-100 transition-colors"
+                    className="w-10 h-10 border border-sovia-300 rounded-lg hover:bg-sovia-100 transition-colors"
                   >
                     -
                   </button>
@@ -264,12 +264,12 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                   <button
                     onClick={() => setQuantity(Math.min(selectedVariant.stock, quantity + 1))}
                     disabled={quantity >= selectedVariant.stock}
-                    className="w-10 h-10 border border-stone-300 rounded-lg hover:bg-stone-100 transition-colors disabled:opacity-50"
+                    className="w-10 h-10 border border-sovia-300 rounded-lg hover:bg-sovia-100 transition-colors disabled:opacity-50"
                   >
                     +
                   </button>
                 </div>
-                <p className="text-stone-500 text-sm mt-1">
+                <p className="text-sovia-500 text-sm mt-1">
                   Stock: {selectedVariant.stock}
                 </p>
               </div>
@@ -283,7 +283,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                   className={`flex-1 py-3 rounded-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
                     addedToCart
                       ? "bg-green-600 border border-green-600 text-white"
-                      : "bg-white border border-stone-900 text-stone-900 hover:bg-stone-100 disabled:opacity-50"
+                      : "bg-[#F3EFE6] border border-sovia-900 text-sovia-900 hover:bg-sovia-100 disabled:opacity-50"
                   }`}
                 >
                   {loading ? (
@@ -306,7 +306,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                 <button
                   onClick={handleBuyNow}
                   disabled={!selectedVariant || selectedVariant.stock === 0 || !selectedSize || loading}
-                  className="flex-1 bg-stone-900 text-white py-3 rounded-lg hover:bg-stone-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 bg-sovia-900 text-white py-3 rounded-lg hover:bg-sovia-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   <ArrowRight className="w-5 h-5" />
                   Buy Now
@@ -387,15 +387,15 @@ function CatalogContent() {
       <div className="max-w-[1280px] mx-auto px-8 flex gap-12">
         {/* Sidebar Filters */}
         <div className="w-64 flex-shrink-0">
-          <div className="bg-white p-6 rounded-lg shadow-lg sticky top-24">
+          <div className="bg-[#F3EFE6] p-6 rounded-lg shadow-lg sticky top-24">
             <div className="flex items-center gap-2 mb-6">
-              <Filter className="w-5 h-5 text-stone-600" />
-              <h2 className="text-stone-900 text-lg font-serif">Filters</h2>
+              <Filter className="w-5 h-5 text-sovia-600" />
+              <h2 className="text-sovia-900 text-lg font-serif">Filters</h2>
             </div>
 
             {/* Search */}
             <div className="mb-6">
-              <label className="text-stone-600 text-sm mb-2 block">
+              <label className="text-sovia-600 text-sm mb-2 block">
                 Search
               </label>
               <div className="relative">
@@ -404,15 +404,15 @@ function CatalogContent() {
                   placeholder="Search products..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-stone-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400"
+                  className="w-full pl-10 pr-4 py-2 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
                 />
-                <Search className="w-5 h-5 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-5 h-5 text-sovia-400 absolute left-3 top-1/2 -translate-y-1/2" />
               </div>
             </div>
 
             {/* Categories */}
             <div className="mb-6">
-              <label className="text-stone-600 text-sm mb-2 block">
+              <label className="text-sovia-600 text-sm mb-2 block">
                 Category
               </label>
               <div className="space-y-2">
@@ -420,8 +420,8 @@ function CatalogContent() {
                   onClick={() => setSelectedCategory("")}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                     selectedCategory === ""
-                      ? "bg-stone-900 text-white"
-                      : "bg-stone-100 text-stone-700 hover:bg-stone-200"
+                      ? "bg-sovia-900 text-white"
+                      : "bg-sovia-100 text-sovia-700 hover:bg-sovia-200"
                   }`}
                 >
                   Semua
@@ -432,8 +432,8 @@ function CatalogContent() {
                     onClick={() => setSelectedCategory(category.id)}
                     className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                       selectedCategory === category.id
-                        ? "bg-stone-900 text-white"
-                        : "bg-stone-100 text-stone-700 hover:bg-stone-200"
+                        ? "bg-sovia-900 text-white"
+                        : "bg-sovia-100 text-sovia-700 hover:bg-sovia-200"
                     }`}
                   >
                     {category.name}
@@ -442,7 +442,7 @@ function CatalogContent() {
                 {categories.length > 5 && (
                   <button
                     onClick={() => setShowAllCategories(!showAllCategories)}
-                    className="w-full text-left px-3 py-2 text-stone-500 text-sm hover:text-stone-900 transition-colors"
+                    className="w-full text-left px-3 py-2 text-sovia-500 text-sm hover:text-sovia-900 transition-colors"
                   >
                     {showAllCategories ? "Tampilkan lebih sedikit" : `Lihat semua kategori (${categories.length})`}
                   </button>
@@ -452,7 +452,7 @@ function CatalogContent() {
 
             {/* Size Filter */}
             <div className="mb-6">
-              <label className="text-stone-600 text-sm mb-2 block">
+              <label className="text-sovia-600 text-sm mb-2 block">
                 Ukuran
               </label>
               <div className="flex flex-wrap gap-2">
@@ -460,8 +460,8 @@ function CatalogContent() {
                   onClick={() => setSelectedSizeFilter("")}
                   className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${
                     selectedSizeFilter === ""
-                      ? "bg-stone-900 text-white border-stone-900"
-                      : "bg-white text-stone-700 border-stone-300 hover:border-stone-900"
+                      ? "bg-sovia-900 text-white border-sovia-900"
+                      : "bg-[#F3EFE6] text-sovia-700 border-sovia-300 hover:border-sovia-900"
                   }`}
                 >
                   Semua
@@ -472,8 +472,8 @@ function CatalogContent() {
                     onClick={() => setSelectedSizeFilter(size)}
                     className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${
                       selectedSizeFilter === size
-                        ? "bg-stone-900 text-white border-stone-900"
-                        : "bg-white text-stone-700 border-stone-300 hover:border-stone-900"
+                        ? "bg-sovia-900 text-white border-sovia-900"
+                        : "bg-[#F3EFE6] text-sovia-700 border-sovia-300 hover:border-sovia-900"
                     }`}
                   >
                     {size}
@@ -484,7 +484,7 @@ function CatalogContent() {
 
             {/* Price Range */}
             <div>
-              <label className="text-stone-600 text-sm mb-2 block">
+              <label className="text-sovia-600 text-sm mb-2 block">
                 Price Range
               </label>
               <div className="space-y-4">
@@ -496,9 +496,9 @@ function CatalogContent() {
                   onChange={(e) =>
                     setPriceRange([priceRange[0], Number(e.target.value)])
                   }
-                  className="w-full"
+                  className="w-full text-[#DCC4AA]"
                 />
-                <div className="flex justify-between text-stone-600 text-sm">
+                <div className="flex justify-between text-sovia-600 text-sm">
                   <span>{formatPrice(priceRange[0])}</span>
                   <span>{formatPrice(priceRange[1])}</span>
                 </div>
@@ -514,12 +514,12 @@ function CatalogContent() {
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
-                  className="bg-white rounded-lg shadow-lg overflow-hidden animate-pulse"
+                  className="bg-[#F3EFE6] rounded-lg shadow-lg overflow-hidden animate-pulse"
                 >
-                  <div className="aspect-[3/4] bg-stone-200" />
+                  <div className="aspect-[3/4] bg-sovia-200" />
                   <div className="p-4 space-y-2">
-                    <div className="h-4 bg-stone-200 rounded w-3/4" />
-                    <div className="h-4 bg-stone-200 rounded w-1/2" />
+                    <div className="h-4 bg-sovia-200 rounded w-3/4" />
+                    <div className="h-4 bg-sovia-200 rounded w-1/2" />
                   </div>
                 </div>
               ))}
@@ -530,7 +530,7 @@ function CatalogContent() {
                 <div
                   key={product.id}
                   onClick={() => setSelectedProduct(product)}
-                  className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+                  className="bg-[#F3EFE6] rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
                 >
                   <div className="relative aspect-[3/4]">
                     <Image
@@ -541,13 +541,13 @@ function CatalogContent() {
                     />
                   </div>
                   <div className="p-4">
-                    <p className="text-stone-500 text-sm mb-1">
+                    <p className="text-sovia-500 text-sm mb-1">
                       {product.category?.name}
                     </p>
-                    <h3 className="text-stone-900 font-medium mb-2">
+                    <h3 className="text-sovia-900 font-medium mb-2">
                       {product.name}
                     </h3>
-                    <p className="text-stone-900 font-serif">
+                    <p className="text-sovia-900 font-serif">
                       {formatPrice(product.price)}
                     </p>
                   </div>
@@ -556,10 +556,10 @@ function CatalogContent() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <p className="text-stone-600 text-lg">No products found</p>
+              <p className="text-sovia-600 text-lg">No products found</p>
               <Link
                 href="/catalog"
-                className="text-stone-600 text-sm underline mt-2 block"
+                className="text-sovia-600 text-sm underline mt-2 block"
               >
                 Clear filters
               </Link>
@@ -583,12 +583,12 @@ export default function CatalogPage() {
             {[...Array(6)].map((_, i) => (
               <div
                 key={i}
-                className="bg-white rounded-lg shadow-lg overflow-hidden animate-pulse"
+                className="bg-[#F3EFE6] rounded-lg shadow-lg overflow-hidden animate-pulse"
               >
-                <div className="aspect-[3/4] bg-stone-200" />
+                <div className="aspect-[3/4] bg-sovia-200" />
                 <div className="p-4 space-y-2">
-                  <div className="h-4 bg-stone-200 rounded w-3/4" />
-                  <div className="h-4 bg-stone-200 rounded w-1/2" />
+                  <div className="h-4 bg-sovia-200 rounded w-3/4" />
+                  <div className="h-4 bg-sovia-200 rounded w-1/2" />
                 </div>
               </div>
             ))}

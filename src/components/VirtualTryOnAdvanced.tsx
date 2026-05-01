@@ -96,13 +96,13 @@ export default function VirtualTryOnAdvanced() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 md:p-6 lg:p-8 mt-12 bg-white rounded-2xl shadow-sm border border-stone-200/60">
+    <div className="w-full max-w-4xl mx-auto p-4 md:p-6 lg:p-8 mt-12 bg-[#F3EFE6] rounded-2xl shadow-sm border border-sovia-200/60">
       <div className="text-center space-y-3 mb-8">
-        <div className="inline-flex items-center justify-center p-3 bg-pink-100 rounded-full mb-2">
-          <Sparkles className="w-8 h-8 text-pink-600" />
+        <div className="inline-flex items-center justify-center p-3 bg-accent-100 rounded-full mb-2">
+          <Sparkles className="w-8 h-8 text-sovia-600" />
         </div>
-        <h2 className="text-3xl font-extrabold tracking-tight text-stone-900">Advanced AI Try-On</h2>
-        <p className="text-stone-500 max-w-lg mx-auto">
+        <h2 className="text-3xl font-extrabold tracking-tight text-sovia-900">Advanced AI Try-On</h2>
+        <p className="text-sovia-500 max-w-lg mx-auto">
           Unggah foto Anda dan foto produk pilihan Anda. Teknologi AI kami akan menggabungkannya dengan sangat realistis!
         </p>
       </div>
@@ -111,8 +111,8 @@ export default function VirtualTryOnAdvanced() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Upload Foto Model */}
           <div className="space-y-3">
-            <label className="block text-sm font-semibold text-stone-700">1. Foto Anda (Full Body / Half Body)</label>
-            <div className="relative group border-2 border-dashed border-stone-300 hover:border-pink-400 bg-stone-50 rounded-xl transition-all duration-200 overflow-hidden min-h-[300px] flex flex-col items-center justify-center">
+            <label className="block text-sm font-semibold text-sovia-700">1. Foto Anda (Full Body / Half Body)</label>
+            <div className="relative group border-2 border-dashed border-sovia-300 hover:border-accent-300 bg-sovia-50 rounded-xl transition-all duration-200 overflow-hidden min-h-[300px] flex flex-col items-center justify-center">
               <input
                 type="file"
                 accept="image/*"
@@ -128,14 +128,14 @@ export default function VirtualTryOnAdvanced() {
               {humanPreview ? (
                 <img src={humanPreview} alt="Preview Anda" className="w-full h-full object-cover absolute inset-0" />
               ) : (
-                <div className="flex flex-col items-center text-stone-400 group-hover:text-pink-500 transition-colors p-6 text-center">
+                <div className="flex flex-col items-center text-sovia-400 group-hover:text-accent-400 transition-colors p-6 text-center">
                   <UploadCloud className="w-12 h-12 mb-3" />
                   <p className="font-medium text-sm">Klik atau drop foto Anda di sini</p>
                   <p className="text-xs mt-1 opacity-70">Pastikan pose tubuh terlihat jelas</p>
                 </div>
               )}
               {humanPreview && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-stone-900/70 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-md z-20 pointer-events-none">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-sovia-900/70 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-md z-20 pointer-events-none">
                   Klik untuk mengganti foto
                 </div>
               )}
@@ -144,8 +144,8 @@ export default function VirtualTryOnAdvanced() {
 
           {/* Upload Foto Produk */}
           <div className="space-y-3">
-            <label className="block text-sm font-semibold text-stone-700">2. Foto Pakaian / Produk</label>
-            <div className="relative group border-2 border-dashed border-stone-300 hover:border-pink-400 bg-stone-50 rounded-xl transition-all duration-200 overflow-hidden min-h-[300px] flex flex-col items-center justify-center">
+            <label className="block text-sm font-semibold text-sovia-700">2. Foto Pakaian / Produk</label>
+            <div className="relative group border-2 border-dashed border-sovia-300 hover:border-accent-300 bg-sovia-50 rounded-xl transition-all duration-200 overflow-hidden min-h-[300px] flex flex-col items-center justify-center">
               <input
                 type="file"
                 accept="image/*"
@@ -159,16 +159,16 @@ export default function VirtualTryOnAdvanced() {
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
               />
               {garmentPreview ? (
-                <img src={garmentPreview} alt="Preview Produk" className="w-full h-full object-contain bg-white absolute inset-0" />
+                <img src={garmentPreview} alt="Preview Produk" className="w-full h-full object-contain bg-[#F3EFE6] absolute inset-0" />
               ) : (
-                <div className="flex flex-col items-center text-stone-400 group-hover:text-pink-500 transition-colors p-6 text-center">
+                <div className="flex flex-col items-center text-sovia-400 group-hover:text-accent-400 transition-colors p-6 text-center">
                   <ImageIcon className="w-12 h-12 mb-3" />
                   <p className="font-medium text-sm">Klik atau drop foto pakaian</p>
                   <p className="text-xs mt-1 opacity-70">Gunakan foto pakaian tanpa latar belakang</p>
                 </div>
               )}
               {garmentPreview && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-stone-900/70 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-md z-20 pointer-events-none">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-sovia-900/70 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-md z-20 pointer-events-none">
                   Klik untuk mengganti produk
                 </div>
               )}
@@ -176,12 +176,12 @@ export default function VirtualTryOnAdvanced() {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center gap-4 bg-stone-50 p-4 rounded-xl border border-stone-100">
-          <label className="text-sm font-medium text-stone-700 whitespace-nowrap">Kategori Pakaian:</label>
+        <div className="flex flex-col md:flex-row items-center gap-4 bg-sovia-50 p-4 rounded-xl border border-sovia-100">
+          <label className="text-sm font-medium text-sovia-700 whitespace-nowrap">Kategori Pakaian:</label>
           <select 
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="flex-1 w-full bg-white border border-stone-200 text-stone-700 py-2.5 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+            className="flex-1 w-full bg-[#F3EFE6] border border-sovia-200 text-sovia-700 py-2.5 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-400"
           >
             <option value="upper_body">Atasan (Kaos, Kemeja, Blus)</option>
             <option value="lower_body">Bawahan (Celana, Rok)</option>
@@ -194,8 +194,8 @@ export default function VirtualTryOnAdvanced() {
           disabled={isLoading || !humanFile || !garmentFile}
           className={`w-full py-4 rounded-xl font-bold text-lg shadow-sm flex justify-center items-center gap-2 transition-all duration-300
             ${(isLoading || !humanFile || !garmentFile) 
-              ? 'bg-stone-200 text-stone-400 cursor-not-allowed' 
-              : 'bg-gradient-to-r from-pink-600 to-rose-500 hover:from-pink-500 hover:to-rose-400 text-white hover:shadow-md hover:-translate-y-0.5'}`}
+              ? 'bg-sovia-200 text-sovia-400 cursor-not-allowed' 
+              : 'bg-gradient-to-r from-sovia-600 to-accent-1000 hover:from-accent-400 hover:to-accent-300 text-white hover:shadow-md hover:-translate-y-0.5'}`}
         >
           {isLoading ? (
             <>
@@ -213,22 +213,22 @@ export default function VirtualTryOnAdvanced() {
 
       {/* Progress Info */}
       {isLoading && (
-        <div className="mt-8 p-6 bg-pink-50 border border-pink-100 rounded-xl text-center">
-          <RefreshCw className="w-8 h-8 text-pink-500 animate-spin mx-auto mb-3" />
-          <h3 className="font-semibold text-stone-800">AI Sedang Bekerja</h3>
-          <p className="text-stone-500 text-sm mt-1">{status}</p>
-          <p className="text-xs text-stone-400 mt-4">Proses ini dapat memakan waktu 30-60 detik tergantung kerumitan gambar.</p>
+        <div className="mt-8 p-6 bg-accent-100 border border-accent-100 rounded-xl text-center">
+          <RefreshCw className="w-8 h-8 text-accent-400 animate-spin mx-auto mb-3" />
+          <h3 className="font-semibold text-sovia-800">AI Sedang Bekerja</h3>
+          <p className="text-sovia-500 text-sm mt-1">{status}</p>
+          <p className="text-xs text-sovia-400 mt-4">Proses ini dapat memakan waktu 30-60 detik tergantung kerumitan gambar.</p>
         </div>
       )}
 
       {/* Result Area */}
       {resultImage && !isLoading && (
-        <div className="mt-10 border-t border-stone-200 pt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="mt-10 border-t border-sovia-200 pt-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div className="text-center mb-6">
             <div className="inline-flex items-center justify-center p-2 bg-green-100 rounded-full mb-3">
               <CheckCircle2 className="w-6 h-6 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-stone-900">Hasil Try-On</h2>
+            <h2 className="text-2xl font-bold text-sovia-900">Hasil Try-On</h2>
           </div>
           
           <div className="relative group overflow-hidden rounded-2xl shadow-xl max-w-md mx-auto border-4 border-white">
@@ -258,7 +258,7 @@ export default function VirtualTryOnAdvanced() {
                     window.open(resultImage, '_blank');
                   }
                 }}
-                className="bg-white text-stone-900 font-semibold py-3 px-6 rounded-full flex items-center gap-2 hover:bg-pink-50 hover:text-pink-600 hover:scale-105 transition-all shadow-lg"
+                className="bg-[#F3EFE6] text-sovia-900 font-semibold py-3 px-6 rounded-full flex items-center gap-2 hover:bg-accent-100 hover:text-sovia-600 hover:scale-105 transition-all shadow-lg"
               >
                 <Download className="w-5 h-5" />
                 Simpan Hasil

@@ -9,10 +9,10 @@ export function Footer() {
   ]
 
   return (
-    <footer className="bg-stone-100 px-8 py-16">
+    <footer className="bg-sovia-100 px-8 py-16">
       <div className="max-w-[1280px] mx-auto">
         <div className="flex flex-col items-center">
-          <h2 className="text-stone-600 text-3xl font-['Noto_Serif'] font-normal mb-8">
+          <h2 className="text-sovia-600 text-3xl font-['Noto_Serif'] font-normal mb-8">
             SOVIA
           </h2>
           <div className="flex gap-12 mb-8">
@@ -20,13 +20,13 @@ export function Footer() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="text-stone-400 text-lg hover:text-stone-600 transition-colors"
+                className="text-sovia-400 text-lg hover:text-sovia-600 transition-colors"
               >
                 {link.label}
               </Link>
             ))}
           </div>
-          <div className="text-stone-600 text-sm">
+          <div className="text-sovia-600 text-sm">
             © {new Date().getFullYear()} SOVIA Fashion. All Rights Reserved.
           </div>
         </div>

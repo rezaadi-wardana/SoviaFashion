@@ -85,8 +85,8 @@ export default function AdminHeroPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-stone-900 text-3xl font-serif mb-2">Hero Slider Management</h1>
-          <p className="text-stone-700 text-sm">
+          <h1 className="text-sovia-900 text-3xl font-serif mb-2">Hero Slider Management</h1>
+          <p className="text-sovia-700 text-sm">
             Manage the hero section sliders for the homepage.
           </p>
         </div>
@@ -95,7 +95,7 @@ export default function AdminHeroPage() {
             setEditingSlide(null)
             setShowModal(true)
           }}
-          className="px-6 py-3 bg-stone-600 text-white text-sm font-medium rounded-lg flex items-center gap-2"
+          className="px-6 py-3 bg-sovia-600 text-white text-sm font-medium rounded-lg flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           New Slide
@@ -104,19 +104,19 @@ export default function AdminHeroPage() {
 
       {/* Slides List */}
       {loading ? (
-        <div className="text-center py-16 text-stone-500">Loading...</div>
+        <div className="text-center py-16 text-sovia-500">Loading...</div>
       ) : slides.length === 0 ? (
-        <div className="text-center py-16 text-stone-500">
+        <div className="text-center py-16 text-sovia-500">
           No hero slides yet. Create your first slide.
         </div>
       ) : (
         <div className="space-y-4">
           {slides.map((slide, index) => (
-            <div key={slide.id} className="bg-white rounded-lg p-4 flex items-center gap-4">
-              <div className="w-8 flex items-center justify-center text-stone-400">
+            <div key={slide.id} className="bg-[#F3EFE6] rounded-lg p-4 flex items-center gap-4">
+              <div className="w-8 flex items-center justify-center text-sovia-400">
                 <GripVertical className="w-4 h-4" />
               </div>
-              <div className="w-32 h-20 bg-stone-200 rounded overflow-hidden relative">
+              <div className="w-32 h-20 bg-sovia-200 rounded overflow-hidden relative">
                 <Image
                   src={slide.image}
                   alt={slide.title}
@@ -125,18 +125,18 @@ export default function AdminHeroPage() {
                 />
               </div>
               <div className="flex-1">
-                <p className="text-stone-900 font-medium">{slide.title}</p>
-                <p className="text-stone-500 text-sm">{slide.subtitle || "No subtitle"}</p>
+                <p className="text-sovia-900 font-medium">{slide.title}</p>
+                <p className="text-sovia-500 text-sm">{slide.subtitle || "No subtitle"}</p>
               </div>
               <div className="flex items-center gap-2">
                 <span
                   className={`px-2 py-1 rounded text-xs ${
-                    slide.isActive ? "bg-green-100 text-green-700" : "bg-stone-100 text-stone-500"
+                    slide.isActive ? "bg-green-100 text-green-700" : "bg-sovia-100 text-sovia-500"
                   }`}
                 >
                   {slide.isActive ? "Active" : "Inactive"}
                 </span>
-                <span className="text-stone-500 text-sm">Order: {slide.order}</span>
+                <span className="text-sovia-500 text-sm">Order: {slide.order}</span>
               </div>
               <div className="flex gap-2">
                 <button
@@ -144,15 +144,15 @@ export default function AdminHeroPage() {
                     setEditingSlide(slide)
                     setShowModal(true)
                   }}
-                  className="p-2 hover:bg-stone-100 rounded"
+                  className="p-2 hover:bg-sovia-100 rounded"
                 >
-                  <Edit className="w-4 h-4 text-stone-600" />
+                  <Edit className="w-4 h-4 text-sovia-600" />
                 </button>
                 <button
                   onClick={() => handleDelete(slide.id)}
                   className="p-2 hover:bg-red-50 rounded"
                 >
-                  <Trash2 className="w-4 h-4 text-red-500" />
+                  <Trash2 className="w-4 h-4 text-accent-500" />
                 </button>
               </div>
             </div>
@@ -225,35 +225,35 @@ function HeroSlideModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[70]" onClick={onClose}>
-      <div className="bg-white rounded-lg p-8 max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
-        <h2 className="text-stone-900 text-2xl font-serif mb-6">
+      <div className="bg-[#F3EFE6] rounded-lg p-8 max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
+        <h2 className="text-sovia-900 text-2xl font-serif mb-6">
           {slide ? "Edit Slide" : "New Slide"}
         </h2>
         <div className="space-y-4">
           <div>
-            <label className="text-stone-700 text-sm block mb-2">Title</label>
+            <label className="text-sovia-700 text-sm block mb-2">Title</label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full py-2 px-4 bg-stone-100 rounded-lg"
+              className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
               required
             />
           </div>
           <div>
-            <label className="text-stone-700 text-sm block mb-2">Subtitle</label>
+            <label className="text-sovia-700 text-sm block mb-2">Subtitle</label>
             <input
               type="text"
               value={formData.subtitle}
               onChange={(e) => setFormData({ ...formData, subtitle: e.target.value })}
-              className="w-full py-2 px-4 bg-stone-100 rounded-lg"
+              className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
             />
           </div>
           <div>
-            <label className="text-stone-700 text-sm block mb-2">Slide Image</label>
+            <label className="text-sovia-700 text-sm block mb-2">Slide Image</label>
             <div className="space-y-3">
               {formData.image && (
-                <div className="relative w-full h-40 bg-stone-200 rounded-lg overflow-hidden">
+                <div className="relative w-full h-40 bg-sovia-200 rounded-lg overflow-hidden">
                   <Image
                     src={formData.image}
                     alt="Preview"
@@ -273,7 +273,7 @@ function HeroSlideModal({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="w-full py-3 px-4 border-2 border-dashed border-stone-300 rounded-lg text-stone-600 hover:border-stone-500 hover:bg-stone-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-3 px-4 border-2 border-dashed border-sovia-300 rounded-lg text-sovia-600 hover:border-sovia-500 hover:bg-sovia-50 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {uploading ? (
                   <>
@@ -290,17 +290,17 @@ function HeroSlideModal({
             </div>
           </div>
           <div>
-            <label className="text-stone-700 text-sm block mb-2">Link URL (optional)</label>
+            <label className="text-sovia-700 text-sm block mb-2">Link URL (optional)</label>
             <input
               type="text"
               value={formData.link}
               onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-              className="w-full py-2 px-4 bg-stone-100 rounded-lg"
+              className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-stone-700 text-sm block mb-2">Order</label>
+              <label className="text-sovia-700 text-sm block mb-2">Order</label>
               <input
                 type="number"
                 value={String(formData.order ?? 0)}
@@ -308,7 +308,7 @@ function HeroSlideModal({
                   const val = e.target.value
                   setFormData({ ...formData, order: val === "" ? 0 : parseInt(val) || 0 })
                 }}
-                className="w-full py-2 px-4 bg-stone-100 rounded-lg"
+                className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
               />
             </div>
             <div className="flex items-center pt-8">
@@ -319,7 +319,7 @@ function HeroSlideModal({
                 onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                 className="w-4 h-4 mr-2"
               />
-              <label htmlFor="isActive" className="text-stone-700 text-sm">
+              <label htmlFor="isActive" className="text-sovia-700 text-sm">
                 Active
               </label>
             </div>
@@ -329,7 +329,7 @@ function HeroSlideModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-3 border border-stone-300 rounded-lg text-stone-600"
+            className="flex-1 py-3 border border-sovia-300 rounded-lg text-sovia-600"
           >
             Cancel
           </button>
@@ -346,7 +346,7 @@ function HeroSlideModal({
               }
               onSave(formData)
             }}
-            className="flex-1 py-3 bg-stone-600 text-white rounded-lg hover:bg-stone-700 transition-colors"
+            className="flex-1 py-3 bg-sovia-600 text-white rounded-lg hover:bg-sovia-700 transition-colors"
           >
             {slide ? "Update" : "Create"} Slide
           </button>

@@ -26,7 +26,7 @@ interface ReportData {
   ordersByStatus: { status: string; count: number }[]
 }
 
-const COLORS = ["#be123c", "#0ea5e9", "#8b5cf6", "#22c55e", "#f59e0b"]
+const COLORS = ["#B49583", "#0ea5e9", "#8b5cf6", "#22c55e", "#f59e0b"]
 
 export default function AdminReportsPage() {
   const [data, setData] = useState<ReportData>({
@@ -84,8 +84,8 @@ export default function AdminReportsPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-stone-900 text-3xl font-serif mb-2">Sales Reports</h1>
-        <p className="text-stone-700 text-sm">
+        <h1 className="text-sovia-900 text-3xl font-serif mb-2">Sales Reports</h1>
+        <p className="text-sovia-700 text-sm">
           View detailed sales analytics and performance metrics.
         </p>
       </div>
@@ -93,12 +93,12 @@ export default function AdminReportsPage() {
       {/* Summary Cards */}
       <div className="grid grid-cols-4 gap-6 mb-12">
         {summaryCards.map((card, index) => (
-          <div key={index} className="bg-white h-40 p-6 rounded-lg shadow-lg flex flex-col justify-between">
+          <div key={index} className="bg-[#F3EFE6] h-40 p-6 rounded-lg shadow-lg flex flex-col justify-between">
             <div className="flex justify-between items-start">
-              <p className="text-stone-700 text-sm">{card.label}</p>
-              <card.icon className="w-5 h-5 text-stone-600" />
+              <p className="text-sovia-700 text-sm">{card.label}</p>
+              <card.icon className="w-5 h-5 text-sovia-600" />
             </div>
-            <p className="text-stone-900 text-2xl font-serif">
+            <p className="text-sovia-900 text-2xl font-serif">
               {loading ? "..." : card.value}
             </p>
           </div>
@@ -108,33 +108,33 @@ export default function AdminReportsPage() {
       {/* Charts */}
       <div className="grid grid-cols-2 gap-8">
         {/* Revenue by Month */}
-        <div className="bg-white p-8 rounded-lg shadow-lg">
-          <h2 className="text-stone-900 text-xl font-serif mb-6">
+        <div className="bg-[#F3EFE6] p-8 rounded-lg shadow-lg">
+          <h2 className="text-sovia-900 text-xl font-serif mb-6">
             Revenue by Month
           </h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data.ordersByMonth}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e7e5e4" />
-                <XAxis dataKey="month" stroke="#78716c" fontSize={12} />
-                <YAxis stroke="#78716c" fontSize={12} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#E5D8D2" />
+                <XAxis dataKey="month" stroke="#645445" fontSize={12} />
+                <YAxis stroke="#645445" fontSize={12} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#fff",
-                    border: "1px solid #e7e5e4",
+                    backgroundColor: "#F3EFE6",
+                    border: "1px solid #E5D8D2",
                     borderRadius: "8px",
                   }}
                   formatter={(value) => formatPrice(Number(value) || 0)}
                 />
-                <Bar dataKey="revenue" fill="#be123c" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="revenue" fill="#B49583" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Orders by Status */}
-        <div className="bg-white p-8 rounded-lg shadow-lg">
-          <h2 className="text-stone-900 text-xl font-serif mb-6">
+        <div className="bg-[#F3EFE6] p-8 rounded-lg shadow-lg">
+          <h2 className="text-sovia-900 text-xl font-serif mb-6">
             Orders by Status
           </h2>
           <div className="h-64">
@@ -165,30 +165,30 @@ export default function AdminReportsPage() {
       </div>
 
       {/* Top Products */}
-      <div className="bg-white p-8 rounded-lg shadow-lg mt-8">
-        <h2 className="text-stone-900 text-xl font-serif mb-6">
+      <div className="bg-[#F3EFE6] p-8 rounded-lg shadow-lg mt-8">
+        <h2 className="text-sovia-900 text-xl font-serif mb-6">
           Top Selling Products
         </h2>
         <table className="w-full">
           <thead>
-            <tr className="border-b border-stone-200">
-              <th className="text-left py-4 text-stone-700 text-xs font-semibold uppercase">
+            <tr className="border-b border-sovia-200">
+              <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">
                 Product
               </th>
-              <th className="text-left py-4 text-stone-700 text-xs font-semibold uppercase">
+              <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">
                 Units Sold
               </th>
-              <th className="text-left py-4 text-stone-700 text-xs font-semibold uppercase">
+              <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">
                 Revenue
               </th>
             </tr>
           </thead>
           <tbody>
             {data.topProducts.map((product, index) => (
-              <tr key={index} className="border-b border-stone-100">
-                <td className="py-4 text-stone-900 text-sm">{product.name}</td>
-                <td className="py-4 text-stone-700 text-sm">{product.sold}</td>
-                <td className="py-4 text-stone-900 text-sm font-medium">
+              <tr key={index} className="border-b border-sovia-100">
+                <td className="py-4 text-sovia-900 text-sm">{product.name}</td>
+                <td className="py-4 text-sovia-700 text-sm">{product.sold}</td>
+                <td className="py-4 text-sovia-900 text-sm font-medium">
                   {formatPrice(product.revenue)}
                 </td>
               </tr>

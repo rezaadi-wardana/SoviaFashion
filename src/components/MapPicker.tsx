@@ -126,7 +126,7 @@ export default function MapPicker({ lat, lng, onLocationChange, height = "h-80" 
     <div className="relative">
       <div
         ref={mapContainerRef}
-        className={`${height} w-full rounded-xl overflow-hidden border border-stone-200 z-0`}
+        className={`${height} w-full rounded-xl overflow-hidden border border-sovia-200 z-0`}
       />
 
       {/* Detect GPS button */}
@@ -134,7 +134,7 @@ export default function MapPicker({ lat, lng, onLocationChange, height = "h-80" 
         type="button"
         onClick={handleDetectLocation}
         disabled={detecting}
-        className="absolute top-3 right-3 z-[1000] bg-white shadow-lg rounded-lg px-3 py-2 text-sm font-medium text-stone-700 hover:bg-stone-50 transition-colors flex items-center gap-2 border border-stone-200"
+        className="absolute top-3 right-3 z-[1000] bg-[#F3EFE6] shadow-lg rounded-lg px-3 py-2 text-sm font-medium text-sovia-700 hover:bg-sovia-50 transition-colors flex items-center gap-2 border border-sovia-200"
       >
         {detecting ? (
           <Loader2 className="w-4 h-4 animate-spin" />
@@ -146,7 +146,7 @@ export default function MapPicker({ lat, lng, onLocationChange, height = "h-80" 
 
       {/* Coordinate display */}
       {lat !== 0 && lng !== 0 && (
-        <div className="absolute bottom-3 left-3 z-[1000] bg-white/90 backdrop-blur-sm shadow rounded-lg px-3 py-2 text-xs text-stone-600 flex items-center gap-2">
+        <div className="absolute bottom-3 left-3 z-[1000] bg-[#F3EFE6]/90 backdrop-blur-sm shadow rounded-lg px-3 py-2 text-xs text-sovia-600 flex items-center gap-2">
           <MapPin className="w-3 h-3" />
           {lat.toFixed(6)}, {lng.toFixed(6)}
         </div>
@@ -154,10 +154,10 @@ export default function MapPicker({ lat, lng, onLocationChange, height = "h-80" 
 
       {/* Loading overlay */}
       {!isLoaded && (
-        <div className="absolute inset-0 bg-stone-100 rounded-xl flex items-center justify-center">
+        <div className="absolute inset-0 bg-sovia-100 rounded-xl flex items-center justify-center">
           <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin text-stone-400 mx-auto mb-2" />
-            <p className="text-stone-500 text-sm">Memuat peta...</p>
+            <Loader2 className="w-8 h-8 animate-spin text-sovia-400 mx-auto mb-2" />
+            <p className="text-sovia-500 text-sm">Memuat peta...</p>
           </div>
         </div>
       )}

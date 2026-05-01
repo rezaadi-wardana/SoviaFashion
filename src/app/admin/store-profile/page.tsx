@@ -8,8 +8,8 @@ import { toast } from "sonner"
 const MapPicker = dynamic(() => import("@/components/MapPicker"), {
   ssr: false,
   loading: () => (
-    <div className="h-72 bg-stone-100 rounded-xl animate-pulse flex items-center justify-center">
-      <p className="text-stone-400 text-sm">Memuat peta...</p>
+    <div className="h-72 bg-sovia-100 rounded-xl animate-pulse flex items-center justify-center">
+      <p className="text-sovia-400 text-sm">Memuat peta...</p>
     </div>
   ),
 })
@@ -120,7 +120,7 @@ export default function StoreProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-32">
-        <Loader2 className="w-8 h-8 animate-spin text-stone-400" />
+        <Loader2 className="w-8 h-8 animate-spin text-sovia-400" />
       </div>
     )
   }
@@ -128,49 +128,49 @@ export default function StoreProfilePage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-stone-900 text-3xl font-serif mb-2">Profil Toko</h1>
-        <p className="text-stone-700 text-sm">
+        <h1 className="text-sovia-900 text-3xl font-serif mb-2">Profil Toko</h1>
+        <p className="text-sovia-700 text-sm">
           Kelola informasi toko Anda. Alamat toko digunakan sebagai titik awal pengiriman.
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Store Identity */}
-        <div className="bg-white rounded-xl p-8 shadow-sm">
+        <div className="bg-[#F3EFE6] rounded-xl p-8 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center">
-              <Store className="w-5 h-5 text-stone-600" />
+            <div className="w-10 h-10 bg-sovia-100 rounded-xl flex items-center justify-center">
+              <Store className="w-5 h-5 text-sovia-600" />
             </div>
-            <h2 className="text-stone-900 text-xl font-serif">Identitas Toko</h2>
+            <h2 className="text-sovia-900 text-xl font-serif">Identitas Toko</h2>
           </div>
           <div className="space-y-5">
             <div>
-              <label className="text-stone-700 text-sm block mb-2">Nama Toko</label>
+              <label className="text-sovia-700 text-sm block mb-2">Nama Toko</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full py-3 px-4 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400"
+                className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
                 placeholder="SOVIA Fashion"
               />
             </div>
             <div>
-              <label className="text-stone-700 text-sm block mb-2">Nama Pengelola</label>
+              <label className="text-sovia-700 text-sm block mb-2">Nama Pengelola</label>
               <input
                 type="text"
                 value={formData.ownerName}
                 onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
-                className="w-full py-3 px-4 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400"
+                className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
                 placeholder="Nama pemilik toko"
               />
             </div>
             <div>
-              <label className="text-stone-700 text-sm block mb-2">Deskripsi Toko</label>
+              <label className="text-sovia-700 text-sm block mb-2">Deskripsi Toko</label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 rows={4}
-                className="w-full py-3 px-4 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400 resize-none"
+                className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400 resize-none"
                 placeholder="Deskripsi singkat tentang toko Anda..."
               />
             </div>
@@ -178,16 +178,16 @@ export default function StoreProfilePage() {
         </div>
 
         {/* Contact */}
-        <div className="bg-white rounded-xl p-8 shadow-sm">
+        <div className="bg-[#F3EFE6] rounded-xl p-8 shadow-sm">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center">
-              <Phone className="w-5 h-5 text-stone-600" />
+            <div className="w-10 h-10 bg-sovia-100 rounded-xl flex items-center justify-center">
+              <Phone className="w-5 h-5 text-sovia-600" />
             </div>
-            <h2 className="text-stone-900 text-xl font-serif">Kontak</h2>
+            <h2 className="text-sovia-900 text-xl font-serif">Kontak</h2>
           </div>
           <div className="space-y-5">
             <div>
-              <label className="text-stone-700 text-sm block mb-2">
+              <label className="text-sovia-700 text-sm block mb-2">
                 <span className="flex items-center gap-2">
                   <MessageCircle className="w-4 h-4 text-green-600" />
                   Nomor WhatsApp
@@ -197,40 +197,40 @@ export default function StoreProfilePage() {
                 type="text"
                 value={formData.whatsapp}
                 onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                className="w-full py-3 px-4 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400"
+                className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
                 placeholder="628123456789 (tanpa + atau spasi)"
               />
-              <p className="text-stone-400 text-xs mt-1">
+              <p className="text-sovia-400 text-xs mt-1">
                 Format: 628xxxxxxxxxx — Digunakan untuk tombol &quot;Chat Penjual&quot; di halaman produk
               </p>
             </div>
             <div>
-              <label className="text-stone-700 text-sm block mb-2">Nomor Telepon</label>
+              <label className="text-sovia-700 text-sm block mb-2">Nomor Telepon</label>
               <input
                 type="text"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full py-3 px-4 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400"
+                className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
                 placeholder="+62 812 3456 7890"
               />
             </div>
             <div>
-              <label className="text-stone-700 text-sm block mb-2">Email</label>
+              <label className="text-sovia-700 text-sm block mb-2">Email</label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full py-3 px-4 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400"
+                className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
                 placeholder="toko@sovia.com"
               />
             </div>
             <div>
-              <label className="text-stone-700 text-sm block mb-2">Instagram</label>
+              <label className="text-sovia-700 text-sm block mb-2">Instagram</label>
               <input
                 type="text"
                 value={formData.instagram}
                 onChange={(e) => setFormData({ ...formData, instagram: e.target.value })}
-                className="w-full py-3 px-4 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400"
+                className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
                 placeholder="@soviafashion"
               />
             </div>
@@ -238,30 +238,30 @@ export default function StoreProfilePage() {
         </div>
 
         {/* Address */}
-        <div className="bg-white rounded-xl p-8 shadow-sm lg:col-span-2">
+        <div className="bg-[#F3EFE6] rounded-xl p-8 shadow-sm lg:col-span-2">
           <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-stone-100 rounded-xl flex items-center justify-center">
-                <MapPin className="w-5 h-5 text-stone-600" />
+              <div className="w-10 h-10 bg-sovia-100 rounded-xl flex items-center justify-center">
+                <MapPin className="w-5 h-5 text-sovia-600" />
               </div>
               <div>
-                <h2 className="text-stone-900 text-xl font-serif">Alamat Toko</h2>
-                <p className="text-stone-500 text-xs">Titik awal pengiriman & perhitungan jarak</p>
+                <h2 className="text-sovia-900 text-xl font-serif">Alamat Toko</h2>
+                <p className="text-sovia-500 text-xs">Titik awal pengiriman & perhitungan jarak</p>
               </div>
             </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="lg:col-span-2">
-              <label className="text-stone-700 text-sm block mb-2">Alamat Lengkap</label>
+              <label className="text-sovia-700 text-sm block mb-2">Alamat Lengkap</label>
               <textarea
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 rows={3}
-                className="w-full py-3 px-4 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400 resize-none"
+                className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400 resize-none"
                 placeholder="Jl. Contoh No. 123, Kecamatan, Kota, Provinsi"
               />
             </div>
             <div className="lg:col-span-2">
-              <label className="text-stone-700 text-sm block mb-2">Titik Lokasi Toko</label>
-              <p className="text-stone-400 text-xs mb-3">
+              <label className="text-sovia-700 text-sm block mb-2">Titik Lokasi Toko</label>
+              <p className="text-sovia-400 text-xs mb-3">
                 Klik pada peta atau geser pin untuk menentukan lokasi toko
               </p>
               <MapPicker
@@ -275,7 +275,7 @@ export default function StoreProfilePage() {
               />
             </div>
             <div>
-              <label className="text-stone-700 text-sm block mb-2">Latitude</label>
+              <label className="text-sovia-700 text-sm block mb-2">Latitude</label>
               <input
                 type="number"
                 step="any"
@@ -283,12 +283,12 @@ export default function StoreProfilePage() {
                 onChange={(e) =>
                   setFormData({ ...formData, lat: parseFloat(e.target.value) || 0 })
                 }
-                className="w-full py-3 px-4 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400"
+                className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
                 placeholder="-6.2088"
               />
             </div>
             <div>
-              <label className="text-stone-700 text-sm block mb-2">Longitude</label>
+              <label className="text-sovia-700 text-sm block mb-2">Longitude</label>
               <input
                 type="number"
                 step="any"
@@ -296,7 +296,7 @@ export default function StoreProfilePage() {
                 onChange={(e) =>
                   setFormData({ ...formData, lng: parseFloat(e.target.value) || 0 })
                 }
-                className="w-full py-3 px-4 bg-stone-50 border border-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-stone-400"
+                className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
                 placeholder="106.8456"
               />
             </div>
@@ -308,7 +308,7 @@ export default function StoreProfilePage() {
           <button
             type="submit"
             disabled={saving}
-            className="px-8 py-3 bg-stone-600 text-white rounded-lg font-medium flex items-center gap-2 hover:bg-stone-700 transition-colors disabled:opacity-60"
+            className="px-8 py-3 bg-sovia-600 text-white rounded-lg font-medium flex items-center gap-2 hover:bg-sovia-700 transition-colors disabled:opacity-60"
           >
             {saving ? (
               <Loader2 className="w-5 h-5 animate-spin" />

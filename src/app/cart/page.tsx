@@ -113,7 +113,7 @@ export default function CartPage() {
   if (status === "loading") {
     return (
       <div className="min-h-screen pt-32 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-stone-600 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-4 border-sovia-600 border-t-transparent rounded-full" />
       </div>
     )
   }
@@ -122,13 +122,13 @@ export default function CartPage() {
     return (
       <div className="min-h-screen pt-32 flex items-center justify-center">
         <div className="text-center">
-          <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-stone-400" />
-          <p className="text-stone-600 text-lg mb-4">
+          <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-sovia-400" />
+          <p className="text-sovia-600 text-lg mb-4">
             Please sign in to view your cart
           </p>
           <Link
             href="/auth/signin"
-            className="px-6 py-3 bg-stone-600 text-white rounded-lg"
+            className="px-6 py-3 bg-sovia-600 text-white rounded-lg"
           >
             Sign In
           </Link>
@@ -140,19 +140,19 @@ export default function CartPage() {
   return (
     <div className="min-h-screen pt-32 pb-24">
       <div className="max-w-[1280px] mx-auto px-8">
-        <h1 className="text-stone-900 text-4xl font-serif mb-8">Shopping Cart</h1>
+        <h1 className="text-sovia-900 text-4xl font-serif mb-8">Shopping Cart</h1>
 
         {loading ? (
           <div className="text-center py-16">
-            <div className="animate-spin w-8 h-8 border-4 border-stone-600 border-t-transparent rounded-full mx-auto" />
+            <div className="animate-spin w-8 h-8 border-4 border-sovia-600 border-t-transparent rounded-full mx-auto" />
           </div>
         ) : items.length === 0 ? (
           <div className="text-center py-16">
-            <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-stone-400" />
-            <p className="text-stone-600 text-lg mb-4">Your cart is empty</p>
+            <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-sovia-400" />
+            <p className="text-sovia-600 text-lg mb-4">Your cart is empty</p>
             <Link
               href="/catalog"
-              className="px-6 py-3 bg-stone-600 text-white rounded-lg inline-block"
+              className="px-6 py-3 bg-sovia-600 text-white rounded-lg inline-block"
             >
               Continue Shopping
             </Link>
@@ -164,14 +164,14 @@ export default function CartPage() {
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex gap-4 bg-white rounded-lg p-4"
+                  className="flex gap-4 bg-[#F3EFE6] rounded-lg p-4"
                 >
-                  <div className="w-20 h-24 bg-stone-200 rounded flex-shrink-0 overflow-hidden">
+                  <div className="w-20 h-24 bg-sovia-200 rounded flex-shrink-0 overflow-hidden">
                     <Image
                       src={
                         item.product.variants.find(v => v.name === item.color)?.image ||
                         getProductImages(item.product.images)[0] ||
-                        "https://placehold.co/80x96/fafaf9/1c1917?text=Item"
+                        "https://placehold.co/80x96/F3EFE6/3C3228?text=Item"
                       }
                       alt={item.product.name}
                       width={80}
@@ -180,14 +180,14 @@ export default function CartPage() {
                     />
                   </div>
                   <div className="flex-1">
-                    <h3 className="text-stone-900 text-lg font-serif">
+                    <h3 className="text-sovia-900 text-lg font-serif">
                       {item.product.name}
                     </h3>
-                    <p className="text-stone-700 text-sm">
+                    <p className="text-sovia-700 text-sm">
                       {item.color && `Variant: ${item.color}`}
                       {item.size && ` | Size: ${item.size}`}
                     </p>
-                    <p className="text-stone-900 text-base font-medium mt-2">
+                    <p className="text-sovia-900 text-base font-medium mt-2">
                       {formatPrice(item.product.price)}
                     </p>
                   </div>
@@ -195,21 +195,21 @@ export default function CartPage() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => updateQuantity(item.id, -1)}
-                        className="w-8 h-8 flex items-center justify-center bg-stone-200 rounded"
+                        className="w-8 h-8 flex items-center justify-center bg-sovia-200 rounded"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
                       <span className="w-8 text-center">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, 1)}
-                        className="w-8 h-8 flex items-center justify-center bg-stone-200 rounded"
+                        className="w-8 h-8 flex items-center justify-center bg-sovia-200 rounded"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="p-2 text-stone-500 hover:text-red-500"
+                      className="p-2 text-sovia-500 hover:text-accent-500"
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>
@@ -220,33 +220,33 @@ export default function CartPage() {
 
             {/* Order Summary */}
             <div className="w-96">
-              <div className="bg-stone-100 rounded-lg p-8">
-                <h2 className="text-stone-900 text-2xl font-serif mb-6">
+              <div className="bg-sovia-100 rounded-lg p-8">
+                <h2 className="text-sovia-900 text-2xl font-serif mb-6">
                   Order Summary
                 </h2>
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
-                    <span className="text-stone-700 text-sm">Subtotal</span>
-                    <span className="text-stone-700 text-sm">
+                    <span className="text-sovia-700 text-sm">Subtotal</span>
+                    <span className="text-sovia-700 text-sm">
                       {formatPrice(subtotal)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-stone-700 text-sm">Shipping</span>
-                    <span className="text-stone-700 text-sm">
+                    <span className="text-sovia-700 text-sm">Shipping</span>
+                    <span className="text-sovia-700 text-sm">
                       {formatPrice(shipping)}
                     </span>
                   </div>
-                  <div className="flex justify-between pt-3 border-t border-stone-200">
-                    <span className="text-stone-900 text-lg font-medium">Total</span>
-                    <span className="text-stone-900 text-lg font-medium">
+                  <div className="flex justify-between pt-3 border-t border-sovia-200">
+                    <span className="text-sovia-900 text-lg font-medium">Total</span>
+                    <span className="text-sovia-900 text-lg font-medium">
                       {formatPrice(total)}
                     </span>
                   </div>
                 </div>
                 <Link
                   href="/checkout"
-                  className="block w-full py-4 bg-gradient-to-r from-stone-600 to-red-300 text-white text-center rounded-lg font-medium"
+                  className="block w-full py-4 bg-gradient-to-r from-sovia-600 to-accent-300 text-white text-center rounded-lg font-medium"
                 >
                   Proceed to Checkout
                 </Link>

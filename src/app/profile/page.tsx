@@ -56,8 +56,8 @@ function X({ className }: { className?: string }) {
 const MapPicker = dynamic(() => import("@/components/MapPicker"), {
   ssr: false,
   loading: () => (
-    <div className="h-80 bg-stone-200 rounded-xl animate-pulse flex items-center justify-center">
-      <p className="text-stone-400 text-sm">Memuat peta...</p>
+    <div className="h-80 bg-sovia-200 rounded-xl animate-pulse flex items-center justify-center">
+      <p className="text-sovia-400 text-sm">Memuat peta...</p>
     </div>
   ),
 })
@@ -202,8 +202,8 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen pt-32 pb-16 flex items-center justify-center">
         <div className="text-center">
-          <User className="w-16 h-16 mx-auto mb-4 text-stone-400" />
-          <p className="text-stone-600 text-lg">Please sign in to view your profile</p>
+          <User className="w-16 h-16 mx-auto mb-4 text-sovia-400" />
+          <p className="text-sovia-600 text-lg">Please sign in to view your profile</p>
         </div>
       </div>
     )
@@ -213,20 +213,20 @@ export default function ProfilePage() {
     <div className="min-h-screen pt-32 pb-24">
       <div className="max-w-[1280px] mx-auto px-8">
         <div className="mb-12">
-          <h1 className="text-stone-600 text-6xl font-serif">Your Profile</h1>
-          <p className="text-stone-700 text-lg mt-4 max-w-[672px]">
+          <h1 className="text-sovia-600 text-6xl font-serif">Your Profile</h1>
+          <p className="text-sovia-700 text-lg mt-4 max-w-[672px]">
             Manage your personal details and delivery logistics to ensure a seamless
             editorial experience with SOVIA.
           </p>
         </div>
 
-        <div className="flex gap-8 border-b border-stone-200 mb-12">
+        <div className="flex gap-8 border-b border-sovia-200 mb-12">
           <button
             onClick={() => setActiveTab("profile")}
             className={`pb-4 text-lg font-medium transition-colors border-b-2 ${
               activeTab === "profile"
-                ? "border-stone-900 text-stone-900"
-                : "border-transparent text-stone-500 hover:text-stone-700"
+                ? "border-sovia-900 text-sovia-900"
+                : "border-transparent text-sovia-500 hover:text-sovia-700"
             }`}
           >
             Profil Saya
@@ -235,8 +235,8 @@ export default function ProfilePage() {
             onClick={() => setActiveTab("orders")}
             className={`pb-4 text-lg font-medium transition-colors border-b-2 ${
               activeTab === "orders"
-                ? "border-stone-900 text-stone-900"
-                : "border-transparent text-stone-500 hover:text-stone-700"
+                ? "border-sovia-900 text-sovia-900"
+                : "border-transparent text-sovia-500 hover:text-sovia-700"
             }`}
           >
             Pesanan Saya
@@ -246,13 +246,13 @@ export default function ProfilePage() {
         {activeTab === "profile" ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Personal Details */}
-          <div className="bg-white rounded-lg p-12">
-            <h2 className="text-stone-600 text-3xl font-serif mb-8">
+          <div className="bg-[#F3EFE6] rounded-lg p-12">
+            <h2 className="text-sovia-600 text-3xl font-serif mb-8">
               Personal Dossier
             </h2>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label className="text-stone-700 text-sm block mb-2">
+                <label className="text-sovia-700 text-sm block mb-2">
                   Full Name
                 </label>
                 <input
@@ -261,22 +261,22 @@ export default function ProfilePage() {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
-                  className="w-full py-2 bg-stone-200 border-b border-stone-300/40 text-stone-900"
+                  className="w-full py-2 bg-sovia-200 border-b border-sovia-300/40 text-sovia-900"
                 />
               </div>
               <div>
-                <label className="text-stone-700 text-sm block mb-2">
+                <label className="text-sovia-700 text-sm block mb-2">
                   Email Address
                 </label>
                 <input
                   type="email"
                   value={session.user?.email || ""}
                   disabled
-                  className="w-full py-2 bg-stone-200 border-b border-stone-300/40 text-stone-900 opacity-60"
+                  className="w-full py-2 bg-sovia-200 border-b border-sovia-300/40 text-sovia-900 opacity-60"
                 />
               </div>
               <div>
-                <label className="text-stone-700 text-sm block mb-2">
+                <label className="text-sovia-700 text-sm block mb-2">
                   Phone Number
                 </label>
                 <input
@@ -286,13 +286,13 @@ export default function ProfilePage() {
                     setFormData((prev) => ({ ...prev, phone: e.target.value }))
                   }
                   placeholder="+62 812 3456 7890"
-                  className="w-full py-2 bg-stone-200 border-b border-stone-300/40 text-stone-900"
+                  className="w-full py-2 bg-sovia-200 border-b border-sovia-300/40 text-sovia-900"
                 />
               </div>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-8 py-4 bg-stone-600 text-white rounded-lg flex items-center gap-2 disabled:opacity-60"
+                className="px-8 py-4 bg-sovia-600 text-white rounded-lg flex items-center gap-2 disabled:opacity-60"
               >
                 <Save className="w-4 h-4" />
                 {loading ? "Saving..." : "Save Details"}
@@ -301,23 +301,23 @@ export default function ProfilePage() {
           </div>
 
           {/* Delivery Coordinates */}
-          <div className="bg-white rounded-lg p-12">
+          <div className="bg-[#F3EFE6] rounded-lg p-12">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-stone-600 text-3xl font-serif">
+              <h2 className="text-sovia-600 text-3xl font-serif">
                 Delivery Coordinates
               </h2>
               <button
                 onClick={handleGetLocation}
-                className="p-2 hover:bg-stone-100 rounded-lg"
+                className="p-2 hover:bg-sovia-100 rounded-lg"
                 title="Get Current Location"
               >
-                <MapPin className="w-5 h-5 text-stone-600" />
+                <MapPin className="w-5 h-5 text-sovia-600" />
               </button>
             </div>
 
             <div className="space-y-4 mb-6">
               <div>
-                <label className="text-stone-700 text-sm block mb-2">
+                <label className="text-sovia-700 text-sm block mb-2">
                   Full Address
                 </label>
                 <textarea
@@ -327,13 +327,13 @@ export default function ProfilePage() {
                   }
                   placeholder="Jl. Sudirman Kav. 21, Jakarta"
                   rows={3}
-                  className="w-full py-2 bg-stone-200 border-b border-stone-300/40 text-stone-900 resize-none"
+                  className="w-full py-2 bg-sovia-200 border-b border-sovia-300/40 text-sovia-900 resize-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-stone-700 text-sm block mb-2">
+                  <label className="text-sovia-700 text-sm block mb-2">
                     Latitude
                   </label>
                   <input
@@ -346,12 +346,12 @@ export default function ProfilePage() {
                         lat: parseFloat(e.target.value),
                       }))
                     }
-                    className="w-full py-2 bg-stone-200 border-b border-stone-300/40 text-stone-900"
+                    className="w-full py-2 bg-sovia-200 border-b border-sovia-300/40 text-sovia-900"
                     placeholder="-6.2088"
                   />
                 </div>
                 <div>
-                  <label className="text-stone-700 text-sm block mb-2">
+                  <label className="text-sovia-700 text-sm block mb-2">
                     Longitude
                   </label>
                   <input
@@ -364,7 +364,7 @@ export default function ProfilePage() {
                         lng: parseFloat(e.target.value),
                       }))
                     }
-                    className="w-full py-2 bg-stone-200 border-b border-stone-300/40 text-stone-900"
+                    className="w-full py-2 bg-sovia-200 border-b border-sovia-300/40 text-sovia-900"
                     placeholder="106.8456"
                   />
                 </div>
@@ -373,7 +373,7 @@ export default function ProfilePage() {
 
             {/* Interactive Map */}
             <div className="mb-4">
-              <p className="text-stone-500 text-sm mb-3">
+              <p className="text-sovia-500 text-sm mb-3">
                 Klik pada peta atau geser pin untuk menentukan lokasi pengiriman
               </p>
               <MapPicker
@@ -397,8 +397,8 @@ export default function ProfilePage() {
                   onClick={() => setOrderFilter(status)}
                   className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-colors ${
                     orderFilter === status
-                      ? "bg-stone-800 text-white"
-                      : "bg-stone-200 text-stone-600 hover:bg-stone-300"
+                      ? "bg-sovia-800 text-white"
+                      : "bg-sovia-200 text-sovia-600 hover:bg-sovia-300"
                   }`}
                 >
                   {status === "ALL" ? "Semua" : statusConfig[status].label}
@@ -408,15 +408,15 @@ export default function ProfilePage() {
 
             {loadingOrders ? (
               <div className="py-16 flex justify-center">
-                <div className="animate-spin w-8 h-8 border-4 border-stone-600 border-t-transparent rounded-full" />
+                <div className="animate-spin w-8 h-8 border-4 border-sovia-600 border-t-transparent rounded-full" />
               </div>
             ) : orders.filter(o => orderFilter === "ALL" || o.status === orderFilter).length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-lg">
-                <Package className="w-16 h-16 mx-auto mb-4 text-stone-400" />
-                <p className="text-stone-600 text-lg mb-4">Belum ada pesanan</p>
+              <div className="text-center py-16 bg-[#F3EFE6] rounded-lg">
+                <Package className="w-16 h-16 mx-auto mb-4 text-sovia-400" />
+                <p className="text-sovia-600 text-lg mb-4">Belum ada pesanan</p>
                 <Link
                   href="/catalog"
-                  className="px-6 py-3 bg-stone-600 text-white rounded-lg inline-block"
+                  className="px-6 py-3 bg-sovia-600 text-white rounded-lg inline-block"
                 >
                   Mulai Belanja
                 </Link>
@@ -430,18 +430,18 @@ export default function ProfilePage() {
                     const Icon = statusInfo.icon
 
                     return (
-                      <div key={order.id} className="bg-white rounded-lg p-6 shadow-sm border border-stone-200">
-                        <div className="flex justify-between items-start pb-4 border-b border-stone-200 cursor-pointer" onClick={() => toggleExpand(order.id)}>
+                      <div key={order.id} className="bg-[#F3EFE6] rounded-lg p-6 shadow-sm border border-sovia-200">
+                        <div className="flex justify-between items-start pb-4 border-b border-sovia-200 cursor-pointer" onClick={() => toggleExpand(order.id)}>
                           <div>
-                            <p className="text-stone-500 text-sm">Order #{order.id.slice(-8)}</p>
-                            <p className="text-stone-700 text-sm">{formatDate(order.createdAt)}</p>
+                            <p className="text-sovia-500 text-sm">Order #{order.id.slice(-8)}</p>
+                            <p className="text-sovia-700 text-sm">{formatDate(order.createdAt)}</p>
                           </div>
                           <div className="flex flex-col items-end gap-2">
-                            <div className={`flex items-center gap-2 px-3 py-1 bg-stone-50 rounded-full ${statusInfo.color}`}>
+                            <div className={`flex items-center gap-2 px-3 py-1 bg-sovia-50 rounded-full ${statusInfo.color}`}>
                               <Icon className="w-4 h-4" />
                               <span className="text-sm font-medium">{statusInfo.label}</span>
                             </div>
-                            <div className="flex items-center gap-1 text-stone-500 hover:text-stone-800 text-xs">
+                            <div className="flex items-center gap-1 text-sovia-500 hover:text-sovia-800 text-xs">
                               {expandedOrders.has(order.id) ? (
                                  <><ChevronUp className="w-3 h-3"/> Sembunyikan Detail</>
                               ) : (
@@ -454,42 +454,42 @@ export default function ProfilePage() {
                         {expandedOrders.has(order.id) && (
                           <div className="py-4 space-y-4">
                             {/* Timeline Status */}
-                            <div className="bg-stone-50 p-4 rounded-lg mb-6">
-                              <h4 className="text-stone-800 text-sm font-medium mb-3">Riwayat Status Pesanan</h4>
+                            <div className="bg-sovia-50 p-4 rounded-lg mb-6">
+                              <h4 className="text-sovia-800 text-sm font-medium mb-3">Riwayat Status Pesanan</h4>
                               <div className="flex flex-col gap-2 relative">
-                                 <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-stone-200"></div>
+                                 <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-sovia-200"></div>
                                  <div className="flex gap-3 relative z-10">
-                                    <div className="w-4 h-4 rounded-full bg-stone-400 mt-0.5 ring-4 ring-stone-50"></div>
+                                    <div className="w-4 h-4 rounded-full bg-sovia-400 mt-0.5 ring-4 ring-sovia-50"></div>
                                     <div className="flex-1">
-                                      <p className="text-stone-800 text-sm font-medium">Pesanan Dibuat</p>
-                                      <p className="text-stone-500 text-xs">{formatDate(order.createdAt)}</p>
+                                      <p className="text-sovia-800 text-sm font-medium">Pesanan Dibuat</p>
+                                      <p className="text-sovia-500 text-xs">{formatDate(order.createdAt)}</p>
                                     </div>
                                  </div>
                                  {order.status !== "PENDING_PAYMENT" && (
                                    <div className="flex gap-3 relative z-10">
-                                      <div className="w-4 h-4 rounded-full bg-stone-400 mt-0.5 ring-4 ring-stone-50"></div>
+                                      <div className="w-4 h-4 rounded-full bg-sovia-400 mt-0.5 ring-4 ring-sovia-50"></div>
                                       <div className="flex-1">
-                                        <p className="text-stone-800 text-sm font-medium">Pesanan Diproses / Dikonfirmasi</p>
+                                        <p className="text-sovia-800 text-sm font-medium">Pesanan Diproses / Dikonfirmasi</p>
                                       </div>
                                    </div>
                                  )}
                                  {(order.status === "SHIPPED" || order.status === "COMPLETED") && (
                                    <div className="flex gap-3 relative z-10">
-                                      <div className="w-4 h-4 rounded-full bg-blue-500 mt-0.5 ring-4 ring-stone-50"></div>
+                                      <div className="w-4 h-4 rounded-full bg-blue-500 mt-0.5 ring-4 ring-sovia-50"></div>
                                       <div className="flex-1">
-                                        <p className="text-stone-800 text-sm font-medium">Pesanan Dalam Perjalanan</p>
+                                        <p className="text-sovia-800 text-sm font-medium">Pesanan Dalam Perjalanan</p>
                                         {order.trackingNumber && (
-                                          <p className="text-stone-600 text-xs mt-1">Resi: <span className="font-mono bg-stone-200 px-1 rounded">{order.trackingNumber}</span></p>
+                                          <p className="text-sovia-600 text-xs mt-1">Resi: <span className="font-mono bg-sovia-200 px-1 rounded">{order.trackingNumber}</span></p>
                                         )}
                                       </div>
                                    </div>
                                  )}
                                  {order.status === "COMPLETED" && (
                                    <div className="flex gap-3 relative z-10">
-                                      <div className="w-4 h-4 rounded-full bg-green-500 mt-0.5 ring-4 ring-stone-50"></div>
+                                      <div className="w-4 h-4 rounded-full bg-green-500 mt-0.5 ring-4 ring-sovia-50"></div>
                                       <div className="flex-1">
                                         <p className="text-green-700 text-sm font-medium">Pesanan Selesai</p>
-                                        <p className="text-stone-500 text-xs">{formatDate(order.updatedAt)}</p>
+                                        <p className="text-sovia-500 text-xs">{formatDate(order.updatedAt)}</p>
                                       </div>
                                    </div>
                                  )}
@@ -497,7 +497,7 @@ export default function ProfilePage() {
                             </div>
 
                             {order.items.map((item) => {
-                              let imageUrl = "https://placehold.co/80x96/fafaf9/1c1917?text=Item"
+                              let imageUrl = "https://placehold.co/80x96/F3EFE6/3C3228?text=Item"
                               if (item.product.images) {
                                 try {
                                   const parsed = JSON.parse(item.product.images)
@@ -513,7 +513,7 @@ export default function ProfilePage() {
 
                               return (
                                 <div key={item.id} className="flex gap-4">
-                                  <div className="w-20 h-24 bg-stone-200 rounded-md flex-shrink-0 overflow-hidden">
+                                  <div className="w-20 h-24 bg-sovia-200 rounded-md flex-shrink-0 overflow-hidden">
                                     <Image
                                       src={imageUrl}
                                       alt={item.product.name}
@@ -523,17 +523,17 @@ export default function ProfilePage() {
                                     />
                                   </div>
                                   <div className="flex-1 flex flex-col justify-center">
-                                    <h3 className="text-stone-900 text-lg font-serif mb-1">
+                                    <h3 className="text-sovia-900 text-lg font-serif mb-1">
                                       {item.product.name}
                                     </h3>
-                                    <p className="text-stone-500 text-sm mb-2">
+                                    <p className="text-sovia-500 text-sm mb-2">
                                       {item.color && `Color: ${item.color}`}
                                       {item.color && item.size && ` | `}
                                       {item.size && `Size: ${item.size}`}
                                     </p>
                                     <div className="flex justify-between items-center">
-                                      <span className="text-stone-700 text-sm">Qty: {item.quantity}</span>
-                                      <span className="text-stone-900 font-medium">
+                                      <span className="text-sovia-700 text-sm">Qty: {item.quantity}</span>
+                                      <span className="text-sovia-900 font-medium">
                                         {formatPrice(item.price * item.quantity)}
                                       </span>
                                     </div>
@@ -544,27 +544,27 @@ export default function ProfilePage() {
                           </div>
                         )}
 
-                        <div className="pt-4 mt-4 border-t border-stone-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div className="pt-4 mt-4 border-t border-sovia-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                           <div>
-                            <p className="text-stone-700 text-sm font-medium mb-1">
+                            <p className="text-sovia-700 text-sm font-medium mb-1">
                               Pengiriman: {order.shippingMethod === "EXPEDITION" ? "Ekspedisi" : "COD"}
                               {order.courierName && ` - ${order.courierName.toUpperCase()}`}
                               {order.courierService && ` (${order.courierService})`}
                             </p>
                             {order.trackingNumber && (
-                              <p className="text-stone-600 text-sm mt-1 mb-1">No Resi: <span className="font-mono bg-stone-100 px-1 py-0.5 rounded">{order.trackingNumber}</span></p>
+                              <p className="text-sovia-600 text-sm mt-1 mb-1">No Resi: <span className="font-mono bg-sovia-100 px-1 py-0.5 rounded">{order.trackingNumber}</span></p>
                             )}
-                            <p className="text-stone-500 text-xs max-w-md line-clamp-2">{order.address}</p>
+                            <p className="text-sovia-500 text-xs max-w-md line-clamp-2">{order.address}</p>
                           </div>
                           <div className="text-right w-full md:w-auto flex flex-col items-end gap-3">
-                            <p className="text-stone-500 text-sm mb-1">Total Belanja</p>
-                            <p className="text-stone-900 text-xl font-medium">
+                            <p className="text-sovia-500 text-sm mb-1">Total Belanja</p>
+                            <p className="text-sovia-900 text-xl font-medium">
                               {formatPrice(order.total)}
                             </p>
                             {order.status === "SHIPPED" && (
                               <button
                                 onClick={() => handleCompleteOrder(order.id)}
-                                className="px-6 py-2 bg-stone-900 text-white rounded-lg text-sm font-medium hover:bg-stone-800 transition-colors shadow-md"
+                                className="px-6 py-2 bg-sovia-900 text-white rounded-lg text-sm font-medium hover:bg-sovia-800 transition-colors shadow-md"
                               >
                                 Pesanan Diterima
                               </button>

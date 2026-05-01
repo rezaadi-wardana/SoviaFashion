@@ -109,7 +109,7 @@ export default function OrdersPage() {
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen pt-32 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-stone-600 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-4 border-sovia-600 border-t-transparent rounded-full" />
       </div>
     )
   }
@@ -118,8 +118,8 @@ export default function OrdersPage() {
     return (
       <div className="min-h-screen pt-32 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-stone-600 text-lg mb-4">Please sign in to view your orders</p>
-          <Link href="/auth/signin" className="px-6 py-3 bg-stone-600 text-white rounded-lg">
+          <p className="text-sovia-600 text-lg mb-4">Please sign in to view your orders</p>
+          <Link href="/auth/signin" className="px-6 py-3 bg-sovia-600 text-white rounded-lg">
             Sign In
           </Link>
         </div>
@@ -130,15 +130,15 @@ export default function OrdersPage() {
   return (
     <div className="min-h-screen pt-32 pb-24">
       <div className="max-w-[1280px] mx-auto px-8">
-        <h1 className="text-stone-900 text-4xl font-serif mb-8">My Orders</h1>
+        <h1 className="text-sovia-900 text-4xl font-serif mb-8">My Orders</h1>
 
         {orders.length === 0 ? (
           <div className="text-center py-16">
-            <Package className="w-16 h-16 mx-auto mb-4 text-stone-400" />
-            <p className="text-stone-600 text-lg mb-4">No orders yet</p>
+            <Package className="w-16 h-16 mx-auto mb-4 text-sovia-400" />
+            <p className="text-sovia-600 text-lg mb-4">No orders yet</p>
             <Link
               href="/catalog"
-              className="px-6 py-3 bg-stone-600 text-white rounded-lg inline-block"
+              className="px-6 py-3 bg-sovia-600 text-white rounded-lg inline-block"
             >
               Start Shopping
             </Link>
@@ -150,18 +150,18 @@ export default function OrdersPage() {
               const Icon = statusInfo.icon
 
               return (
-                <div key={order.id} className="bg-white rounded-lg p-6 shadow-sm border border-stone-200">
-                  <div className="flex justify-between items-start pb-4 border-b border-stone-200 cursor-pointer" onClick={() => toggleExpand(order.id)}>
+                <div key={order.id} className="bg-[#F3EFE6] rounded-lg p-6 shadow-sm border border-sovia-200">
+                  <div className="flex justify-between items-start pb-4 border-b border-sovia-200 cursor-pointer" onClick={() => toggleExpand(order.id)}>
                     <div>
-                      <p className="text-stone-500 text-sm">Order #{order.id.slice(-8)}</p>
-                      <p className="text-stone-700 text-sm">{formatDate(order.createdAt)}</p>
+                      <p className="text-sovia-500 text-sm">Order #{order.id.slice(-8)}</p>
+                      <p className="text-sovia-700 text-sm">{formatDate(order.createdAt)}</p>
                     </div>
                     <div className="flex flex-col items-end gap-2">
-                      <div className={`flex items-center gap-2 px-3 py-1 bg-stone-50 rounded-full ${statusInfo.color}`}>
+                      <div className={`flex items-center gap-2 px-3 py-1 bg-sovia-50 rounded-full ${statusInfo.color}`}>
                         <Icon className="w-4 h-4" />
                         <span className="text-sm font-medium">{statusInfo.label}</span>
                       </div>
-                      <div className="flex items-center gap-1 text-stone-500 hover:text-stone-800 text-xs">
+                      <div className="flex items-center gap-1 text-sovia-500 hover:text-sovia-800 text-xs">
                         {expandedOrders.has(order.id) ? (
                            <><ChevronUp className="w-3 h-3"/> Sembunyikan Detail</>
                         ) : (
@@ -174,42 +174,42 @@ export default function OrdersPage() {
                   {expandedOrders.has(order.id) && (
                     <div className="py-4 space-y-4">
                       {/* Timeline Status */}
-                      <div className="bg-stone-50 p-4 rounded-lg mb-6">
-                        <h4 className="text-stone-800 text-sm font-medium mb-3">Riwayat Status Pesanan</h4>
+                      <div className="bg-sovia-50 p-4 rounded-lg mb-6">
+                        <h4 className="text-sovia-800 text-sm font-medium mb-3">Riwayat Status Pesanan</h4>
                         <div className="flex flex-col gap-2 relative">
-                           <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-stone-200"></div>
+                           <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-sovia-200"></div>
                            <div className="flex gap-3 relative z-10">
-                              <div className="w-4 h-4 rounded-full bg-stone-400 mt-0.5 ring-4 ring-stone-50"></div>
+                              <div className="w-4 h-4 rounded-full bg-sovia-400 mt-0.5 ring-4 ring-sovia-50"></div>
                               <div className="flex-1">
-                                <p className="text-stone-800 text-sm font-medium">Pesanan Dibuat</p>
-                                <p className="text-stone-500 text-xs">{formatDate(order.createdAt)}</p>
+                                <p className="text-sovia-800 text-sm font-medium">Pesanan Dibuat</p>
+                                <p className="text-sovia-500 text-xs">{formatDate(order.createdAt)}</p>
                               </div>
                            </div>
                            {order.status !== "PENDING_PAYMENT" && (
                              <div className="flex gap-3 relative z-10">
-                                <div className="w-4 h-4 rounded-full bg-stone-400 mt-0.5 ring-4 ring-stone-50"></div>
+                                <div className="w-4 h-4 rounded-full bg-sovia-400 mt-0.5 ring-4 ring-sovia-50"></div>
                                 <div className="flex-1">
-                                  <p className="text-stone-800 text-sm font-medium">Pesanan Diproses / Dikonfirmasi</p>
+                                  <p className="text-sovia-800 text-sm font-medium">Pesanan Diproses / Dikonfirmasi</p>
                                 </div>
                              </div>
                            )}
                            {(order.status === "SHIPPED" || order.status === "COMPLETED") && (
                              <div className="flex gap-3 relative z-10">
-                                <div className="w-4 h-4 rounded-full bg-blue-500 mt-0.5 ring-4 ring-stone-50"></div>
+                                <div className="w-4 h-4 rounded-full bg-blue-500 mt-0.5 ring-4 ring-sovia-50"></div>
                                 <div className="flex-1">
-                                  <p className="text-stone-800 text-sm font-medium">Pesanan Dalam Perjalanan</p>
+                                  <p className="text-sovia-800 text-sm font-medium">Pesanan Dalam Perjalanan</p>
                                   {order.trackingNumber && (
-                                    <p className="text-stone-600 text-xs mt-1">Resi: <span className="font-mono bg-stone-200 px-1 rounded">{order.trackingNumber}</span></p>
+                                    <p className="text-sovia-600 text-xs mt-1">Resi: <span className="font-mono bg-sovia-200 px-1 rounded">{order.trackingNumber}</span></p>
                                   )}
                                 </div>
                              </div>
                            )}
                            {order.status === "COMPLETED" && (
                              <div className="flex gap-3 relative z-10">
-                                <div className="w-4 h-4 rounded-full bg-green-500 mt-0.5 ring-4 ring-stone-50"></div>
+                                <div className="w-4 h-4 rounded-full bg-green-500 mt-0.5 ring-4 ring-sovia-50"></div>
                                 <div className="flex-1">
                                   <p className="text-green-700 text-sm font-medium">Pesanan Selesai</p>
-                                  <p className="text-stone-500 text-xs">{formatDate(order.updatedAt)}</p>
+                                  <p className="text-sovia-500 text-xs">{formatDate(order.updatedAt)}</p>
                                 </div>
                              </div>
                            )}
@@ -217,7 +217,7 @@ export default function OrdersPage() {
                       </div>
 
                       {order.items.map((item) => {
-                        let imageUrl = "https://placehold.co/80x96/fafaf9/1c1917?text=Item"
+                        let imageUrl = "https://placehold.co/80x96/F3EFE6/3C3228?text=Item"
                         if (item.product.images) {
                           try {
                             const parsed = JSON.parse(item.product.images)
@@ -233,7 +233,7 @@ export default function OrdersPage() {
 
                         return (
                           <div key={item.id} className="flex gap-4">
-                            <div className="w-20 h-24 bg-stone-200 rounded flex-shrink-0 overflow-hidden">
+                            <div className="w-20 h-24 bg-sovia-200 rounded flex-shrink-0 overflow-hidden">
                               <Image
                                 src={imageUrl}
                                 alt={item.product.name}
@@ -243,16 +243,16 @@ export default function OrdersPage() {
                               />
                             </div>
                             <div className="flex-1">
-                              <h3 className="text-stone-900 text-lg font-serif">
+                              <h3 className="text-sovia-900 text-lg font-serif">
                                 {item.product.name}
                               </h3>
-                              <p className="text-stone-700 text-sm">
+                              <p className="text-sovia-700 text-sm">
                                 {item.color && `Color: ${item.color}`}
                                 {item.size && ` | Size: ${item.size}`}
                               </p>
                               <div className="flex justify-between mt-2">
-                                <span className="text-stone-700 text-sm">Qty: {item.quantity}</span>
-                                <span className="text-stone-900 font-medium">
+                                <span className="text-sovia-700 text-sm">Qty: {item.quantity}</span>
+                                <span className="text-sovia-900 font-medium">
                                   {formatPrice(item.price * item.quantity)}
                                 </span>
                               </div>
@@ -263,25 +263,25 @@ export default function OrdersPage() {
                     </div>
                   )}
 
-                  <div className="pt-4 mt-4 border-t border-stone-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div className="pt-4 mt-4 border-t border-sovia-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
-                      <p className="text-stone-700 text-sm font-medium">
+                      <p className="text-sovia-700 text-sm font-medium">
                         Pengiriman: {order.shippingMethod === "EXPEDITION" ? "Ekspedisi" : "COD"}
                         {order.courierService && ` (${order.courierService})`}
                       </p>
                       {order.trackingNumber && (
-                        <p className="text-stone-600 text-sm mt-1">No Resi: <span className="font-mono bg-stone-100 px-1 py-0.5 rounded">{order.trackingNumber}</span></p>
+                        <p className="text-sovia-600 text-sm mt-1">No Resi: <span className="font-mono bg-sovia-100 px-1 py-0.5 rounded">{order.trackingNumber}</span></p>
                       )}
-                      <p className="text-stone-500 text-xs mt-1">{order.address}</p>
+                      <p className="text-sovia-500 text-xs mt-1">{order.address}</p>
                     </div>
                     <div className="text-right w-full md:w-auto flex flex-col items-end gap-3">
-                      <p className="text-stone-900 text-lg font-medium">
+                      <p className="text-sovia-900 text-lg font-medium">
                         Total: {formatPrice(order.total)}
                       </p>
                       {order.status === "SHIPPED" && (
                         <button
                           onClick={() => handleCompleteOrder(order.id)}
-                          className="px-6 py-2 bg-stone-900 text-white rounded-lg text-sm font-medium hover:bg-stone-800 transition-colors shadow-md"
+                          className="px-6 py-2 bg-sovia-900 text-white rounded-lg text-sm font-medium hover:bg-sovia-800 transition-colors shadow-md"
                         >
                           Pesanan Diterima
                         </button>

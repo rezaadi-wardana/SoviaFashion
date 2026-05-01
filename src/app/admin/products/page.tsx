@@ -131,16 +131,16 @@ export default function AdminProductsPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-stone-900 text-3xl font-serif mb-2">
+          <h1 className="text-sovia-900 text-3xl font-serif mb-2">
             Inventory Management
           </h1>
-          <p className="text-stone-700 text-sm">
+          <p className="text-sovia-700 text-sm">
             Curate and manage the SOVIA collection.
           </p>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="px-6 py-3 bg-stone-600 text-white text-sm font-medium rounded-lg flex items-center gap-2"
+          className="px-6 py-3 bg-sovia-600 text-white text-sm font-medium rounded-lg flex items-center gap-2"
         >
           <Plus className="w-4 h-4" />
           New Product
@@ -155,37 +155,37 @@ export default function AdminProductsPage() {
             placeholder="Search by name, SKU, or category"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-stone-200/30 rounded-lg text-sm"
+            className="w-full pl-10 pr-4 py-3 bg-sovia-200/30 rounded-lg text-sm"
           />
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-700" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-sovia-700" />
         </div>
-        <button className="px-4 py-3 border-b border-stone-300/40 flex items-center gap-2 text-stone-600 text-sm font-medium">
+        <button className="px-4 py-3 border-b border-sovia-300/40 flex items-center gap-2 text-sovia-600 text-sm font-medium">
           <Filter className="w-4 h-4" />
           Filters
         </button>
       </div>
 
       {/* Products Table */}
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-[#F3EFE6] rounded-lg shadow-lg overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-stone-200/50">
-              <th className="text-left py-4 px-4 text-stone-700 text-xs font-semibold uppercase">
+            <tr className="border-b border-sovia-200/50">
+              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
                 PRODUCT
               </th>
-              <th className="text-left py-4 px-4 text-stone-700 text-xs font-semibold uppercase">
+              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
                 SKU
               </th>
-              <th className="text-left py-4 px-4 text-stone-700 text-xs font-semibold uppercase">
+              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
                 CATEGORY
               </th>
-              <th className="text-left py-4 px-4 text-stone-700 text-xs font-semibold uppercase">
+              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
                 PRICE
               </th>
-              <th className="text-left py-4 px-4 text-stone-700 text-xs font-semibold uppercase">
+              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
                 STATUS
               </th>
-              <th className="text-right py-4 px-4 text-stone-700 text-xs font-semibold uppercase">
+              <th className="text-right py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
                 ACTIONS
               </th>
             </tr>
@@ -193,13 +193,13 @@ export default function AdminProductsPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-stone-500">
+                <td colSpan={6} className="py-8 text-center text-sovia-500">
                   Loading...
                 </td>
               </tr>
             ) : filteredProducts.length === 0 ? (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-stone-500">
+                <td colSpan={6} className="py-8 text-center text-sovia-500">
                   No products found
                 </td>
               </tr>
@@ -207,20 +207,20 @@ export default function AdminProductsPage() {
               filteredProducts.map((product) => (
                 <tr 
                   key={product.id} 
-                  className="border-b border-stone-100 cursor-pointer hover:bg-stone-50"
+                  className="border-b border-sovia-100 cursor-pointer hover:bg-sovia-50"
                   onClick={() => setViewingProduct(product)}
                 >
                   <td className="py-5 px-4">
                     <div className="flex items-center gap-4">
                       <Link 
                         href={`/catalog?product=${product.id}`}
-                        className="w-12 h-16 bg-stone-200 rounded-sm flex-shrink-0 overflow-hidden hover:opacity-80"
+                        className="w-12 h-16 bg-sovia-200 rounded-sm flex-shrink-0 overflow-hidden hover:opacity-80"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <img
                           src={
                             getProductImages(product.images)[0] ||
-                            "https://placehold.co/48x64/fafaf9/1c1917?text=Product"
+                            "https://placehold.co/48x64/F3EFE6/3C3228?text=Product"
                           }
                           alt={product.name}
                           className="w-full h-full object-cover"
@@ -229,36 +229,36 @@ export default function AdminProductsPage() {
                       <div>
                         <Link 
                           href={`/catalog?product=${product.id}`}
-                          className="text-stone-900 text-base font-semibold hover:text-stone-600"
+                          className="text-sovia-900 text-base font-semibold hover:text-sovia-600"
                           onClick={(e) => e.stopPropagation()}
                         >
                           {product.name}
                         </Link>
-                        <p className="text-stone-700 text-xs">
+                        <p className="text-sovia-700 text-xs">
                           {product.variants?.length || 0} variants
                         </p>
                       </div>
                     </div>
                   </td>
-                  <td className="py-5 px-4 text-stone-700 text-sm">
+                  <td className="py-5 px-4 text-sovia-700 text-sm">
                     {product.sku || "-"}
                   </td>
                   <td className="py-5 px-4">
-                    <span className="px-3 py-1 bg-gray-400/20 rounded-xl text-xs">
+                    <span className="px-3 py-1 bg-sovia-400/20 rounded-xl text-xs">
                       {product.category?.name || "Uncategorized"}
                     </span>
                   </td>
-                  <td className="py-5 px-4 text-stone-900 text-sm font-semibold">
+                  <td className="py-5 px-4 text-sovia-900 text-sm font-semibold">
                     {formatPrice(product.price)}
                   </td>
                   <td className="py-5 px-4">
                     <span
                       className={`px-3 py-1 rounded-xl text-xs ${
                         (product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 10
-                          ? "bg-stone-600 text-white"
+                          ? "bg-sovia-600 text-white"
                           : (product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 0
                           ? "bg-yellow-100 text-yellow-700"
-                          : "bg-stone-400 text-white"
+                          : "bg-sovia-400 text-white"
                       }`}
                     >
                       {(product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 10
@@ -275,15 +275,15 @@ export default function AdminProductsPage() {
                           setEditingProduct(product)
                           setShowModal(true)
                         }}
-                        className="p-2 hover:bg-stone-100 rounded"
+                        className="p-2 hover:bg-sovia-100 rounded"
                       >
-                        <Edit className="w-4 h-4 text-stone-600" />
+                        <Edit className="w-4 h-4 text-sovia-600" />
                       </button>
                       <button
                         onClick={() => handleDelete(product.id)}
                         className="p-2 hover:bg-red-50 rounded"
                       >
-                        <Trash2 className="w-4 h-4 text-red-500" />
+                        <Trash2 className="w-4 h-4 text-accent-500" />
                       </button>
                     </div>
                   </td>
@@ -293,8 +293,8 @@ export default function AdminProductsPage() {
           </tbody>
         </table>
 
-        <div className="px-4 py-4 border-t border-stone-200/30 flex justify-between items-center">
-          <p className="text-stone-700 text-xs">
+        <div className="px-4 py-4 border-t border-sovia-200/30 flex justify-between items-center">
+          <p className="text-sovia-700 text-xs">
             Showing 1 to {filteredProducts.length} of {products.length} items
           </p>
           <div className="flex gap-2">
@@ -303,8 +303,8 @@ export default function AdminProductsPage() {
                 key={page}
                 className={`w-8 h-8 rounded-xl text-xs ${
                   page === 1
-                    ? "bg-red-300/30 text-stone-600"
-                    : "bg-stone-200 text-stone-700"
+                    ? "bg-accent-300/30 text-sovia-600"
+                    : "bg-sovia-200 text-sovia-700"
                 }`}
               >
                 {page}
@@ -396,53 +396,53 @@ function ProductFormModal({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <h2 className="text-stone-900 text-2xl font-serif mb-6">
+      <div className="bg-[#F3EFE6] rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <h2 className="text-sovia-900 text-2xl font-serif mb-6">
           {product ? "Edit Product" : "New Product"}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-stone-700 text-sm block mb-2">Product Name</label>
+            <label className="text-sovia-700 text-sm block mb-2">Product Name</label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full py-2 px-4 bg-stone-100 rounded-lg"
+              className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
               required
             />
           </div>
           <div>
-            <label className="text-stone-700 text-sm block mb-2">Description</label>
+            <label className="text-sovia-700 text-sm block mb-2">Description</label>
             <textarea
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
               rows={4}
-              className="w-full py-2 px-4 bg-stone-100 rounded-lg"
+              className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
             />
           </div>
           <div>
-            <label className="text-stone-700 text-sm block mb-2">Price (Rp)</label>
+            <label className="text-sovia-700 text-sm block mb-2">Price (Rp)</label>
             <input
               type="number"
               value={formData.price || ""}
               onChange={(e) =>
                 setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })
               }
-              className="w-full py-2 px-4 bg-stone-100 rounded-lg"
+              className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
               required
               min="0"
               step="1000"
             />
           </div>
           <div>
-            <label className="text-stone-700 text-sm block mb-2">
+            <label className="text-sovia-700 text-sm block mb-2">
               Product Images (max 5)
             </label>
             <div className="grid grid-cols-5 gap-2 mb-2">
               {formData.images.map((img, idx) => (
-                <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-stone-200">
+                <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-sovia-200">
                   <img src={img} alt={`Image ${idx + 1}`} className="w-full h-full object-cover" />
                   <button
                     type="button"
@@ -450,11 +450,11 @@ function ProductFormModal({
                       const newImages = formData.images.filter((_, i) => i !== idx)
                       setFormData({ ...formData, images: newImages })
                     }}
-                    className="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs rounded-bl"
+                    className="absolute top-0 right-0 w-5 h-5 bg-accent-500 text-white text-xs rounded-bl"
                   >
                     ×
                   </button>
-                  <span className="absolute bottom-0 left-0 bg-stone-900/70 text-white text-xs px-1">
+                  <span className="absolute bottom-0 left-0 bg-sovia-900/70 text-white text-xs px-1">
                     {idx + 1}
                   </span>
                 </div>
@@ -483,30 +483,30 @@ function ProductFormModal({
                     }
                   }
                 }}
-                className="w-full py-2 px-4 bg-stone-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-stone-600 file:text-white file:cursor-pointer"
+                className="w-full py-2 px-4 bg-sovia-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-white file:cursor-pointer"
               />
             )}
           </div>
           <div>
-            <label className="text-stone-700 text-sm block mb-2">SKU (optional)</label>
+            <label className="text-sovia-700 text-sm block mb-2">SKU (optional)</label>
             <input
               type="text"
               value={formData.sku}
               onChange={(e) =>
                 setFormData({ ...formData, sku: e.target.value })
               }
-              className="w-full py-2 px-4 bg-stone-100 rounded-lg"
+              className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
               placeholder="SKU-001"
             />
           </div>
           <div>
-            <label className="text-stone-700 text-sm block mb-2">Category</label>
+            <label className="text-sovia-700 text-sm block mb-2">Category</label>
             <select
               value={formData.categoryId}
               onChange={(e) =>
                 setFormData({ ...formData, categoryId: e.target.value })
               }
-              className="w-full py-2 px-4 bg-stone-100 rounded-lg"
+              className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
             >
               <option value="">Select category</option>
               {categories.map((cat) => (
@@ -526,28 +526,28 @@ function ProductFormModal({
               }
               className="w-4 h-4"
             />
-            <label htmlFor="isFeatured" className="text-stone-700 text-sm">
+            <label htmlFor="isFeatured" className="text-sovia-700 text-sm">
               Featured Product
             </label>
           </div>
           
           <div>
-            <label className="text-stone-700 text-sm block mb-2 font-semibold">
+            <label className="text-sovia-700 text-sm block mb-2 font-semibold">
               Product Variants (min 1, max 10) *
             </label>
-            <p className="text-stone-500 text-xs mb-4">
+            <p className="text-sovia-500 text-xs mb-4">
               Each variant has its own stock, sizes, and optional image. At least 1 variant is required.
             </p>
             <div className="space-y-4 mb-4">
               {variants.map((v, idx) => (
-                <div key={idx} className="p-4 bg-stone-50 rounded-lg border border-stone-200">
+                <div key={idx} className="p-4 bg-sovia-50 rounded-lg border border-sovia-200">
                   <div className="flex justify-between items-center mb-3">
-                    <span className="text-sm font-medium text-stone-700">Variant #{idx + 1}</span>
+                    <span className="text-sm font-medium text-sovia-700">Variant #{idx + 1}</span>
                     {variants.length > 1 && (
                       <button
                         type="button"
                         onClick={() => setVariants(variants.filter((_, i) => i !== idx))}
-                        className="p-1 bg-red-100 text-red-500 rounded hover:bg-red-200 text-xs"
+                        className="p-1 bg-red-100 text-accent-500 rounded hover:bg-red-200 text-xs"
                       >
                         Remove
                       </button>
@@ -556,7 +556,7 @@ function ProductFormModal({
                   
                   <div className="space-y-3">
                     <div>
-                      <label className="text-stone-600 text-xs block mb-1">Variant Name *</label>
+                      <label className="text-sovia-600 text-xs block mb-1">Variant Name *</label>
                       <input
                         type="text"
                         placeholder="e.g., Size S, Size M, Color Red, Color Blue"
@@ -566,14 +566,14 @@ function ProductFormModal({
                           newVars[idx] = { ...newVars[idx], name: e.target.value }
                           setVariants(newVars)
                         }}
-                        className="w-full py-2 px-3 bg-white rounded-lg text-sm"
+                        className="w-full py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm"
                         required
                       />
                     </div>
                     
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="text-stone-600 text-xs block mb-1">Stock *</label>
+                        <label className="text-sovia-600 text-xs block mb-1">Stock *</label>
                         <input
                           type="number"
                           placeholder="0"
@@ -583,12 +583,12 @@ function ProductFormModal({
                             newVars[idx] = { ...newVars[idx], stock: parseInt(e.target.value) || 0 }
                             setVariants(newVars)
                           }}
-                          className="w-full py-2 px-3 bg-white rounded-lg text-sm"
+                          className="w-full py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm"
                           min="0"
                         />
                       </div>
                       <div>
-                        <label className="text-stone-600 text-xs block mb-1">Sizes (optional)</label>
+                        <label className="text-sovia-600 text-xs block mb-1">Sizes (optional)</label>
                         <div className="flex gap-2 flex-wrap">
                           {["S", "M", "L", "XL", "XXL"].map((size) => {
                             const selectedSizes = v.sizes ? v.sizes.split(",").filter(Boolean) : []
@@ -611,7 +611,7 @@ function ProductFormModal({
                                   }}
                                   className="w-4 h-4"
                                 />
-                                <span className="text-sm text-stone-700">{size}</span>
+                                <span className="text-sm text-sovia-700">{size}</span>
                               </label>
                             )
                           })}
@@ -621,7 +621,7 @@ function ProductFormModal({
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
-                        <label className="text-stone-600 text-xs block mb-1">Variant Image (optional)</label>
+                        <label className="text-sovia-600 text-xs block mb-1">Variant Image (optional)</label>
                         <div className="flex items-center gap-3">
                           <input
                             type="file"
@@ -647,7 +647,7 @@ function ProductFormModal({
                                 }
                               }
                             }}
-                            className="flex-1 py-2 px-3 bg-white rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-stone-600 file:text-white max-w-[200px] overflow-hidden text-ellipsis"
+                            className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-white max-w-[200px] overflow-hidden text-ellipsis"
                           />
                           {v.image && (
                             <div className="relative w-12 h-12 shrink-0">
@@ -659,7 +659,7 @@ function ProductFormModal({
                                   newVars[idx] = { ...newVars[idx], image: "" }
                                   setVariants(newVars)
                                 }}
-                                className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
+                                className="absolute -top-2 -right-2 w-5 h-5 bg-accent-500 text-white rounded-full text-xs flex items-center justify-center"
                               >
                                 ×
                               </button>
@@ -669,8 +669,8 @@ function ProductFormModal({
                       </div>
 
                       <div>
-                        <label className="text-stone-600 text-xs block mb-1">Try-On Image (optional)</label>
-                        <p className="text-[10px] text-stone-500 mb-1 leading-tight">Format PNG, tanpa background, untuk Virtual Try-On.</p>
+                        <label className="text-sovia-600 text-xs block mb-1">Try-On Image (optional)</label>
+                        <p className="text-[10px] text-sovia-500 mb-1 leading-tight">Format PNG, tanpa background, untuk Virtual Try-On.</p>
                         <div className="flex items-center gap-3">
                           <input
                             type="file"
@@ -696,10 +696,10 @@ function ProductFormModal({
                                 }
                               }
                             }}
-                            className="flex-1 py-2 px-3 bg-white rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-pink-600 file:text-white max-w-[200px] overflow-hidden text-ellipsis"
+                            className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-white max-w-[200px] overflow-hidden text-ellipsis"
                           />
                           {v.tryOnImage && (
-                            <div className="relative w-12 h-12 bg-gray-100 rounded shrink-0">
+                            <div className="relative w-12 h-12 bg-sovia-100 rounded shrink-0">
                               <img src={v.tryOnImage} alt="Try On" className="w-full h-full object-contain rounded" />
                               <button
                                 type="button"
@@ -708,7 +708,7 @@ function ProductFormModal({
                                   newVars[idx] = { ...newVars[idx], tryOnImage: "" }
                                   setVariants(newVars)
                                 }}
-                                className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center"
+                                className="absolute -top-2 -right-2 w-5 h-5 bg-accent-500 text-white rounded-full text-xs flex items-center justify-center"
                               >
                                 ×
                               </button>
@@ -725,7 +725,7 @@ function ProductFormModal({
               <button
                 type="button"
                 onClick={() => setVariants([...variants, { name: "", stock: 0, image: "", sizes: "", tryOnImage: "" }])}
-                className="text-sm text-stone-600 hover:text-stone-900 flex items-center gap-1"
+                className="text-sm text-sovia-600 hover:text-sovia-900 flex items-center gap-1"
               >
                 + Add Variant
               </button>
@@ -736,14 +736,14 @@ function ProductFormModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 border border-stone-300 rounded-lg text-stone-600"
+              className="flex-1 py-3 border border-sovia-300 rounded-lg text-sovia-600"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 py-3 bg-stone-600 text-white rounded-lg disabled:opacity-60"
+              className="flex-1 py-3 bg-sovia-600 text-white rounded-lg disabled:opacity-60"
             >
               {saving ? "Saving..." : "Save Product"}
             </button>
@@ -767,17 +767,17 @@ function ProductDetailModal({
   
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-[#F3EFE6] rounded-lg p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-start mb-6">
-          <h2 className="text-stone-900 text-2xl font-serif">Product Details</h2>
-          <button onClick={onClose} className="text-stone-400 hover:text-stone-600 text-2xl">×</button>
+          <h2 className="text-sovia-900 text-2xl font-serif">Product Details</h2>
+          <button onClick={onClose} className="text-sovia-400 hover:text-sovia-600 text-2xl">×</button>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div>
             <div className="grid grid-cols-3 gap-2 mb-4">
               {productImages.map((img, idx) => (
-                <div key={idx} className="relative aspect-square rounded-lg overflow-hidden bg-stone-100">
+                <div key={idx} className="relative aspect-square rounded-lg overflow-hidden bg-sovia-100">
                   <img src={img} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-cover" />
                 </div>
               ))}
@@ -786,41 +786,41 @@ function ProductDetailModal({
           
           <div className="space-y-4">
             <div>
-              <p className="text-stone-500 text-sm">Product Name</p>
-              <p className="text-stone-900 text-lg font-semibold">{product.name}</p>
+              <p className="text-sovia-500 text-sm">Product Name</p>
+              <p className="text-sovia-900 text-lg font-semibold">{product.name}</p>
             </div>
             <div>
-              <p className="text-stone-500 text-sm">Category</p>
-              <p className="text-stone-900">{product.category?.name || "Uncategorized"}</p>
+              <p className="text-sovia-500 text-sm">Category</p>
+              <p className="text-sovia-900">{product.category?.name || "Uncategorized"}</p>
             </div>
             <div>
-              <p className="text-stone-500 text-sm">Price</p>
-              <p className="text-stone-900 text-xl font-serif">{formatPrice(product.price)}</p>
+              <p className="text-sovia-500 text-sm">Price</p>
+              <p className="text-sovia-900 text-xl font-serif">{formatPrice(product.price)}</p>
             </div>
             <div>
-              <p className="text-stone-500 text-sm">SKU</p>
-              <p className="text-stone-900">{product.sku || "-"}</p>
+              <p className="text-sovia-500 text-sm">SKU</p>
+              <p className="text-sovia-900">{product.sku || "-"}</p>
             </div>
             <div>
-              <p className="text-stone-500 text-sm">Description</p>
-              <p className="text-stone-700">{product.description || "-"}</p>
+              <p className="text-sovia-500 text-sm">Description</p>
+              <p className="text-sovia-700">{product.description || "-"}</p>
             </div>
             <div>
-              <p className="text-stone-500 text-sm">Total Stock</p>
-              <p className="text-stone-900">{product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0} units</p>
+              <p className="text-sovia-500 text-sm">Total Stock</p>
+              <p className="text-sovia-900">{product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0} units</p>
             </div>
             <div>
-              <p className="text-stone-500 text-sm mb-2">Variants ({product.variants?.length || 0})</p>
+              <p className="text-sovia-500 text-sm mb-2">Variants ({product.variants?.length || 0})</p>
               <div className="space-y-2">
                 {product.variants?.map((v) => (
-                  <div key={v.id} className="flex justify-between items-center p-3 bg-stone-50 rounded-lg">
+                  <div key={v.id} className="flex justify-between items-center p-3 bg-sovia-50 rounded-lg">
                     <div className="flex items-center gap-3">
                       {v.image && <img src={v.image} alt={v.name} className="w-10 h-10 object-cover rounded" />}
-                      <span className="text-stone-900 font-medium">{v.name}</span>
+                      <span className="text-sovia-900 font-medium">{v.name}</span>
                     </div>
                     <div className="text-right">
-                      <span className={`text-sm ${v.stock > 0 ? "text-stone-700" : "text-red-500"}`}>{v.stock} stock</span>
-                      {v.sizes && <p className="text-xs text-stone-500">Sizes: {v.sizes}</p>}
+                      <span className={`text-sm ${v.stock > 0 ? "text-sovia-700" : "text-accent-500"}`}>{v.stock} stock</span>
+                      {v.sizes && <p className="text-xs text-sovia-500">Sizes: {v.sizes}</p>}
                     </div>
                   </div>
                 ))}
@@ -830,8 +830,8 @@ function ProductDetailModal({
         </div>
         
         <div className="flex gap-4 mt-8 pt-6 border-t">
-          <button onClick={onClose} className="flex-1 py-3 border border-stone-300 rounded-lg text-stone-600">Close</button>
-          <button onClick={onEdit} className="flex-1 py-3 bg-stone-600 text-white rounded-lg">Edit Product</button>
+          <button onClick={onClose} className="flex-1 py-3 border border-sovia-300 rounded-lg text-sovia-600">Close</button>
+          <button onClick={onEdit} className="flex-1 py-3 bg-sovia-600 text-white rounded-lg">Edit Product</button>
         </div>
       </div>
     </div>

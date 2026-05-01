@@ -378,7 +378,7 @@ export default function CheckoutPage() {
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen pt-32 flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-4 border-stone-600 border-t-transparent rounded-full" />
+        <div className="animate-spin w-8 h-8 border-4 border-sovia-600 border-t-transparent rounded-full" />
       </div>
     )
   }
@@ -391,38 +391,38 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen pt-32 pb-24">
       <div className="max-w-[1280px] mx-auto px-8">
-        <h1 className="text-stone-900 text-4xl font-serif mb-8">Checkout</h1>
+        <h1 className="text-sovia-900 text-4xl font-serif mb-8">Checkout</h1>
 
         <div className="flex gap-12 flex-col lg:flex-row">
           <div className="flex-1 space-y-8">
             {/* Delivery Details */}
             <div>
-              <div className="flex justify-between items-center pb-2 border-b border-stone-200 mb-4">
+              <div className="flex justify-between items-center pb-2 border-b border-sovia-200 mb-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-stone-600 rounded-xl flex items-center justify-center">
+                  <div className="w-8 h-8 bg-sovia-600 rounded-xl flex items-center justify-center">
                     <Check className="w-4 h-4 text-white" />
                   </div>
-                  <h2 className="text-stone-600 text-xl font-serif">Detail Pengiriman</h2>
+                  <h2 className="text-sovia-600 text-xl font-serif">Detail Pengiriman</h2>
                 </div>
                 <button
                   onClick={() => router.push("/profile")}
-                  className="text-stone-600 text-sm font-medium hover:underline"
+                  className="text-sovia-600 text-sm font-medium hover:underline"
                 >
                   Edit
                 </button>
               </div>
-              <div className="bg-white rounded-lg p-6 space-y-4">
+              <div className="bg-[#F3EFE6] rounded-lg p-6 space-y-4">
                 <div>
-                  <p className="text-stone-700 text-sm">Nama Lengkap</p>
-                  <p className="text-stone-900 font-medium">{userData.name}</p>
+                  <p className="text-sovia-700 text-sm">Nama Lengkap</p>
+                  <p className="text-sovia-900 font-medium">{userData.name}</p>
                 </div>
                 <div>
-                  <p className="text-stone-700 text-sm">Nomor Telepon</p>
-                  <p className="text-stone-900 font-medium">{userData.phone || "-"}</p>
+                  <p className="text-sovia-700 text-sm">Nomor Telepon</p>
+                  <p className="text-sovia-900 font-medium">{userData.phone || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-stone-700 text-sm">Alamat</p>
-                  <p className="text-stone-900 font-medium">{userData.address || "-"}</p>
+                  <p className="text-sovia-700 text-sm">Alamat</p>
+                  <p className="text-sovia-900 font-medium">{userData.address || "-"}</p>
                 </div>
                 {userData.lat && userData.lng ? (
                   <div className="flex items-center gap-2 text-green-700 bg-green-50 px-3 py-2 rounded-lg">
@@ -448,12 +448,12 @@ export default function CheckoutPage() {
 
             {/* Shipping Method */}
             <div>
-              <div className="flex justify-between items-center pb-2 border-b border-stone-200 mb-4">
+              <div className="flex justify-between items-center pb-2 border-b border-sovia-200 mb-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl border border-stone-500 flex items-center justify-center">
-                    <Truck className="w-4 h-4 text-stone-500" />
+                  <div className="w-8 h-8 rounded-xl border border-sovia-500 flex items-center justify-center">
+                    <Truck className="w-4 h-4 text-sovia-500" />
                   </div>
-                  <h2 className="text-stone-900 text-xl font-serif">Metode Pengiriman</h2>
+                  <h2 className="text-sovia-900 text-xl font-serif">Metode Pengiriman</h2>
                 </div>
               </div>
 
@@ -463,15 +463,15 @@ export default function CheckoutPage() {
                   onClick={() => setShippingMethod("EXPEDITION")}
                   className={`p-4 rounded-lg outline outline-1 transition-all ${
                     shippingMethod === "EXPEDITION"
-                      ? "outline-stone-600 bg-stone-100 outline-2"
-                      : "outline-stone-300 bg-white hover:bg-stone-50"
+                      ? "outline-sovia-600 bg-sovia-100 outline-2"
+                      : "outline-sovia-300 bg-[#F3EFE6] hover:bg-sovia-50"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Package className={`w-5 h-5 ${shippingMethod === "EXPEDITION" ? "text-stone-700" : "text-stone-400"}`} />
+                    <Package className={`w-5 h-5 ${shippingMethod === "EXPEDITION" ? "text-sovia-700" : "text-sovia-400"}`} />
                     <div className="text-left">
-                      <p className="text-stone-900 font-medium text-sm">Ekspedisi</p>
-                      <p className="text-stone-500 text-xs">Transfer via QRIS</p>
+                      <p className="text-sovia-900 font-medium text-sm">Ekspedisi</p>
+                      <p className="text-sovia-500 text-xs">Transfer via QRIS</p>
                     </div>
                   </div>
                 </button>
@@ -479,15 +479,15 @@ export default function CheckoutPage() {
                   onClick={() => setShippingMethod("COD")}
                   className={`p-4 rounded-lg outline outline-1 transition-all ${
                     shippingMethod === "COD"
-                      ? "outline-stone-600 bg-stone-100 outline-2"
-                      : "outline-stone-300 bg-white hover:bg-stone-50"
+                      ? "outline-sovia-600 bg-sovia-100 outline-2"
+                      : "outline-sovia-300 bg-[#F3EFE6] hover:bg-sovia-50"
                   }`}
                 >
                   <div className="flex items-center gap-3">
-                    <Truck className={`w-5 h-5 ${shippingMethod === "COD" ? "text-stone-700" : "text-stone-400"}`} />
+                    <Truck className={`w-5 h-5 ${shippingMethod === "COD" ? "text-sovia-700" : "text-sovia-400"}`} />
                     <div className="text-left">
-                      <p className="text-stone-900 font-medium text-sm">COD</p>
-                      <p className="text-stone-500 text-xs">Bayar di tempat</p>
+                      <p className="text-sovia-900 font-medium text-sm">COD</p>
+                      <p className="text-sovia-500 text-xs">Bayar di tempat</p>
                     </div>
                   </div>
                 </button>
@@ -496,10 +496,10 @@ export default function CheckoutPage() {
               {/* Courier Selection */}
               <div className="space-y-2">
                 {loadingRates ? (
-                  <div className="bg-white rounded-lg p-8 flex flex-col items-center justify-center">
-                    <Loader2 className="w-8 h-8 animate-spin text-stone-400 mb-3" />
-                    <p className="text-stone-500 text-sm">Mengambil tarif pengiriman...</p>
-                    <p className="text-stone-400 text-xs mt-1">Menghitung jarak dan ongkos kirim dari Biteship</p>
+                  <div className="bg-[#F3EFE6] rounded-lg p-8 flex flex-col items-center justify-center">
+                    <Loader2 className="w-8 h-8 animate-spin text-sovia-400 mb-3" />
+                    <p className="text-sovia-500 text-sm">Mengambil tarif pengiriman...</p>
+                    <p className="text-sovia-400 text-xs mt-1">Menghitung jarak dan ongkos kirim dari Biteship</p>
                   </div>
                 ) : ratesError ? (
                   <div className="bg-red-50 rounded-lg p-6 text-center">
@@ -513,9 +513,9 @@ export default function CheckoutPage() {
                     </button>
                   </div>
                 ) : currentRates.length === 0 && !loadingRates ? (
-                  <div className="bg-stone-50 rounded-lg p-6 text-center">
-                    <Package className="w-8 h-8 text-stone-400 mx-auto mb-2" />
-                    <p className="text-stone-600 text-sm">
+                  <div className="bg-sovia-50 rounded-lg p-6 text-center">
+                    <Package className="w-8 h-8 text-sovia-400 mx-auto mb-2" />
+                    <p className="text-sovia-600 text-sm">
                       {!userData.lat || !userData.lng
                         ? "Atur lokasi pengiriman di profil untuk melihat tarif"
                         : "Tidak ada kurir tersedia untuk lokasi ini"}
@@ -530,31 +530,31 @@ export default function CheckoutPage() {
                         className={`w-full p-4 rounded-lg outline outline-1 transition-all text-left ${
                           selectedCourier?.courierCode === rate.courierCode &&
                           selectedCourier?.serviceCode === rate.serviceCode
-                            ? "outline-stone-700 bg-stone-100 outline-2"
-                            : "outline-stone-200 bg-white hover:bg-stone-50"
+                            ? "outline-sovia-700 bg-sovia-100 outline-2"
+                            : "outline-sovia-200 bg-[#F3EFE6] hover:bg-sovia-50"
                         }`}
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <span className="text-stone-900 font-semibold text-sm">
+                              <span className="text-sovia-900 font-semibold text-sm">
                                 {rate.courierName}
                               </span>
-                              <span className="text-xs px-2 py-0.5 bg-stone-200 text-stone-600 rounded-full">
+                              <span className="text-xs px-2 py-0.5 bg-sovia-200 text-sovia-600 rounded-full">
                                 {rate.serviceName}
                               </span>
                             </div>
-                            <p className="text-stone-500 text-xs mt-1">
+                            <p className="text-sovia-500 text-xs mt-1">
                               {rate.description || `Estimasi ${rate.duration}`}
                             </p>
                             {rate.shipmentDurationRange && (
-                              <p className="text-stone-400 text-xs mt-0.5">
+                              <p className="text-sovia-400 text-xs mt-0.5">
                                 ⏱ {rate.shipmentDurationRange} {rate.shipmentDurationUnit}
                               </p>
                             )}
                           </div>
                           <div className="text-right">
-                            <span className="text-stone-900 font-semibold text-sm">
+                            <span className="text-sovia-900 font-semibold text-sm">
                               {formatPrice(rate.price)}
                             </span>
                           </div>
@@ -565,7 +565,7 @@ export default function CheckoutPage() {
                     {currentRates.length > 4 && (
                       <button
                         onClick={() => setShowAllCouriers(!showAllCouriers)}
-                        className="w-full py-3 text-stone-600 text-sm font-medium flex items-center justify-center gap-1 hover:text-stone-900 transition-colors"
+                        className="w-full py-3 text-sovia-600 text-sm font-medium flex items-center justify-center gap-1 hover:text-sovia-900 transition-colors"
                       >
                         {showAllCouriers ? (
                           <>
@@ -585,41 +585,41 @@ export default function CheckoutPage() {
 
             {/* Payment Method */}
             <div>
-              <div className="flex justify-between items-center pb-2 border-b border-stone-200 mb-4">
+              <div className="flex justify-between items-center pb-2 border-b border-sovia-200 mb-4">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl border border-stone-500 flex items-center justify-center">
-                    <div className="w-3 h-3 bg-stone-500" />
+                  <div className="w-8 h-8 rounded-xl border border-sovia-500 flex items-center justify-center">
+                    <div className="w-3 h-3 bg-sovia-500" />
                   </div>
-                  <h2 className="text-stone-900 text-xl font-serif">Pembayaran</h2>
+                  <h2 className="text-sovia-900 text-xl font-serif">Pembayaran</h2>
                 </div>
               </div>
-              <div className="bg-white rounded-lg p-8 text-center">
+              <div className="bg-[#F3EFE6] rounded-lg p-8 text-center">
                 {shippingMethod === "COD" ? (
                   <div>
-                    <p className="text-stone-700 text-base mb-4">
+                    <p className="text-sovia-700 text-base mb-4">
                       Pembayaran dilakukan saat barang diterima
                     </p>
-                    <div className="inline-block px-6 py-3 bg-rose-100 rounded-lg">
-                      <p className="text-stone-600 text-sm">Cash on Delivery</p>
+                    <div className="inline-block px-6 py-3 bg-accent-100 rounded-lg">
+                      <p className="text-sovia-600 text-sm">Cash on Delivery</p>
                     </div>
-                    <p className="text-stone-500 text-xs mt-4">
+                    <p className="text-sovia-500 text-xs mt-4">
                       Total yang harus dibayar saat menerima:{" "}
-                      <span className="font-semibold text-stone-700">{formatPrice(total)}</span>
+                      <span className="font-semibold text-sovia-700">{formatPrice(total)}</span>
                     </p>
                   </div>
                 ) : (
                   <div>
-                    <p className="text-stone-700 text-base mb-4">
+                    <p className="text-sovia-700 text-base mb-4">
                       Scan kode QRIS untuk membayar
                     </p>
-                    <div className="w-48 h-48 bg-stone-200 rounded-lg mx-auto flex items-center justify-center mb-4">
-                      <QrCode className="w-24 h-24 text-stone-400" />
+                    <div className="w-48 h-48 bg-sovia-200 rounded-lg mx-auto flex items-center justify-center mb-4">
+                      <QrCode className="w-24 h-24 text-sovia-400" />
                     </div>
                     <p className="text-sm">
                       Total pembayaran:{" "}
                       <span className="font-semibold">{formatPrice(total)}</span>
                     </p>
-                    <p className="text-stone-700 text-xs mt-2">
+                    <p className="text-sovia-700 text-xs mt-2">
                       Menunggu konfirmasi pembayaran...
                     </p>
                   </div>
@@ -630,19 +630,19 @@ export default function CheckoutPage() {
 
           {/* Order Summary */}
           <div className="w-full lg:w-96">
-            <div className="bg-stone-100 rounded-lg p-8 lg:sticky lg:top-32">
-              <h2 className="text-stone-900 text-2xl font-serif mb-6">
+            <div className="bg-sovia-100 rounded-lg p-8 lg:sticky lg:top-32">
+              <h2 className="text-sovia-900 text-2xl font-serif mb-6">
                 Ringkasan Pesanan
               </h2>
               <div className="space-y-4 mb-6">
                 {items.map((item) => (
                   <div key={item.id} className="flex gap-4">
-                    <div className="w-20 h-24 bg-stone-200 rounded flex-shrink-0 overflow-hidden">
+                    <div className="w-20 h-24 bg-sovia-200 rounded flex-shrink-0 overflow-hidden">
                       <Image
                         src={
                           item.product.variants?.find(v => v.name === item.color)?.image ||
                           getProductImages(item.product.images)[0] ||
-                          "https://placehold.co/80x96/fafaf9/1c1917?text=Item"
+                          "https://placehold.co/80x96/F3EFE6/3C3228?text=Item"
                         }
                         alt={item.product.name}
                         width={80}
@@ -651,18 +651,18 @@ export default function CheckoutPage() {
                       />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-stone-900 text-lg font-serif">
+                      <h3 className="text-sovia-900 text-lg font-serif">
                         {item.product.name}
                       </h3>
-                      <p className="text-stone-700 text-sm">
+                      <p className="text-sovia-700 text-sm">
                         {item.color && `Varian: ${item.color}`}
                         {item.size && ` | Ukuran: ${item.size}`}
                       </p>
                       <div className="flex justify-between mt-2">
-                        <span className="text-stone-700 text-sm">
+                        <span className="text-sovia-700 text-sm">
                           Qty: {item.quantity}
                         </span>
-                        <span className="text-stone-900 font-medium">
+                        <span className="text-sovia-900 font-medium">
                           {formatPrice(item.product.price * item.quantity)}
                         </span>
                       </div>
@@ -671,35 +671,35 @@ export default function CheckoutPage() {
                 ))}
 
                 {items.length === 0 && (
-                  <p className="text-stone-500 text-center py-4">
+                  <p className="text-sovia-500 text-center py-4">
                     Keranjang kosong
                   </p>
                 )}
               </div>
 
-              <div className="space-y-3 pt-4 border-t border-stone-200">
+              <div className="space-y-3 pt-4 border-t border-sovia-200">
                 <div className="flex justify-between">
-                  <span className="text-stone-700 text-sm">Subtotal</span>
-                  <span className="text-stone-700 text-sm">
+                  <span className="text-sovia-700 text-sm">Subtotal</span>
+                  <span className="text-sovia-700 text-sm">
                     {formatPrice(subtotal)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <div>
-                    <span className="text-stone-700 text-sm">Ongkos Kirim</span>
+                    <span className="text-sovia-700 text-sm">Ongkos Kirim</span>
                     {selectedCourier && (
-                      <p className="text-stone-400 text-xs">
+                      <p className="text-sovia-400 text-xs">
                         {selectedCourier.courierName} — {selectedCourier.serviceName}
                       </p>
                     )}
                   </div>
-                  <span className="text-stone-700 text-sm">
+                  <span className="text-sovia-700 text-sm">
                     {selectedCourier ? formatPrice(shippingCost) : "-"}
                   </span>
                 </div>
-                <div className="flex justify-between pt-3 border-t border-stone-200">
-                  <span className="text-stone-900 text-lg font-medium">Total</span>
-                  <span className="text-stone-900 text-lg font-medium">
+                <div className="flex justify-between pt-3 border-t border-sovia-200">
+                  <span className="text-sovia-900 text-lg font-medium">Total</span>
+                  <span className="text-sovia-900 text-lg font-medium">
                     {formatPrice(total)}
                   </span>
                 </div>
@@ -708,7 +708,7 @@ export default function CheckoutPage() {
               <button
                 onClick={handleSubmit}
                 disabled={submitting || items.length === 0 || !selectedCourier || loadingRates}
-                className="w-full py-4 bg-gradient-to-r from-stone-600 to-red-300 text-white rounded-lg font-medium mt-6 disabled:opacity-60 transition-opacity"
+                className="w-full py-4 bg-gradient-to-r from-sovia-600 to-accent-300 text-white rounded-lg font-medium mt-6 disabled:opacity-60 transition-opacity"
               >
                 {submitting ? "Memproses..." : "Konfirmasi Pesanan"}
               </button>

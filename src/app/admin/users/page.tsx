@@ -65,8 +65,8 @@ export default function AdminUsersPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <div>
-          <h1 className="text-stone-900 text-3xl font-serif mb-2">Customer Management</h1>
-          <p className="text-stone-700 text-sm">
+          <h1 className="text-sovia-900 text-3xl font-serif mb-2">Customer Management</h1>
+          <p className="text-sovia-700 text-sm">
             View and manage registered customers.
           </p>
         </div>
@@ -79,21 +79,21 @@ export default function AdminUsersPage() {
           placeholder="Search by name or email"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="w-full max-w-md pl-4 pr-4 py-3 bg-stone-200/30 rounded-lg text-sm"
+          className="w-full max-w-md pl-4 pr-4 py-3 bg-sovia-200/30 rounded-lg text-sm"
         />
       </div>
 
       {/* Users Grid */}
       {loading ? (
-        <div className="text-center py-16 text-stone-500">Loading...</div>
+        <div className="text-center py-16 text-sovia-500">Loading...</div>
       ) : filteredUsers.length === 0 ? (
-        <div className="text-center py-16 text-stone-500">No users found</div>
+        <div className="text-center py-16 text-sovia-500">No users found</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredUsers.map((user) => (
-            <div key={user.id} className="bg-white rounded-lg p-6">
+            <div key={user.id} className="bg-[#F3EFE6] rounded-lg p-6">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 bg-stone-200 rounded-full overflow-hidden">
+                <div className="w-16 h-16 bg-sovia-200 rounded-full overflow-hidden">
                   {user.image ? (
                     <Image
                       src={user.image}
@@ -103,34 +103,34 @@ export default function AdminUsersPage() {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <UsersIcon className="w-full h-full p-3 text-stone-400" />
+                    <UsersIcon className="w-full h-full p-3 text-sovia-400" />
                   )}
                 </div>
                 <div>
-                  <p className="text-stone-900 font-medium">{user.name || "No name"}</p>
-                  <p className="text-stone-500 text-sm">{user.email}</p>
+                  <p className="text-sovia-900 font-medium">{user.name || "No name"}</p>
+                  <p className="text-sovia-500 text-sm">{user.email}</p>
                 </div>
               </div>
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-stone-500">Phone</span>
-                  <span className="text-stone-700">{user.phone || "-"}</span>
+                  <span className="text-sovia-500">Phone</span>
+                  <span className="text-sovia-700">{user.phone || "-"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-stone-500">Joined</span>
-                  <span className="text-stone-700">{formatDate(user.createdAt)}</span>
+                  <span className="text-sovia-500">Joined</span>
+                  <span className="text-sovia-700">{formatDate(user.createdAt)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-stone-500">Orders</span>
-                  <span className="text-stone-700">{user._count.orders}</span>
+                  <span className="text-sovia-500">Orders</span>
+                  <span className="text-sovia-700">{user._count.orders}</span>
                 </div>
-                <div className="flex justify-between items-center pt-2 border-t border-stone-100">
-                  <span className="text-stone-500">Role</span>
+                <div className="flex justify-between items-center pt-2 border-t border-sovia-100">
+                  <span className="text-sovia-500">Role</span>
                   <select
                     value={user.role}
                     onChange={(e) => updateRole(user.id, e.target.value)}
-                    className="text-sm bg-stone-100 rounded px-2 py-1"
+                    className="text-sm bg-sovia-100 rounded px-2 py-1"
                     disabled={user.role === "ADMIN"}
                   >
                     <option value="USER">User</option>

@@ -52,36 +52,36 @@ function SignInContent() {
 
   if (status === "loading") {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-stone-50">
-        <Loader2 className="w-8 h-8 animate-spin text-stone-400" />
+      <div className="min-h-screen flex items-center justify-center bg-sovia-50">
+        <Loader2 className="w-8 h-8 animate-spin text-sovia-400" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-100 via-stone-50 to-rose-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sovia-100 via-sovia-50 to-accent-100 px-4">
       <div className="w-full max-w-md">
         {/* Card */}
-        <div className="bg-white rounded-2xl shadow-xl p-10 relative overflow-hidden">
+        <div className="bg-[#F3EFE6] rounded-2xl shadow-xl p-10 relative overflow-hidden">
           {/* Decorative element */}
-          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-stone-600 via-rose-300 to-stone-400" />
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-sovia-600 via-accent-300 to-sovia-400" />
 
           {/* Logo */}
           <div className="text-center mb-10">
-            <h1 className="text-stone-600 text-4xl font-serif tracking-[4px] mb-2">
+            <h1 className="text-sovia-600 text-4xl font-serif tracking-[4px] mb-2">
               SOVIA
             </h1>
-            <p className="text-stone-400 text-xs tracking-[3px] uppercase">
+            <p className="text-sovia-400 text-xs tracking-[3px] uppercase">
               Fashion Collection
             </p>
           </div>
 
           {/* Welcome Text */}
           <div className="text-center mb-8">
-            <h2 className="text-stone-900 text-xl font-serif mb-2">
+            <h2 className="text-sovia-900 text-xl font-serif mb-2">
               Selamat Datang
             </h2>
-            <p className="text-stone-500 text-sm leading-relaxed">
+            <p className="text-sovia-500 text-sm leading-relaxed">
               Masuk dengan akun Google Anda untuk mulai berbelanja koleksi fashion terbaik
             </p>
           </div>
@@ -90,7 +90,7 @@ function SignInContent() {
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-white border-2 border-stone-200 rounded-xl text-stone-700 font-medium hover:bg-stone-50 hover:border-stone-300 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-[#F3EFE6] border-2 border-sovia-200 rounded-xl text-sovia-700 font-medium hover:bg-sovia-50 hover:border-sovia-300 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
           >
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -101,8 +101,8 @@ function SignInContent() {
           </button>
 
           {/* Divider */}
-          <div className="mt-8 pt-6 border-t border-stone-100">
-            <p className="text-stone-400 text-xs text-center leading-relaxed">
+          <div className="mt-8 pt-6 border-t border-sovia-100">
+            <p className="text-sovia-400 text-xs text-center leading-relaxed">
               Dengan masuk, Anda menyetujui syarat dan ketentuan yang berlaku di SOVIA Fashion
             </p>
           </div>
@@ -112,7 +112,7 @@ function SignInContent() {
         <div className="text-center mt-6">
           <button
             onClick={() => router.push("/")}
-            className="text-stone-500 text-sm hover:text-stone-700 transition-colors"
+            className="text-sovia-500 text-sm hover:text-sovia-700 transition-colors"
           >
             ← Kembali ke halaman utama
           </button>
@@ -126,8 +126,8 @@ export default function SignInPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-stone-50">
-          <Loader2 className="w-8 h-8 animate-spin text-stone-400" />
+        <div className="min-h-screen flex items-center justify-center bg-sovia-50">
+          <Loader2 className="w-8 h-8 animate-spin text-sovia-400" />
         </div>
       }
     >

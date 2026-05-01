@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id" className={`${inter.variable} ${notoSerif.variable}`}>
-      <body className="min-h-screen flex flex-col bg-stone-50 font-sans">
+      <body className="min-h-screen flex flex-col bg-sovia-50 font-sans">
         <Providers>
           <Navbar />
           <main className="flex-1 pt-16">{children}</main>

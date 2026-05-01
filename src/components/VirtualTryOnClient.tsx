@@ -202,8 +202,8 @@ export default function VirtualTryOnClient({ products }: { products: Product[] }
   return (
     <div className="w-full max-w-4xl mx-auto p-4 md:p-6 lg:p-8 space-y-6">
       <div className="text-center space-y-2">
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">Virtual Try-On</h1>
-        <p className="text-gray-500">Coba koleksi pakaian kami langsung dari kamera Anda</p>
+        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-sovia-900">Virtual Try-On</h1>
+        <p className="text-sovia-500">Coba koleksi pakaian kami langsung dari kamera Anda</p>
       </div>
 
       {error ? (
@@ -218,19 +218,19 @@ export default function VirtualTryOnClient({ products }: { products: Product[] }
           </button>
         </div>
       ) : (
-        <div className="grid md:grid-cols-3 gap-6 md:gap-8 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+        <div className="grid md:grid-cols-3 gap-6 md:gap-8 bg-[#F3EFE6] p-6 rounded-2xl shadow-sm border border-sovia-100">
           
           {/* Kamera dan Canvas Container */}
-          <div className="md:col-span-2 relative bg-gray-50 rounded-xl overflow-hidden shadow-inner flex items-center justify-center min-h-[400px]">
+          <div className="md:col-span-2 relative bg-sovia-50 rounded-xl overflow-hidden shadow-inner flex items-center justify-center min-h-[400px]">
             {loading && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-100/80 z-10 backdrop-blur-sm">
-                <RefreshCw className="w-8 h-8 animate-spin text-pink-500 mb-2" />
-                <p className="text-gray-600 font-medium">Mengakses Kamera...</p>
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-sovia-100/80 z-10 backdrop-blur-sm">
+                <RefreshCw className="w-8 h-8 animate-spin text-accent-400 mb-2" />
+                <p className="text-sovia-600 font-medium">Mengakses Kamera...</p>
               </div>
             )}
             
             {cameraReady && modelLoading && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-gray-900/40 z-10 backdrop-blur-sm">
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-sovia-900/40 z-10 backdrop-blur-sm">
                 <RefreshCw className="w-8 h-8 animate-spin text-white mb-2" />
                 <p className="text-white font-medium drop-shadow-md">Memuat Model AI...</p>
               </div>
@@ -259,25 +259,25 @@ export default function VirtualTryOnClient({ products }: { products: Product[] }
           <div className="space-y-6 flex flex-col justify-between">
             <div>
               {/* Toggle Mode */}
-              <div className="mb-6 bg-stone-100 p-1 rounded-xl flex shadow-inner border border-stone-200">
+              <div className="mb-6 bg-sovia-100 p-1 rounded-xl flex shadow-inner border border-sovia-200">
                 <button
-                  className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${tryOnMode === 'clothes' ? 'bg-white shadow text-pink-600' : 'text-stone-500 hover:text-stone-700'}`}
+                  className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${tryOnMode === 'clothes' ? 'bg-[#F3EFE6] shadow text-sovia-600' : 'text-sovia-500 hover:text-sovia-700'}`}
                   onClick={() => setTryOnMode('clothes')}
                 >
                   Pakaian
                 </button>
                 <button
-                  className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${tryOnMode === 'hijab' ? 'bg-white shadow text-pink-600' : 'text-stone-500 hover:text-stone-700'}`}
+                  className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${tryOnMode === 'hijab' ? 'bg-[#F3EFE6] shadow text-sovia-600' : 'text-sovia-500 hover:text-sovia-700'}`}
                   onClick={() => setTryOnMode('hijab')}
                 >
                   Hijab
                 </button>
               </div>
 
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Pilih Produk</label>
+              <label className="block text-sm font-semibold text-sovia-700 mb-2">Pilih Produk</label>
               <div className="relative">
                 <select
-                  className="w-full appearance-none bg-gray-50 border border-gray-200 text-gray-700 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 focus:border-transparent transition-all"
+                  className="w-full appearance-none bg-sovia-50 border border-sovia-200 text-sovia-700 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-400 focus:border-transparent transition-all"
                   value={selectedProduct?.id || ''}
                   onChange={(e) => {
                     const product = products.find(p => String(p.id) === String(e.target.value));
@@ -289,15 +289,15 @@ export default function VirtualTryOnClient({ products }: { products: Product[] }
                     <option key={p.id} value={p.id}>{p.name}</option>
                   ))}
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-500">
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-sovia-500">
                   <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                 </div>
               </div>
 
               {selectedProduct && (
-                <div className="mt-4 p-4 bg-pink-50/50 rounded-xl border border-pink-100">
-                  <p className="text-sm text-gray-500 mb-2">Preview Pakaian:</p>
-                  <div className="aspect-square w-full relative bg-white rounded-lg border border-gray-100 overflow-hidden shadow-sm flex items-center justify-center p-2">
+                <div className="mt-4 p-4 bg-accent-100/50 rounded-xl border border-accent-100">
+                  <p className="text-sm text-sovia-500 mb-2">Preview Pakaian:</p>
+                  <div className="aspect-square w-full relative bg-[#F3EFE6] rounded-lg border border-sovia-100 overflow-hidden shadow-sm flex items-center justify-center p-2">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img 
                       src={selectedProduct.tryOnImage} 
@@ -314,8 +314,8 @@ export default function VirtualTryOnClient({ products }: { products: Product[] }
               disabled={!cameraReady || !selectedProduct}
               className={`w-full py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 font-semibold shadow-sm transition-all duration-200
                 ${(!cameraReady || !selectedProduct) 
-                  ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                  : 'bg-pink-600 hover:bg-pink-700 text-white hover:shadow-md hover:-translate-y-0.5'}`}
+                  ? 'bg-sovia-100 text-sovia-400 cursor-not-allowed' 
+                  : 'bg-sovia-600 hover:bg-sovia-800 text-white hover:shadow-md hover:-translate-y-0.5'}`}
             >
               <CameraIcon className="w-5 h-5" />
               <span>Ambil Foto</span>

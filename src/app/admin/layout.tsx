@@ -67,13 +67,13 @@ export default function AdminLayout({
   return (
     <div className="min-h-screen flex">
       {/* Sidebar */}
-      <aside className="w-64 fixed left-0 top-0 bottom-0 bg-stone-50 border-r border-stone-200/30 flex flex-col">
-        <div className="p-6 border-b border-stone-200/20">
-          <h1 className="text-stone-600 text-2xl font-serif tracking-[2.40px] mb-4">
+      <aside className="w-64 fixed left-0 top-0 bottom-0 bg-sovia-50 border-r border-sovia-200/30 flex flex-col">
+        <div className="p-6 border-b border-sovia-200/20">
+          <h1 className="text-sovia-600 text-2xl font-serif tracking-[2.40px] mb-4">
             SOVIA
           </h1>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-stone-200 rounded-xl overflow-hidden">
+            <div className="w-10 h-10 bg-sovia-200 rounded-xl overflow-hidden">
               {session.user?.image && (
                 <img
                   src={session.user.image}
@@ -83,8 +83,8 @@ export default function AdminLayout({
               )}
             </div>
             <div>
-              <p className="text-stone-900 text-sm font-semibold">Admin Panel</p>
-              <p className="text-stone-700 text-xs">Editorial Control</p>
+              <p className="text-sovia-900 text-sm font-semibold">Admin Panel</p>
+              <p className="text-sovia-700 text-xs">Editorial Control</p>
             </div>
           </div>
         </div>
@@ -94,7 +94,7 @@ export default function AdminLayout({
             <div key={groupIdx} className="space-y-1">
               {group.title && (
                 <div className="px-4 mb-2">
-                  <h3 className="text-xs font-semibold text-stone-400 uppercase tracking-wider">
+                  <h3 className="text-xs font-semibold text-sovia-400 uppercase tracking-wider">
                     {group.title}
                   </h3>
                 </div>
@@ -108,8 +108,8 @@ export default function AdminLayout({
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
                       isActive
-                        ? "bg-rose-200 text-stone-600"
-                        : "text-stone-500 hover:bg-stone-100"
+                        ? "bg-accent-200 text-sovia-600"
+                        : "text-sovia-500 hover:bg-sovia-100"
                     )}
                   >
                     <link.icon className="w-5 h-5" />
@@ -121,10 +121,10 @@ export default function AdminLayout({
           ))}
         </nav>
 
-        <div className="p-4 border-t border-stone-200/20 space-y-1">
+        <div className="p-4 border-t border-sovia-200/20 space-y-1">
           <button
             onClick={() => signOut()}
-            className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-stone-500 hover:bg-stone-100 w-full"
+            className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-sovia-500 hover:bg-sovia-100 w-full"
           >
             <LogOut className="w-5 h-5" />
             Logout
@@ -133,7 +133,7 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-64 p-8 bg-stone-50">{children}</main>
+      <main className="flex-1 ml-64 p-8 bg-sovia-50">{children}</main>
     </div>
   )
 }

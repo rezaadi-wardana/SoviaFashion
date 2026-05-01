@@ -3,11 +3,32 @@
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-noto-serif), ui-serif, Georgia, serif;
+
+  /* Sovia Fashion Custom Color Palette */
+  --color-sovia-900: #3C3228;
+  --color-sovia-800: #504738;
+  --color-sovia-700: #504738;
+  --color-sovia-600: #645445;
+  --color-sovia-500: #645445;
+  --color-sovia-400: #B49583;
+  --color-sovia-300: #B49583;
+  --color-sovia-200: #DCC4AA;
+  /* --color-sovia-100: #E5D8D2; */
+  --color-sovia-100: #EDE4DA;
+  --color-sovia-50: #F3EFE6;
+
+  /* Accent colors based on palette */
+  --color-accent-600: #645445;
+  --color-accent-500: #B49583;
+  --color-accent-400: #B49583;
+  --color-accent-300: #B49583;
+  --color-accent-200: #E5D8D2;
+  --color-accent-100: #F3EFE6;
 }
 
 :root {
-  --background: #fafaf9;
-  --foreground: #1c1917;
+  --background: #F3EFE6;
+  --foreground: #3C3228;
 }
 
 body {
