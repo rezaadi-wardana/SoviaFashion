@@ -4,35 +4,96 @@
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-noto-serif), ui-serif, Georgia, serif;
 
-  /* Sovia Fashion Custom Color Palette */
-  --color-sovia-900: #3C3228;
-  --color-sovia-800: #504738;
-  --color-sovia-700: #504738;
-  --color-sovia-600: #645445;
-  --color-sovia-500: #645445;
-  --color-sovia-400: #B49583;
-  --color-sovia-300: #B49583;
-  --color-sovia-200: #DCC4AA;
-  /* --color-sovia-100: #E5D8D2; */
-  --color-sovia-100: #EDE4DA;
-  --color-sovia-50: #F3EFE6;
+  /* 
+   * Sovia Fashion Custom Color Palette
+   * These use CSS variables so they can be swapped by dark mode.
+   * Initial values defined in :root below.
+   */
+  --color-sovia-900: var(--sovia-900, #3C3228);
+  --color-sovia-800: var(--sovia-800, #504738);
+  --color-sovia-700: var(--sovia-700, #504738);
+  --color-sovia-600: var(--sovia-600, #645445);
+  --color-sovia-500: var(--sovia-500, #645445);
+  --color-sovia-400: var(--sovia-400, #B49583);
+  --color-sovia-300: var(--sovia-300, #B49583);
+  --color-sovia-200: var(--sovia-200, #DCC4AA);
+  --color-sovia-100: var(--sovia-100, #EDE4DA);
+  --color-sovia-50: var(--sovia-50, #F3EFE6);
 
-  /* Accent colors based on palette */
-  --color-accent-600: #645445;
-  --color-accent-500: #B49583;
-  --color-accent-400: #B49583;
-  --color-accent-300: #B49583;
-  --color-accent-200: #E5D8D2;
-  --color-accent-100: #F3EFE6;
+  /* Accent colors */
+  --color-accent-600: var(--accent-600, #645445);
+  --color-accent-500: var(--accent-500, #B49583);
+  --color-accent-400: var(--accent-400, #B49583);
+  --color-accent-300: var(--accent-300, #B49583);
+  --color-accent-200: var(--accent-200, #E5D8D2);
+  --color-accent-100: var(--accent-100, #F3EFE6);
 }
 
+/* ============================
+   LIGHT THEME (default)
+   ============================ */
 :root {
   --background: #F3EFE6;
   --foreground: #3C3228;
+
+  --sovia-900: #3C3228;
+  --sovia-800: #504738;
+  --sovia-700: #504738;
+  --sovia-600: #645445;
+  --sovia-500: #645445;
+  --sovia-400: #B49583;
+  --sovia-300: #B49583;
+  --sovia-200: #DCC4AA;
+  --sovia-100: #EDE4DA;
+  --sovia-50: #F3EFE6;
+
+  --accent-600: #645445;
+  --accent-500: #B49583;
+  --accent-400: #B49583;
+  --accent-300: #B49583;
+  --accent-200: #E5D8D2;
+  --accent-100: #F3EFE6;
+
+  --card-bg: #F3EFE6;
+}
+
+/* ============================
+   DARK THEME (warm brown)
+   ============================ */
+html.dark {
+  --background: #2E2520;
+  --foreground: #F3EFE6;
+
+  /* Inverted: light text/elements on dark brown background */
+  --sovia-900: #F3EFE6;
+  --sovia-800: #EDE4DA;
+  --sovia-700: #DCC4AA;
+  --sovia-600: #B49583;
+  --sovia-500: #B49583;
+  --sovia-400: #7A6555;
+  --sovia-300: #645445;
+  --sovia-200: #4A3D32;
+  --sovia-100: #3D3229;
+  --sovia-50: #2E2520;
+
+  --accent-600: #D4B89A;
+  --accent-500: #B49583;
+  --accent-400: #C9A88E;
+  --accent-300: #B49583;
+  --accent-200: #4A3D32;
+  --accent-100: #362D25;
+
+  --card-bg: #382E26;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode overrides for hardcoded bg-[#F3EFE6] */
+html.dark .bg-\[\#F3EFE6\] {
+  background-color: var(--card-bg) !important;
 }

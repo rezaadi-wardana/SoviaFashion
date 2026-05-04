@@ -27,7 +27,24 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="id" className={`${inter.variable} ${notoSerif.variable}`}>
+    <html lang="id" className={`${inter.variable} ${notoSerif.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Inline script to apply saved dark mode before paint — prevents FOUC */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  var theme = localStorage.getItem('sovia-theme');
+                  if (theme === 'dark') {
+                    document.documentElement.classList.add('dark');
+                  }
+                } catch(e) {}
+              })();
+            `,
+          }}
+        />
+      </head>
       <body className="min-h-screen flex flex-col bg-sovia-50 font-sans">
         <Providers>
           <Navbar />

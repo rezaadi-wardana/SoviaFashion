@@ -3,9 +3,10 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signIn, signOut, useSession } from "next-auth/react"
-import { ShoppingCart, User, Menu, X } from "lucide-react"
+import { ShoppingCart, User, Menu, X, Sun, Moon } from "lucide-react"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
+import { useTheme } from "@/components/ThemeProvider"
 
 const navLinks = [
   { href: "/", label: "Beranda" },
@@ -18,6 +19,7 @@ export function Navbar() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [cartCount, setCartCount] = useState(0)
+  const { theme, toggleTheme } = useTheme()
 
   const isAdmin = session?.user?.role === "ADMIN"
 
@@ -37,8 +39,7 @@ export function Navbar() {
   }, [session])
 
   return (
-    <nav className="fixed
-     top-0 left-0 right-0 z-50 bg-sovia-50/70 backdrop-blur-[6px] border-b border-sovia-200/20">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-sovia-50/70 backdrop-blur-[6px] border-b border-sovia-200/20">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
         <Link href="/" className="text-sovia-600 text-2xl font-['Noto_Serif'] tracking-[4.80px] font-semibold">
           SOVIA
@@ -61,7 +62,34 @@ export function Navbar() {
           ))}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
+          {/* Theme Toggle Button */}
+          <button
+            onClick={toggleTheme}
+            className="p-2 rounded-lg hover:bg-sovia-100 transition-all duration-300 relative overflow-hidden"
+            aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
+            title={theme === "light" ? "Mode Gelap" : "Mode Terang"}
+          >
+            <div className="relative w-5 h-5">
+              <Sun
+                className={cn(
+                  "w-5 h-5 text-sovia-600 absolute inset-0 transition-all duration-300",
+                  theme === "light"
+                    ? "opacity-100 rotate-0 scale-100"
+                    : "opacity-0 rotate-90 scale-50"
+                )}
+              />
+              <Moon
+                className={cn(
+                  "w-5 h-5 text-accent-400 absolute inset-0 transition-all duration-300",
+                  theme === "dark"
+                    ? "opacity-100 rotate-0 scale-100"
+                    : "opacity-0 -rotate-90 scale-50"
+                )}
+              />
+            </div>
+          </button>
+
           {status === "loading" ? null : session ? (
             <>
               <Link
@@ -135,6 +163,25 @@ export function Navbar() {
               {link.label}
             </Link>
           ))}
+
+          {/* Theme toggle in mobile menu */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-2 text-sm text-sovia-500 py-2"
+          >
+            {theme === "light" ? (
+              <>
+                <Moon className="w-4 h-4" />
+                Mode Gelap
+              </>
+            ) : (
+              <>
+                <Sun className="w-4 h-4" />
+                Mode Terang
+              </>
+            )}
+          </button>
+
           {session && (
             <Link
               href="/cart"
