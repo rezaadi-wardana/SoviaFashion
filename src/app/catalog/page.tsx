@@ -415,14 +415,14 @@ function CatalogContent() {
         {/* Sidebar Filters */}
         <div className={`w-full lg:w-64 flex-shrink-0 ${showMobileFilters ? "block" : "hidden lg:block"}`}>
           <div className="bg-[#F3EFE6] dark:bg-sovia-800 p-6 rounded-lg shadow-lg lg:sticky lg:top-24">
-            <div className="flex items-center gap-2 mb-6">
-              <Filter className="w-5 h-5 text-sovia-600" />
-              <h2 className="text-sovia-900 text-lg font-serif">{t("catalog.filters")}</h2>
+            <div className="flex items-center gap-2 mb-6 text-white">
+              <Filter className="w-5 h-5 text-sovia-600 text-white" />
+              <h2 className="text-sovia-900 text-lg font-serif text-white">{t("catalog.filters")}</h2>
             </div>
 
             {/* Search */}
             <div className="mb-6">
-              <label className="text-sovia-600 text-sm mb-2 block">
+              <label className="text-sovia-600 text-sm mb-2 block text-white">
                 {t("catalog.search")}
               </label>
               <div className="relative">
@@ -439,7 +439,7 @@ function CatalogContent() {
 
             {/* Categories */}
             <div className="mb-6">
-              <label className="text-sovia-600 text-sm mb-2 block">
+              <label className="text-sovia-600 text-sm mb-2 block text-white" >
                 {t("catalog.category")}
               </label>
               <div className="space-y-2">
@@ -479,7 +479,7 @@ function CatalogContent() {
 
             {/* Size Filter */}
             <div className="mb-6">
-              <label className="text-sovia-600 text-sm mb-2 block">
+              <label className="text-sovia-600 text-sm mb-2 block text-white">
                 {t("catalog.size")}
               </label>
               <div className="flex flex-wrap gap-2">
@@ -511,7 +511,7 @@ function CatalogContent() {
 
             {/* Price Range */}
             <div>
-              <label className="text-sovia-600 text-sm mb-2 block">
+              <label className="text-white text-sm mb-2 block">
                 {t("catalog.priceRange")}
               </label>
               <div className="space-y-4">
@@ -525,7 +525,7 @@ function CatalogContent() {
                   }
                   className="w-full text-[#DCC4AA]"
                 />
-                <div className="flex justify-between text-sovia-600 text-sm">
+                <div className="flex justify-between text-white text-sm">
                   <span>{formatPrice(priceRange[0])}</span>
                   <span>{formatPrice(priceRange[1])}</span>
                 </div>

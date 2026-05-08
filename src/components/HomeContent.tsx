@@ -188,7 +188,7 @@ export function HomeContent({
                 </p>
                 <Link
                   href="/catalog"
-                  className="px-6 py-2 bg-accent-200 dark:bg-accent-700 rounded-xl text-sovia-600 dark:text-sovia-50 text-sm font-medium mt-4"
+                  className="px-6 py-2 bg-accent-500 rounded-xl text-white text-sm font-medium mt-4 hover:bg-accent-600 transition-colors"
                 >
                   {t("home.explore")}
                 </Link>

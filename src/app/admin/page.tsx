@@ -115,27 +115,27 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-8 md:mb-12">
         {statCards.map((card, index) => (
           <div
             key={index}
-            className={`${card.color} h-48 p-8 rounded-lg shadow-lg flex flex-col justify-between`}
+            className={`${card.color} min-h-[130px] md:min-h-[160px] p-4 md:p-6 lg:p-8 rounded-lg shadow-lg flex flex-col justify-between overflow-hidden`}
           >
             <div className="flex justify-between items-start">
-              <p className="text-sovia-700 text-sm">{card.label}</p>
-              <card.icon className="w-5 h-5 text-sovia-600" />
+              <p className="text-sovia-700 text-xs md:text-sm leading-tight">{card.label}</p>
+              <card.icon className="w-4 h-4 md:w-5 md:h-5 text-sovia-600 shrink-0 ml-1" />
             </div>
-            <div>
-              <p className="text-sovia-900 text-2xl md:text-3xl font-serif mb-1 truncate" title={card.value}>
+            <div className="min-w-0">
+              <p className="text-sovia-900 text-base md:text-2xl lg:text-3xl font-serif mb-1 truncate" title={card.value}>
                 {loading ? "..." : card.value}
               </p>
-              <p className="text-sovia-700 text-xs flex items-center gap-1">
+              <p className="text-sovia-700 text-[10px] md:text-xs flex items-center gap-1">
                 {card.change > 0 ? (
-                  <ArrowUp className="w-3 h-3" />
+                  <ArrowUp className="w-3 h-3 shrink-0" />
                 ) : (
-                  <ArrowDown className="w-3 h-3" />
+                  <ArrowDown className="w-3 h-3 shrink-0" />
                 )}
-                {Math.abs(card.change)}% from last month
+                <span className="truncate">{Math.abs(card.change)}% from last month</span>
               </p>
             </div>
           </div>

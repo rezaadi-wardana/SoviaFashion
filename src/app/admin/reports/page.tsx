@@ -91,14 +91,14 @@ export default function AdminReportsPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-8 md:mb-12">
         {summaryCards.map((card, index) => (
-          <div key={index} className="bg-[#F3EFE6] h-auto min-h-[160px] p-6 rounded-lg shadow-lg flex flex-col justify-between">
-            <div className="flex justify-between items-start mb-4">
-              <p className="text-sovia-700 text-sm">{card.label}</p>
-              <card.icon className="w-5 h-5 text-sovia-600 shrink-0 ml-2" />
+          <div key={index} className="bg-[#F3EFE6] p-4 md:p-6 rounded-lg shadow-lg flex flex-col justify-between min-h-[120px] md:min-h-[140px] overflow-hidden">
+            <div className="flex justify-between items-start mb-3">
+              <p className="text-sovia-700 text-xs md:text-sm leading-tight">{card.label}</p>
+              <card.icon className="w-4 h-4 md:w-5 md:h-5 text-sovia-600 shrink-0 ml-1" />
             </div>
-            <p className="text-sovia-900 text-2xl font-serif">
+            <p className="text-sovia-900 text-base md:text-2xl font-serif truncate" title={loading ? "..." : card.value}>
               {loading ? "..." : card.value}
             </p>
           </div>

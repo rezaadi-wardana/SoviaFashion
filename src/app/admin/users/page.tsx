@@ -93,7 +93,7 @@ export default function AdminUsersPage() {
           {filteredUsers.map((user) => (
             <div key={user.id} className="bg-[#F3EFE6] rounded-lg p-6">
               <div className="flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 bg-sovia-200 rounded-full overflow-hidden">
+                <div className="w-14 h-14 md:w-16 md:h-16 shrink-0 bg-sovia-200 rounded-full overflow-hidden">
                   {user.image ? (
                     <Image
                       src={user.image}
@@ -106,9 +106,9 @@ export default function AdminUsersPage() {
                     <UsersIcon className="w-full h-full p-3 text-sovia-400" />
                   )}
                 </div>
-                <div>
-                  <p className="text-sovia-900 font-medium">{user.name || "No name"}</p>
-                  <p className="text-sovia-500 text-sm">{user.email}</p>
+                <div className="min-w-0">
+                  <p className="text-sovia-900 font-medium truncate">{user.name || "No name"}</p>
+                  <p className="text-sovia-500 text-sm truncate">{user.email}</p>
                 </div>
               </div>
 

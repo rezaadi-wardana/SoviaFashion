@@ -177,7 +177,7 @@ export function Navbar() {
                 href="/cart"
                 className="p-2 hover:bg-sovia-100 dark:hover:bg-sovia-800 rounded-lg transition-colors relative"
               >
-                <ShoppingCart className="w-5 h-5 text-sovia-600 dark:text-sovia-600" />
+                <ShoppingCart className="w-5 h-5 hover:text-white dark:hover:text-sovia-50  text-sovia-600 dark:text-sovia-600" />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-accent-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                     {cartCount > 9 ? "9+" : cartCount}
@@ -186,22 +186,22 @@ export function Navbar() {
               </Link>
               <Link
                 href="/profile"
-                className="p-2 hover:bg-sovia-100 dark:hover:bg-sovia-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-sovia-100 hover:text-white dark:hover:bg-sovia-800 rounded-lg transition-colors"
               >
-                <User className="w-5 h-5 text-sovia-600 dark:text-sovia-600" />
+                <User className="w-5 h-5 text-sovia-600 dark:text-sovia-600  hover:text-white dark:hover:text-sovia-50" />
               </Link>
               <div className="hidden md:flex items-center gap-3">
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className="px-4 py-2 bg-sovia-600 text-white text-sm font-medium rounded-lg hover:bg-sovia-700 transition-colors"
+                    className="px-4 py-2 bg-sovia-600  hover:text-white dark:hover:text-sovia-50   text-sm font-medium rounded-lg hover:bg-sovia-800 transition-colors"
                   >
                     {t("nav.admin")}
                   </Link>
                 )}
                 <button
                   onClick={() => signOut()}
-                  className="p-2 text-sovia-500 hover:text-sovia-600 hover:bg-sovia-100 dark:hover:bg-sovia-800 rounded-lg transition-colors"
+                  className="p-2 text-sovia-500 hover:text-sovia-600 hover:bg-sovia-100   hover:text-white dark:hover:text-sovia-50 dark:hover:bg-sovia-800 rounded-lg transition-colors"
                   title={t("nav.signOut")}
                 >
                   <LogOut className="w-5 h-5" />
