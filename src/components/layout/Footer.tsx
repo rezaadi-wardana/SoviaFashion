@@ -1,12 +1,17 @@
+"use client"
+
 import Link from "next/link"
 import { MapPin, MessageCircle } from "lucide-react"
+import { useLanguage } from "@/components/LanguageProvider"
 
 export function Footer() {
+  const { t } = useLanguage()
+
   const links = [
-    { href: "/sustainability", label: "Sustainability" },
-    { href: "/size-guide", label: "Size Guide" },
-    { href: "/shipping-returns", label: "Shipping & Returns" },
-    { href: "/privacy-policy", label: "Privacy Policy" },
+    { href: "/sustainability", label: t("footer.sustainability") },
+    { href: "/size-guide", label: t("footer.sizeGuide") },
+    { href: "/shipping-returns", label: t("footer.shippingReturns") },
+    { href: "/privacy-policy", label: t("footer.privacyPolicy") },
   ]
 
   return (
@@ -71,7 +76,7 @@ export function Footer() {
       
       <div className="max-w-[1280px] mx-auto mt-12 pt-8 border-t border-sovia-200 text-center">
         <div className="text-sovia-500 text-xs">
-          © {new Date().getFullYear()} SOVIA Fashion. All Rights Reserved.
+          {t("footer.copyright", { year: new Date().getFullYear().toString() })}
         </div>
       </div>
     </footer>
