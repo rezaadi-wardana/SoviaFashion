@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Camera as CameraIcon, Download, RefreshCw, AlertCircle } from 'lucide-react';
+import { CustomSelect } from '@/components/ui/CustomSelect';
 
 interface Product {
   id: string | number;
@@ -276,22 +277,15 @@ export default function VirtualTryOnClient({ products }: { products: Product[] }
 
               <label className="block text-sm font-semibold text-sovia-700 mb-2">Pilih Produk</label>
               <div className="relative">
-                <select
-                  className="w-full appearance-none bg-sovia-50 border border-sovia-200 text-sovia-700 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-400 focus:border-transparent transition-all"
-                  value={selectedProduct?.id || ''}
-                  onChange={(e) => {
-                    const product = products.find(p => String(p.id) === String(e.target.value));
+                <CustomSelect
+                  options={products.map(p => ({ value: String(p.id), label: p.name }))}
+                  value={String(selectedProduct?.id || '')}
+                  onChange={(val) => {
+                    const product = products.find(p => String(p.id) === val);
                     setSelectedProduct(product || null);
                   }}
-                >
-                  <option value="">-- Pilih Pakaian --</option>
-                  {products.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name}</option>
-                  ))}
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-sovia-500">
-                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
-                </div>
+                  placeholder="-- Pilih Pakaian --"
+                />
               </div>
 
               {selectedProduct && (
