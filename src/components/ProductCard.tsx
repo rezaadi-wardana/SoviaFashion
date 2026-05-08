@@ -19,7 +19,7 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onClick, href }: ProductCardProps) {
-  const imageUrl = getProductImages(product.images)[0] || "/placeholder.jpg"
+  const imageUrl = getProductImages(product.images)[0] || `https://placehold.co/400x500/F3EFE6/3C3228?text=${encodeURIComponent(product.name || 'Product')}`
   
   const inner = (
     <>

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
 import { auth } from "@/lib/auth"
+import sharp from "sharp"
 
 export async function POST(request: Request) {
   const session = await auth()
@@ -21,12 +22,28 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(bytes)
 
     const uniqueSuffix = `${Date.now()}-${Math.random().toString(36).substring(7)}`
-    const fileName = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`
     const uploadDir = join(process.cwd(), "public", "uploads")
-    
     await mkdir(uploadDir, { recursive: true })
+
+    let finalBuffer = buffer;
+    let fileName = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
+
+    if (file.type.startsWith("image/") && file.type !== "image/svg+xml") {
+      try {
+        finalBuffer = await sharp(buffer)
+          .resize(1920, 1920, { fit: 'inside', withoutEnlargement: true })
+          .webp({ quality: 80 })
+          .toBuffer();
+        
+        const originalName = file.name.replace(/\.[^/.]+$/, "");
+        fileName = `${uniqueSuffix}-${originalName.replace(/[^a-zA-Z0-9.-]/g, "_")}.webp`;
+      } catch (e) {
+        console.error("Sharp processing failed, saving original file", e);
+      }
+    }
+
     const filePath = join(uploadDir, fileName)
-    await writeFile(filePath, buffer)
+    await writeFile(filePath, finalBuffer)
 
     const url = `/uploads/${fileName}`
 
