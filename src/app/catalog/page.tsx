@@ -9,6 +9,7 @@ import { Search, Filter, ShoppingCart, ArrowRight, Plus, Check, Loader2, X } fro
 import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
 import { useLanguage } from "@/components/LanguageProvider"
+import { ProductCard } from "@/components/ProductCard"
 
 interface Product {
   id: string
@@ -398,10 +399,22 @@ function CatalogContent() {
 
   return (
     <div className="min-h-screen pt-24 pb-16">
-      <div className="max-w-[1280px] mx-auto px-8 flex gap-12">
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 flex flex-col lg:flex-row gap-8 lg:gap-12">
+        {/* Mobile Filter Toggle */}
+        <div className="lg:hidden flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-serif text-sovia-900">{t("nav.catalog")}</h1>
+          <button
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className="flex items-center gap-2 px-4 py-2 bg-sovia-100 rounded-lg text-sovia-900"
+          >
+            <Filter className="w-4 h-4" />
+            {t("catalog.filters")}
+          </button>
+        </div>
+
         {/* Sidebar Filters */}
-        <div className="w-64 flex-shrink-0">
-          <div className="bg-[#F3EFE6] p-6 rounded-lg shadow-lg sticky top-24">
+        <div className={`w-full lg:w-64 flex-shrink-0 ${showMobileFilters ? "block" : "hidden lg:block"}`}>
+          <div className="bg-[#F3EFE6] dark:bg-sovia-800 p-6 rounded-lg shadow-lg lg:sticky lg:top-24">
             <div className="flex items-center gap-2 mb-6">
               <Filter className="w-5 h-5 text-sovia-600" />
               <h2 className="text-sovia-900 text-lg font-serif">{t("catalog.filters")}</h2>
@@ -524,7 +537,7 @@ function CatalogContent() {
         {/* Product Grid */}
         <div className="flex-1">
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
@@ -539,33 +552,13 @@ function CatalogContent() {
               ))}
             </div>
           ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {filteredProducts.map((product) => (
-                <div
+                <ProductCard
                   key={product.id}
+                  product={product}
                   onClick={() => setSelectedProduct(product)}
-                  className="bg-[#F3EFE6] rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
-                >
-                  <div className="relative aspect-[3/4]">
-                    <Image
-                      src={getProductImages(product.images)[0] || "/placeholder.jpg"}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <p className="text-sovia-500 text-sm mb-1">
-                      {product.category?.name}
-                    </p>
-                    <h3 className="text-sovia-900 font-medium mb-2">
-                      {product.name}
-                    </h3>
-                    <p className="text-sovia-900 font-serif">
-                      {formatPrice(product.price)}
-                    </p>
-                  </div>
-                </div>
+                />
               ))}
             </div>
           ) : (

@@ -139,8 +139,8 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen pt-32 pb-24">
-      <div className="max-w-[1280px] mx-auto px-8">
-        <h1 className="text-sovia-900 text-4xl font-serif mb-8">Shopping Cart</h1>
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-8">
+        <h1 className="text-sovia-900 dark:text-sovia-50 text-3xl sm:text-4xl font-serif mb-8">Shopping Cart</h1>
 
         {loading ? (
           <div className="text-center py-16">
@@ -158,51 +158,65 @@ export default function CartPage() {
             </Link>
           </div>
         ) : (
-          <div className="flex gap-12">
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
             {/* Cart Items */}
             <div className="flex-1 space-y-6">
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex gap-4 bg-[#F3EFE6] rounded-lg p-4"
+                  className="flex flex-col sm:flex-row gap-4 bg-white dark:bg-sovia-800 border border-sovia-200 dark:border-sovia-700 rounded-xl p-4 shadow-sm"
                 >
-                  <div className="w-20 h-24 bg-sovia-200 rounded flex-shrink-0 overflow-hidden">
-                    <Image
-                      src={
-                        item.product.variants.find(v => v.name === item.color)?.image ||
-                        getProductImages(item.product.images)[0] ||
-                        "https://placehold.co/80x96/F3EFE6/3C3228?text=Item"
-                      }
-                      alt={item.product.name}
-                      width={80}
-                      height={96}
-                      className="w-full h-full object-cover"
-                    />
+                  <div className="flex gap-4">
+                    <div className="w-20 h-24 bg-sovia-200 rounded flex-shrink-0 overflow-hidden">
+                      <Image
+                        src={
+                          item.product.variants.find(v => v.name === item.color)?.image ||
+                          getProductImages(item.product.images)[0] ||
+                          "https://placehold.co/80x96/F3EFE6/3C3228?text=Item"
+                        }
+                        alt={item.product.name}
+                        width={80}
+                        height={96}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1 sm:hidden">
+                      <h3 className="text-sovia-900 dark:text-sovia-50 text-lg font-serif">
+                        {item.product.name}
+                      </h3>
+                      <p className="text-sovia-700 dark:text-sovia-300 text-sm">
+                        {item.color && `Variant: ${item.color}`}
+                        {item.size && ` | Size: ${item.size}`}
+                      </p>
+                      <p className="text-sovia-900 dark:text-sovia-50 text-base font-medium mt-2">
+                        {formatPrice(item.product.price)}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <h3 className="text-sovia-900 text-lg font-serif">
+                  <div className="hidden sm:block flex-1">
+                    <h3 className="text-sovia-900 dark:text-sovia-50 text-lg font-serif">
                       {item.product.name}
                     </h3>
-                    <p className="text-sovia-700 text-sm">
+                    <p className="text-sovia-700 dark:text-sovia-300 text-sm">
                       {item.color && `Variant: ${item.color}`}
                       {item.size && ` | Size: ${item.size}`}
                     </p>
-                    <p className="text-sovia-900 text-base font-medium mt-2">
+                    <p className="text-sovia-900 dark:text-sovia-50 text-base font-medium mt-2">
                       {formatPrice(item.product.price)}
                     </p>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-between sm:justify-end gap-4 mt-2 sm:mt-0 w-full sm:w-auto">
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => updateQuantity(item.id, -1)}
-                        className="w-8 h-8 flex items-center justify-center bg-sovia-200 rounded"
+                        className="w-8 h-8 flex items-center justify-center bg-sovia-200 dark:bg-sovia-700 rounded text-sovia-900 dark:text-sovia-50"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
-                      <span className="w-8 text-center">{item.quantity}</span>
+                      <span className="w-8 text-center text-sovia-900 dark:text-sovia-50">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, 1)}
-                        className="w-8 h-8 flex items-center justify-center bg-sovia-200 rounded"
+                        className="w-8 h-8 flex items-center justify-center bg-sovia-200 dark:bg-sovia-700 rounded text-sovia-900 dark:text-sovia-50"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
@@ -219,27 +233,27 @@ export default function CartPage() {
             </div>
 
             {/* Order Summary */}
-            <div className="w-96">
-              <div className="bg-sovia-100 rounded-lg p-8">
-                <h2 className="text-sovia-900 text-2xl font-serif mb-6">
+            <div className="w-full lg:w-96">
+              <div className="bg-white dark:bg-sovia-800 border border-sovia-200 dark:border-sovia-700 rounded-xl p-6 lg:p-8 shadow-sm">
+                <h2 className="text-sovia-900 dark:text-sovia-50 text-2xl font-serif mb-6">
                   Order Summary
                 </h2>
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
-                    <span className="text-sovia-700 text-sm">Subtotal</span>
-                    <span className="text-sovia-700 text-sm">
+                    <span className="text-sovia-700 dark:text-sovia-300 text-sm">Subtotal</span>
+                    <span className="text-sovia-700 dark:text-sovia-300 text-sm">
                       {formatPrice(subtotal)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sovia-700 text-sm">Shipping</span>
-                    <span className="text-sovia-700 text-sm">
+                    <span className="text-sovia-700 dark:text-sovia-300 text-sm">Shipping</span>
+                    <span className="text-sovia-700 dark:text-sovia-300 text-sm">
                       {formatPrice(shipping)}
                     </span>
                   </div>
-                  <div className="flex justify-between pt-3 border-t border-sovia-200">
-                    <span className="text-sovia-900 text-lg font-medium">Total</span>
-                    <span className="text-sovia-900 text-lg font-medium">
+                  <div className="flex justify-between pt-3 border-t border-sovia-200 dark:border-sovia-700">
+                    <span className="text-sovia-900 dark:text-sovia-50 text-lg font-medium">Total</span>
+                    <span className="text-sovia-900 dark:text-sovia-50 text-lg font-medium">
                       {formatPrice(total)}
                     </span>
                   </div>

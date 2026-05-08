@@ -4,6 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { useLanguage } from "@/components/LanguageProvider"
 import { formatPrice } from "@/lib/utils"
+import { ProductCard } from "@/components/ProductCard"
 
 interface Product {
   id: string
@@ -70,32 +71,14 @@ export function HomeContent({
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8">
           {featuredProducts.length > 0 ? (
             featuredProducts.slice(0, 4).map((product) => (
-              <Link
+              <ProductCard
                 key={product.id}
+                product={product}
                 href={`/catalog?product=${product.id}`}
-                className="group"
-              >
-                <div className="bg-[#F3EFE6] rounded-lg overflow-hidden mb-5">
-                  <div className="relative h-[466px]">
-                    <Image
-                      src={getProductImages(product.images)[0] || "https://placehold.co/373x467/F3EFE6/3C3228?text=Product"}
-                      alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <div className="pt-5">
-                    <h3 className="text-sovia-900 text-xl font-serif">{product.name}</h3>
-                    <p className="text-sovia-700 text-sm mt-1">{t("home.viewDetails")}</p>
-                    <p className="text-sovia-900 text-base font-medium mt-1">
-                      {formatPrice(product.price)}
-                    </p>
-                  </div>
-                </div>
-              </Link>
+              />
             ))
           ) : (
             <>
@@ -147,10 +130,10 @@ export function HomeContent({
             </p>
           </div>
 
-          <div className="flex gap-8">
+          <div className="flex flex-col lg:flex-row gap-8">
             {/* Main Product */}
-            <div className="w-[696px] relative bg-[#F3EFE6] rounded-lg overflow-hidden">
-              <div className="relative h-[708px]">
+            <div className="w-full lg:w-[696px] relative bg-sovia-50 dark:bg-sovia-800 rounded-lg overflow-hidden">
+              <div className="relative h-[400px] sm:h-[500px] lg:h-[708px]">
                 <Image
                   src={
                     getProductImages(latestProducts[0]?.images)[0] ||
@@ -160,16 +143,16 @@ export function HomeContent({
                   fill
                   className="object-cover"
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-r from-[#F3EFE6]/90 to-transparent">
-                  <span className="px-3 py-1 bg-sovia-50/80 rounded-xl text-sovia-600 text-xs">
+                <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 bg-gradient-to-t from-sovia-50 via-sovia-50/80 to-transparent dark:from-sovia-900 dark:via-sovia-900/80 dark:to-transparent lg:bg-gradient-to-r lg:from-sovia-50/95 lg:via-sovia-50/60 lg:to-transparent lg:dark:from-sovia-900/95 lg:dark:via-sovia-900/60 lg:dark:to-transparent">
+                  <span className="px-3 py-1 bg-sovia-50/80 dark:bg-sovia-800/80 rounded-xl text-sovia-600 dark:text-sovia-300 text-xs">
                     {t("home.newSilhouette")}
                   </span>
-                  <h3 className="text-sovia-900 text-3xl font-serif mt-2">
+                  <h3 className="text-sovia-900 dark:text-sovia-50 text-3xl font-serif mt-2">
                     {latestProducts[0]?.name || "The Terracotta Gami"}
                   </h3>
                   <Link
                     href="/catalog"
-                    className="text-sovia-600 text-sm font-medium underline mt-2 block"
+                    className="text-sovia-600 dark:text-sovia-300 text-sm font-medium underline mt-2 block"
                   >
                     {t("home.shopNow")}
                   </Link>
@@ -179,7 +162,7 @@ export function HomeContent({
 
             {/* Side Products */}
             <div className="flex-1 flex flex-col gap-8">
-              <div className="flex-1 relative bg-[#F3EFE6] rounded-lg overflow-hidden">
+              <div className="flex-1 relative bg-sovia-50 dark:bg-sovia-800 rounded-lg overflow-hidden min-h-[300px]">
                 <Image
                   src={
                     getProductImages(latestProducts[1]?.images)[0] ||
@@ -189,23 +172,23 @@ export function HomeContent({
                   fill
                   className="object-cover object-top"
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-r from-[#F3EFE6]/80 to-transparent">
-                  <h3 className="text-sovia-900 text-xl font-serif">
+                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-sovia-50 via-sovia-50/70 to-transparent dark:from-sovia-900 dark:via-sovia-900/70 dark:to-transparent lg:bg-gradient-to-r lg:from-sovia-50/90 lg:via-sovia-50/50 lg:to-transparent lg:dark:from-sovia-900/90 lg:dark:via-sovia-900/50 lg:dark:to-transparent">
+                  <h3 className="text-sovia-900 dark:text-sovia-50 text-xl font-serif">
                     {latestProducts[1]?.name || "Pleated Maxi Skirts"}
                   </h3>
                 </div>
               </div>
 
-              <div className="flex-1 bg-[#F3EFE6] rounded-lg p-8 flex flex-col items-center justify-center">
-                <h3 className="text-sovia-900 text-2xl font-serif text-center">
+              <div className="flex-1 bg-sovia-50 dark:bg-sovia-800 rounded-lg p-8 flex flex-col items-center justify-center min-h-[300px]">
+                <h3 className="text-sovia-900 dark:text-sovia-50 text-2xl font-serif text-center">
                   {t("home.summerEssentials")}
                 </h3>
-                <p className="text-sovia-700 text-sm text-center mt-3">
+                <p className="text-sovia-700 dark:text-sovia-300 text-sm text-center mt-3">
                   {t("home.summerDescription")}
                 </p>
                 <Link
                   href="/catalog"
-                  className="px-6 py-2 bg-accent-200 rounded-xl text-sovia-600 text-sm font-medium mt-4"
+                  className="px-6 py-2 bg-accent-200 dark:bg-accent-700 rounded-xl text-sovia-600 dark:text-sovia-50 text-sm font-medium mt-4"
                 >
                   {t("home.explore")}
                 </Link>
@@ -324,7 +307,7 @@ function HeroSliderTranslated({ slides }: { slides: Hero[] }) {
   const currentSlide = heroSlides[currentIndex]
 
   return (
-    <section className="relative min-h-[819px] py-28 bg-accent-100 flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[500px] sm:min-h-[650px] lg:min-h-[819px] py-20 sm:py-28 bg-accent-100 flex items-center justify-center overflow-hidden">
       {/* Background images with crossfade */}
       {heroSlides.map((slide, index) => (
         <div
@@ -343,8 +326,8 @@ function HeroSliderTranslated({ slides }: { slides: Hero[] }) {
       ))}
 
       {/* Content */}
-      <div className="max-w-[1024px] px-8 flex items-center gap-24 relative z-10">
-        <div className="w-96 flex flex-col gap-6">
+      <div className="max-w-[1024px] px-4 sm:px-8 flex items-center gap-12 lg:gap-24 relative z-10">
+        <div className="w-full lg:w-96 flex flex-col gap-4 sm:gap-6">
           <p
             className="text-sovia-600 text-sm uppercase tracking-wider transition-all duration-500"
             key={`title-${currentIndex}`}
@@ -353,7 +336,7 @@ function HeroSliderTranslated({ slides }: { slides: Hero[] }) {
             {currentSlide.title}
           </p>
           <h1
-            className="text-sovia-900 text-7xl font-serif leading-[72px] transition-all duration-500"
+            className="text-sovia-900 text-4xl sm:text-5xl lg:text-7xl font-serif leading-tight lg:leading-[72px] transition-all duration-500"
             key={`subtitle-${currentIndex}`}
             style={{ animation: "fadeInUp 0.6s ease-out 0.1s both" }}
           >
@@ -361,7 +344,7 @@ function HeroSliderTranslated({ slides }: { slides: Hero[] }) {
           </h1>
           {currentSlide.description && (
             <p
-              className="text-sovia-700 text-lg leading-7 max-w-96 transition-all duration-500"
+              className="text-sovia-700 text-base sm:text-lg leading-7 max-w-96 transition-all duration-500"
               key={`desc-${currentIndex}`}
               style={{ animation: "fadeInUp 0.6s ease-out 0.2s both" }}
             >
@@ -370,7 +353,7 @@ function HeroSliderTranslated({ slides }: { slides: Hero[] }) {
           )}
           <Link
             href={currentSlide.link || "/catalog"}
-            className="px-8 py-4 bg-sovia-500 rounded-lg shadow-lg inline-flex items-center justify-center text-white text-lg font-medium w-fit hover:shadow-xl transition-shadow"
+            className="px-6 sm:px-8 py-3 sm:py-4 bg-sovia-500 rounded-lg shadow-lg inline-flex items-center justify-center text-white text-base sm:text-lg font-medium w-fit hover:shadow-xl transition-shadow"
           >
             {t("home.shopTheCollection")}
           </Link>
@@ -411,17 +394,17 @@ function HeroSliderTranslated({ slides }: { slides: Hero[] }) {
         <>
           <button
             onClick={goPrev}
-            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-[#F3EFE6]/80 hover:bg-[#F3EFE6] rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+            className="absolute left-4 sm:left-6 bottom-20 sm:top-1/2 sm:-translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 bg-white/80 hover:bg-white dark:bg-sovia-900/80 dark:hover:bg-sovia-900 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
             aria-label="Previous slide"
           >
-            <ChevronLeft className="w-6 h-6 text-sovia-700" />
+            <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 text-sovia-900 dark:text-sovia-50" />
           </button>
           <button
             onClick={goNext}
-            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-[#F3EFE6]/80 hover:bg-[#F3EFE6] rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+            className="absolute right-4 sm:right-6 bottom-20 sm:top-1/2 sm:-translate-y-1/2 z-20 w-10 h-10 sm:w-12 sm:h-12 bg-white/80 hover:bg-white dark:bg-sovia-900/80 dark:hover:bg-sovia-900 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
             aria-label="Next slide"
           >
-            <ChevronRight className="w-6 h-6 text-sovia-700" />
+            <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 text-sovia-900 dark:text-sovia-50" />
           </button>
 
           {/* Dots indicator */}

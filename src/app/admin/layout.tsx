@@ -3,9 +3,11 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
-import { LayoutDashboard, Package, ShoppingCart, Users, FileBarChart, Image as ImageIcon, LogOut, Folder, Store, Menu, X, User } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, Users, FileBarChart, Image as ImageIcon, LogOut, Folder, Store, Menu, X, User, Sun, Moon, Globe } from "lucide-react"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
+import { useTheme } from "@/components/ThemeProvider"
+import { useLanguage } from "@/components/LanguageProvider"
 
 const adminGroups = [
   {
@@ -46,9 +48,8 @@ export default function AdminLayout({
   const pathname = usePathname()
   const { data: session, status } = useSession()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-
-  console.log("Admin layout session:", session)
-  console.log("Admin layout role:", session?.user?.role)
+  const { theme, toggleTheme } = useTheme()
+  const { locale, setLocale } = useLanguage()
 
   if (status === "loading") {
     return (
@@ -155,6 +156,22 @@ export default function AdminLayout({
         </nav>
 
         <div className="p-4 border-t border-sovia-200/20 space-y-1">
+          <div className="flex items-center gap-2 mb-2 px-2">
+            <button
+              onClick={() => setLocale(locale === "id" ? "en" : "id")}
+              className="flex items-center justify-center flex-1 p-2 bg-sovia-100 hover:bg-sovia-200 rounded-lg transition-colors text-sovia-600 text-sm font-medium"
+            >
+              <Globe className="w-4 h-4 mr-2" />
+              {locale === "id" ? "ID" : "EN"}
+            </button>
+            <button
+              onClick={toggleTheme}
+              className="flex items-center justify-center flex-1 p-2 bg-sovia-100 hover:bg-sovia-200 rounded-lg transition-colors text-sovia-600 text-sm font-medium"
+            >
+              {theme === "light" ? <Moon className="w-4 h-4 mr-2" /> : <Sun className="w-4 h-4 mr-2" />}
+              {theme === "light" ? "Dark" : "Light"}
+            </button>
+          </div>
           <button
             onClick={() => signOut()}
             className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-sovia-500 hover:bg-sovia-100 w-full"
