@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const uploadDir = join(process.cwd(), "public", "uploads")
     await mkdir(uploadDir, { recursive: true })
 
-    let finalBuffer = buffer;
+    let finalBuffer: any = buffer;
     let fileName = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
 
     if (file.type.startsWith("image/") && file.type !== "image/svg+xml") {
