@@ -83,7 +83,7 @@ export default function AdminHeroPage() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
         <div>
           <h1 className="text-sovia-900 text-3xl font-serif mb-2">Hero Slider Management</h1>
           <p className="text-sovia-700 text-sm">
@@ -97,7 +97,7 @@ export default function AdminHeroPage() {
           }}
           className="px-6 py-3 bg-sovia-600 text-white text-sm font-medium rounded-lg flex items-center gap-2"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4 shrink-0" />
           New Slide
         </button>
       </div>
@@ -110,13 +110,24 @@ export default function AdminHeroPage() {
           No hero slides yet. Create your first slide.
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {slides.map((slide, index) => (
-            <div key={slide.id} className="bg-[#F3EFE6] rounded-lg p-4 flex items-center gap-4">
-              <div className="w-8 flex items-center justify-center text-sovia-400">
-                <GripVertical className="w-4 h-4" />
+            <div key={slide.id} className="bg-[#F3EFE6] rounded-lg p-5 flex flex-col gap-4 shadow-sm border border-sovia-100">
+              <div className="flex justify-between items-center border-b border-sovia-200 pb-3">
+                <div className="flex items-center gap-2">
+                  <GripVertical className="w-4 h-4 text-sovia-400" />
+                  <span className="text-sovia-500 text-xs font-medium uppercase tracking-wider">Order: {slide.order}</span>
+                </div>
+                <span
+                  className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${
+                    slide.isActive ? "bg-green-100 text-green-700" : "bg-sovia-200 text-sovia-500"
+                  }`}
+                >
+                  {slide.isActive ? "Active" : "Inactive"}
+                </span>
               </div>
-              <div className="w-32 h-20 bg-sovia-200 rounded overflow-hidden relative">
+              
+              <div className="w-full aspect-video bg-sovia-200 rounded-lg overflow-hidden relative">
                 <Image
                   src={slide.image}
                   alt={slide.title}
@@ -124,35 +135,29 @@ export default function AdminHeroPage() {
                   className="object-cover"
                 />
               </div>
+              
               <div className="flex-1">
-                <p className="text-sovia-900 font-medium">{slide.title}</p>
-                <p className="text-sovia-500 text-sm">{slide.subtitle || "No subtitle"}</p>
+                <p className="text-sovia-900 font-serif text-lg leading-tight line-clamp-2 mb-1">{slide.title}</p>
+                <p className="text-sovia-500 text-sm line-clamp-2">{slide.subtitle || "No subtitle"}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <span
-                  className={`px-2 py-1 rounded text-xs ${
-                    slide.isActive ? "bg-green-100 text-green-700" : "bg-sovia-100 text-sovia-500"
-                  }`}
-                >
-                  {slide.isActive ? "Active" : "Inactive"}
-                </span>
-                <span className="text-sovia-500 text-sm">Order: {slide.order}</span>
-              </div>
-              <div className="flex gap-2">
+              
+              <div className="flex gap-2 pt-2 border-t border-sovia-200">
                 <button
                   onClick={() => {
                     setEditingSlide(slide)
                     setShowModal(true)
                   }}
-                  className="p-2 hover:bg-sovia-100 rounded"
+                  className="flex-1 py-2 flex items-center justify-center gap-2 text-sovia-600 hover:bg-sovia-100 rounded-lg transition-colors text-sm font-medium"
                 >
-                  <Edit className="w-4 h-4 text-sovia-600" />
+                  <Edit className="w-4 h-4" />
+                  Edit
                 </button>
                 <button
                   onClick={() => handleDelete(slide.id)}
-                  className="p-2 hover:bg-red-50 rounded"
+                  className="flex-1 py-2 flex items-center justify-center gap-2 text-accent-500 hover:bg-red-50 rounded-lg transition-colors text-sm font-medium"
                 >
-                  <Trash2 className="w-4 h-4 text-accent-500" />
+                  <Trash2 className="w-4 h-4" />
+                  Delete
                 </button>
               </div>
             </div>

@@ -108,7 +108,8 @@ export default function AdminCategoriesPage() {
       </div>
 
       <div className="bg-[#F3EFE6] rounded-lg shadow-lg overflow-hidden">
-        <table className="w-full">
+        <div className="overflow-x-auto w-full">
+        <table className="w-full min-w-[600px]">
           <thead>
             <tr className="border-b border-sovia-200/50">
               <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
@@ -188,6 +189,7 @@ export default function AdminCategoriesPage() {
             )}
           </tbody>
         </table>
+        </div>
       </div>
     </div>
   )

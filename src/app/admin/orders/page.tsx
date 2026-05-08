@@ -51,7 +51,8 @@ export default function AdminOrdersPage() {
       const res = await fetch("/api/admin/orders")
       if (res.ok) {
         const data = await res.json()
-        setOrders(data)
+        const sortedData = data.sort((a: Order, b: Order) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        setOrders(sortedData)
       }
     } catch (error) {
       console.error("Error fetching orders:", error)
@@ -233,7 +234,7 @@ export default function AdminOrdersPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => confirmOrder(order.id, true)}
-                        className="px-4 py-2 bg-sovia-900 text-white rounded-lg text-xs font-medium hover:bg-sovia-800 transition-colors"
+                        className="px-4 py-2 bg-sovia-900 text-sovia-50 rounded-lg text-xs font-medium hover:bg-sovia-800 transition-colors"
                       >
                         Setujui Pesanan
                       </button>

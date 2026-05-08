@@ -98,7 +98,7 @@ export default function AdminDashboard() {
 
   return (
     <div>
-      <div className="flex justify-between items-end mb-12">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8 md:mb-12">
         <div>
           <h1 className="text-sovia-900 text-4xl font-serif mb-2">Overview</h1>
           <p className="text-sovia-700 text-sm">
@@ -115,7 +115,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-4 gap-6 mb-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
         {statCards.map((card, index) => (
           <div
             key={index}
@@ -126,7 +126,7 @@ export default function AdminDashboard() {
               <card.icon className="w-5 h-5 text-sovia-600" />
             </div>
             <div>
-              <p className="text-sovia-900 text-3xl font-serif mb-1">
+              <p className="text-sovia-900 text-2xl md:text-3xl font-serif mb-1 truncate" title={card.value}>
                 {loading ? "..." : card.value}
               </p>
               <p className="text-sovia-700 text-xs flex items-center gap-1">
@@ -143,7 +143,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Charts Row 1 */}
-      <div className="grid grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
         {/* Sales Trajectory */}
         <div className="bg-[#F3EFE6] p-8 rounded-lg shadow-lg">
           <h2 className="text-sovia-900 text-xl font-serif mb-6">Sales Trajectory</h2>
@@ -196,22 +196,22 @@ export default function AdminDashboard() {
       </div>
 
       {/* Row 2: Top Selling & Recent Orders */}
-      <div className="grid grid-cols-3 gap-6 mb-12">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-12">
         {/* Top Selling */}
-        <div className="col-span-1 bg-sovia-100 p-8 rounded-lg">
+        <div className="col-span-1 bg-sovia-100 p-6 md:p-8 rounded-lg">
           <h2 className="text-sovia-900 text-xl font-serif mb-6">Top Selling Collections</h2>
           <div className="space-y-4">
             {stats.topProducts.length > 0 ? (
               stats.topProducts.slice(0, 5).map((product, index) => (
                 <div key={index} className="flex items-center gap-4">
                   <div className="w-12 h-12 bg-sovia-200 rounded flex-shrink-0" />
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <p className="text-sovia-900 text-sm font-medium truncate">
                       {product.name}
                     </p>
                     <p className="text-sovia-700 text-xs">{product.sold} units</p>
                   </div>
-                  <p className="text-sovia-600 text-sm font-medium">
+                  <p className="text-sovia-600 text-sm font-medium whitespace-nowrap">
                     {formatPrice(product.revenue)}
                   </p>
                 </div>
@@ -225,10 +225,10 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Orders */}
-        <div className="col-span-2 bg-[#F3EFE6] p-8 rounded-lg shadow-lg">
+        <div className="col-span-1 lg:col-span-2 bg-[#F3EFE6] p-6 md:p-8 rounded-lg shadow-lg">
           <h2 className="text-sovia-900 text-xl font-serif mb-6">Recent Orders</h2>
-          <div className="overflow-x-auto">
-          <table className="w-full">
+          <div className="overflow-x-auto w-full">
+          <table className="w-full min-w-[600px]">
             <thead>
               <tr className="border-b border-sovia-200">
                 <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">

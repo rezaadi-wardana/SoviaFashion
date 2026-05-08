@@ -38,11 +38,11 @@ interface OrderItem {
 }
 
 const statusConfig: Record<string, { label: string; icon: any; color: string }> = {
-  PENDING_PAYMENT: { label: "Belum Bayar", icon: Clock, color: "text-yellow-600" },
-  PACKING: { label: "Sedang Diproses", icon: Package, color: "text-blue-600" },
-  SHIPPED: { label: "Dalam Perjalanan", icon: Truck, color: "text-purple-600" },
-  COMPLETED: { label: "Pesanan Selesai", icon: CheckCircle, color: "text-green-600" },
-  CANCELLED: { label: "Dibatalkan", icon: X, color: "text-red-600" },
+  PENDING_PAYMENT: { label: "Belum Bayar", icon: Clock, color: "text-yellow-600 dark:text-yellow-400" },
+  PACKING: { label: "Sedang Diproses", icon: Package, color: "text-blue-600 dark:text-blue-400" },
+  SHIPPED: { label: "Dalam Perjalanan", icon: Truck, color: "text-purple-600 dark:text-purple-400" },
+  COMPLETED: { label: "Pesanan Selesai", icon: CheckCircle, color: "text-green-600 dark:text-green-400" },
+  CANCELLED: { label: "Dibatalkan", icon: X, color: "text-red-600 dark:text-red-400" },
 }
 
 function X({ className }: { className?: string }) {
@@ -246,7 +246,7 @@ export default function ProfilePage() {
         {activeTab === "profile" ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Personal Details */}
-          <div className="bg-[#F3EFE6] rounded-lg p-12">
+          <div className="bg-sovia-50 rounded-lg p-12">
             <h2 className="text-sovia-600 text-3xl font-serif mb-8">
               Personal Dossier
             </h2>
@@ -301,7 +301,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Delivery Coordinates */}
-          <div className="bg-[#F3EFE6] rounded-lg p-12">
+          <div className="bg-sovia-50 rounded-lg p-12">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-sovia-600 text-3xl font-serif">
                 Delivery Coordinates
@@ -397,8 +397,8 @@ export default function ProfilePage() {
                   onClick={() => setOrderFilter(status)}
                   className={`px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium transition-colors ${
                     orderFilter === status
-                      ? "bg-sovia-800 text-white"
-                      : "bg-sovia-200 text-sovia-600 hover:bg-sovia-300"
+                      ? "bg-sovia-800 text-sovia-50"
+                      : "bg-sovia-100 text-sovia-700 hover:bg-sovia-200"
                   }`}
                 >
                   {status === "ALL" ? "Semua" : statusConfig[status].label}
@@ -411,7 +411,7 @@ export default function ProfilePage() {
                 <div className="animate-spin w-8 h-8 border-4 border-sovia-600 border-t-transparent rounded-full" />
               </div>
             ) : orders.filter(o => orderFilter === "ALL" || o.status === orderFilter).length === 0 ? (
-              <div className="text-center py-16 bg-[#F3EFE6] rounded-lg">
+              <div className="text-center py-16 bg-sovia-50 rounded-lg">
                 <Package className="w-16 h-16 mx-auto mb-4 text-sovia-400" />
                 <p className="text-sovia-600 text-lg mb-4">Belum ada pesanan</p>
                 <Link
@@ -430,7 +430,7 @@ export default function ProfilePage() {
                     const Icon = statusInfo.icon
 
                     return (
-                      <div key={order.id} className="bg-[#F3EFE6] rounded-lg p-6 shadow-sm border border-sovia-200">
+                      <div key={order.id} className="bg-sovia-50 rounded-lg p-6 shadow-sm border border-sovia-200">
                         <div className="flex justify-between items-start pb-4 border-b border-sovia-200 cursor-pointer" onClick={() => toggleExpand(order.id)}>
                           <div>
                             <p className="text-sovia-500 text-sm">Order #{order.id.slice(-8)}</p>
@@ -564,7 +564,7 @@ export default function ProfilePage() {
                             {order.status === "SHIPPED" && (
                               <button
                                 onClick={() => handleCompleteOrder(order.id)}
-                                className="px-6 py-2 bg-sovia-900 text-white rounded-lg text-sm font-medium hover:bg-sovia-800 transition-colors shadow-md"
+                                className="px-6 py-2 bg-sovia-900 text-sovia-50 rounded-lg text-sm font-medium hover:bg-sovia-800 transition-colors shadow-md"
                               >
                                 Pesanan Diterima
                               </button>

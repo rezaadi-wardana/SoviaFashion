@@ -167,25 +167,26 @@ export default function AdminProductsPage() {
 
       {/* Products Table */}
       <div className="bg-[#F3EFE6] rounded-lg shadow-lg overflow-hidden">
-        <table className="w-full">
+        <div className="overflow-x-auto w-full">
+        <table className="w-full min-w-[800px]">
           <thead>
             <tr className="border-b border-sovia-200/50">
-              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
+              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
                 PRODUCT
               </th>
-              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
+              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
                 SKU
               </th>
-              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
+              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
                 CATEGORY
               </th>
-              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
+              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
                 PRICE
               </th>
-              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
+              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
                 STATUS
               </th>
-              <th className="text-right py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
+              <th className="text-right py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
                 ACTIONS
               </th>
             </tr>
@@ -253,12 +254,12 @@ export default function AdminProductsPage() {
                   </td>
                   <td className="py-5 px-4">
                     <span
-                      className={`px-3 py-1 rounded-xl text-xs ${
+                      className={`whitespace-nowrap px-3 py-1 rounded-xl text-xs ${
                         (product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 10
-                          ? "bg-sovia-600 text-white"
+                          ? "bg-sovia-600 text-sovia-50"
                           : (product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 0
                           ? "bg-yellow-100 text-yellow-700"
-                          : "bg-sovia-400 text-white"
+                          : "bg-sovia-400 text-sovia-50"
                       }`}
                     >
                       {(product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 10
@@ -292,6 +293,7 @@ export default function AdminProductsPage() {
             )}
           </tbody>
         </table>
+        </div>
 
         <div className="px-4 py-4 border-t border-sovia-200/30 flex justify-between items-center">
           <p className="text-sovia-700 text-xs">

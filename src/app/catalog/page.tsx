@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
-import { Search, Filter, ShoppingCart, ArrowRight, Plus, Check, Loader2 } from "lucide-react"
+import { Search, Filter, ShoppingCart, ArrowRight, Plus, Check, Loader2, X } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
 
@@ -45,7 +45,7 @@ function WhatsAppIcon({ className }: { className?: string }) {
 function ProductModal({ product, onClose }: { product: Product; onClose: () => void }) {
   const { data: session } = useSession()
   const router = useRouter()
-  const [selectedVariant, setSelectedVariant] = useState<{id: string, name: string, stock: number, image: string | null, sizes: string | null} | null>(null)
+  const [selectedVariant, setSelectedVariant] = useState<{ id: string, name: string, stock: number, image: string | null, sizes: string | null } | null>(null)
   const [selectedSize, setSelectedSize] = useState<string>("")
   const [quantity, setQuantity] = useState<number>(1)
   const [loading, setLoading] = useState(false)
@@ -143,29 +143,34 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
       return
     }
 
-    const message = `Halo, saya tertarik dengan produk *${product.name}*${
-      selectedVariant ? ` (Varian: ${selectedVariant.name})` : ""
-    } dengan harga ${formatPrice(product.price)}. Apakah masih tersedia?`
+    const message = `Halo, saya tertarik dengan produk *${product.name}*${selectedVariant ? ` (Varian: ${selectedVariant.name})` : ""
+      } dengan harga ${formatPrice(product.price)}. Apakah masih tersedia?`
 
     const url = `https://wa.me/${storeWhatsApp}?text=${encodeURIComponent(message)}`
     window.open(url, "_blank")
   }
-  
+
   return (
     <div
       className="fixed inset-0 bg-sovia-900/50 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <div
-        className="bg-[#F3EFE6] rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-sovia-50 rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto relative"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="grid grid-cols-1 md:grid-cols-2">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 bg-white/50 backdrop-blur rounded-full text-sovia-900 hover:bg-white/80 transition-colors z-20"
+        >
+          <X className="w-5 h-5" />
+        </button>
+        <div className="grid grid-cols-1 md:grid-cols-2 ">
           <div className="relative aspect-[3/4]">
             <Image
               src={
-                selectedVariant?.image || 
-                productImages[0] || 
+                selectedVariant?.image ||
+                productImages[0] ||
                 "/placeholder.jpg"
               }
               alt={product.name}
@@ -174,12 +179,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
             />
           </div>
           <div className="p-8 flex flex-col">
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-sovia-400 hover:text-sovia-600"
-            >
-              ✕
-            </button>
+            {/* Close button moved to container level */}
             <p className="text-sovia-500 text-sm mb-2">
               {product.category?.name}
             </p>
@@ -206,13 +206,12 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                       setSelectedVariant(variant)
                       setSelectedSize("")
                     }}
-                    className={`p-3 border rounded-lg text-left transition-colors ${
-                      selectedVariant?.id === variant.id
-                        ? "border-sovia-900 bg-sovia-900 text-white"
+                    className={`p-3 border rounded-lg text-left transition-colors ${selectedVariant?.id === variant.id
+                        ? "border-sovia-900 bg-sovia-900 text-sovia-50"
                         : variant.stock === 0
-                        ? "border-sovia-200 bg-sovia-100 text-sovia-400 cursor-not-allowed"
-                        : "border-sovia-300 hover:border-sovia-900"
-                    }`}
+                          ? "border-sovia-200 bg-sovia-100 text-sovia-400 cursor-not-allowed"
+                          : "border-sovia-300 hover:border-sovia-900"
+                      }`}
                   >
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">{variant.name}</span>
@@ -224,7 +223,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                 ))}
               </div>
             </div>
-            
+
             {selectedVariant && variantSizes.length > 0 && (
               <div className="mb-6">
                 <label className="text-sovia-600 text-sm mb-2 block">
@@ -235,11 +234,10 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`w-10 h-10 border rounded-lg transition-colors ${
-                        selectedSize === size
-                          ? "border-sovia-900 bg-sovia-900 text-white"
+                      className={`w-10 h-10 border rounded-lg transition-colors ${selectedSize === size
+                          ? "border-sovia-900 bg-sovia-900 text-sovia-50"
                           : "border-sovia-300 hover:border-sovia-900"
-                      }`}
+                        }`}
                     >
                       {size}
                     </button>
@@ -280,11 +278,10 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                 <button
                   onClick={handleAddToCart}
                   disabled={!selectedVariant || selectedVariant.stock === 0 || !selectedSize || loading || addedToCart}
-                  className={`flex-1 py-3 rounded-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
-                    addedToCart
+                  className={`flex-1 py-3 rounded-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${addedToCart
                       ? "bg-green-600 border border-green-600 text-white"
-                      : "bg-[#F3EFE6] border border-sovia-900 text-sovia-900 hover:bg-sovia-100 disabled:opacity-50"
-                  }`}
+                      : "bg-sovia-50 border border-sovia-900 text-sovia-900 hover:bg-sovia-100 disabled:opacity-50"
+                    }`}
                 >
                   {loading ? (
                     <>
@@ -306,7 +303,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                 <button
                   onClick={handleBuyNow}
                   disabled={!selectedVariant || selectedVariant.stock === 0 || !selectedSize || loading}
-                  className="flex-1 bg-sovia-900 text-white py-3 rounded-lg hover:bg-sovia-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 bg-sovia-900 text-sovia-50 py-3 rounded-lg hover:bg-sovia-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   <ArrowRight className="w-5 h-5" />
                   Buy Now
@@ -329,6 +326,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
 }
 
 function CatalogContent() {
+  const router = useRouter()
   const searchParams = useSearchParams()
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
@@ -343,6 +341,7 @@ function CatalogContent() {
   const [selectedSize, setSelectedSize] = useState<string>("")
   const [showAllCategories, setShowAllCategories] = useState(false)
   const [selectedSizeFilter, setSelectedSizeFilter] = useState<string>("")
+  const [showMobileFilters, setShowMobileFilters] = useState(false)
 
   const SIZES = ["S", "M", "L", "XL", "XXL"]
 
@@ -367,12 +366,20 @@ function CatalogContent() {
     fetchData()
   }, [])
 
+  const productIdFromUrl = searchParams.get("product")
+  useEffect(() => {
+    if (productIdFromUrl && products.length > 0) {
+      const p = products.find(prod => prod.id === productIdFromUrl)
+      if (p) setSelectedProduct(p)
+    }
+  }, [productIdFromUrl, products])
+
   const filteredProducts = products.filter((product) => {
     if (selectedCategory && product.category?.id !== selectedCategory) return false
     if (product.price < priceRange[0] || product.price > priceRange[1]) return false
     if (search && !product.name.toLowerCase().includes(search.toLowerCase())) return false
     if (selectedSizeFilter) {
-      const hasSize = product.variants.some(v => 
+      const hasSize = product.variants.some(v =>
         v.sizes && v.sizes.split(",").map(s => s.trim().toUpperCase()).includes(selectedSizeFilter.toUpperCase())
       );
       if (!hasSize) return false;
@@ -384,192 +391,208 @@ function CatalogContent() {
 
   return (
     <div className="min-h-screen pt-24 pb-16">
-      <div className="max-w-[1280px] mx-auto px-8 flex gap-12">
-        {/* Sidebar Filters */}
-        <div className="w-64 flex-shrink-0">
-          <div className="bg-[#F3EFE6] p-6 rounded-lg shadow-lg sticky top-24">
-            <div className="flex items-center gap-2 mb-6">
-              <Filter className="w-5 h-5 text-sovia-600" />
-              <h2 className="text-sovia-900 text-lg font-serif">Filters</h2>
-            </div>
+      <div className="max-w-[1280px] mx-auto px-4 md:px-8">
 
-            {/* Search */}
-            <div className="mb-6">
-              <label className="text-sovia-600 text-sm mb-2 block">
-                Search
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
-                />
-                <Search className="w-5 h-5 text-sovia-400 absolute left-3 top-1/2 -translate-y-1/2" />
+        {/* Mobile Filter Toggle */}
+        <div className="lg:hidden mb-6 flex justify-between items-center">
+          <h1 className="text-2xl font-serif text-sovia-900">Katalog</h1>
+          <button
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className="flex items-center gap-2 px-4 py-2 bg-sovia-50 rounded-lg text-sovia-900 shadow-sm border border-sovia-300"
+          >
+            <Filter className="w-4 h-4" />
+            {showMobileFilters ? "Sembunyikan Filter" : "Tampilkan Filter"}
+          </button>
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-12">
+          {/* Sidebar Filters */}
+          <div className={`w-full lg:w-64 flex-shrink-0 ${showMobileFilters ? "block" : "hidden lg:block"}`}>
+            <div className="bg-sovia-50 p-6 rounded-lg shadow-lg lg:sticky top-24">
+              <div className="flex items-center gap-2 mb-6">
+                <Filter className="w-5 h-5 text-sovia-600" />
+                <h2 className="text-sovia-900 text-lg font-serif">Filters</h2>
               </div>
-            </div>
 
-            {/* Categories */}
-            <div className="mb-6">
-              <label className="text-sovia-600 text-sm mb-2 block">
-                Category
-              </label>
-              <div className="space-y-2">
-                <button
-                  onClick={() => setSelectedCategory("")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                    selectedCategory === ""
-                      ? "bg-sovia-900 text-white"
-                      : "bg-sovia-100 text-sovia-700 hover:bg-sovia-200"
-                  }`}
-                >
-                  Semua
-                </button>
-                {displayedCategories.map((category) => (
+              {/* Search */}
+              <div className="mb-6">
+                <label className="text-sovia-600 text-sm mb-2 block">
+                  Search
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-full pl-10 pr-4 py-2 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
+                  />
+                  <Search className="w-5 h-5 text-sovia-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                </div>
+              </div>
+
+              {/* Categories */}
+              <div className="mb-6">
+                <label className="text-sovia-600 text-sm mb-2 block">
+                  Category
+                </label>
+                <div className="space-y-2">
                   <button
-                    key={category.id}
-                    onClick={() => setSelectedCategory(category.id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                      selectedCategory === category.id
-                        ? "bg-sovia-900 text-white"
+                    onClick={() => setSelectedCategory("")}
+                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedCategory === ""
+                        ? "bg-sovia-900 text-sovia-50"
                         : "bg-sovia-100 text-sovia-700 hover:bg-sovia-200"
-                    }`}
+                      }`}
                   >
-                    {category.name}
+                    Semua
                   </button>
-                ))}
-                {categories.length > 5 && (
-                  <button
-                    onClick={() => setShowAllCategories(!showAllCategories)}
-                    className="w-full text-left px-3 py-2 text-sovia-500 text-sm hover:text-sovia-900 transition-colors"
-                  >
-                    {showAllCategories ? "Tampilkan lebih sedikit" : `Lihat semua kategori (${categories.length})`}
-                  </button>
-                )}
+                  {displayedCategories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => setSelectedCategory(category.id)}
+                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedCategory === category.id
+                          ? "bg-sovia-900 text-sovia-50"
+                          : "bg-sovia-100 text-sovia-700 hover:bg-sovia-200"
+                        }`}
+                    >
+                      {category.name}
+                    </button>
+                  ))}
+                  {categories.length > 5 && (
+                    <button
+                      onClick={() => setShowAllCategories(!showAllCategories)}
+                      className="w-full text-left px-3 py-2 text-sovia-500 text-sm hover:text-sovia-900 transition-colors"
+                    >
+                      {showAllCategories ? "Tampilkan lebih sedikit" : `Lihat semua kategori (${categories.length})`}
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
 
-            {/* Size Filter */}
-            <div className="mb-6">
-              <label className="text-sovia-600 text-sm mb-2 block">
-                Ukuran
-              </label>
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => setSelectedSizeFilter("")}
-                  className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${
-                    selectedSizeFilter === ""
-                      ? "bg-sovia-900 text-white border-sovia-900"
-                      : "bg-[#F3EFE6] text-sovia-700 border-sovia-300 hover:border-sovia-900"
-                  }`}
-                >
-                  Semua
-                </button>
-                {SIZES.map((size) => (
+              {/* Size Filter */}
+              <div className="mb-6">
+                <label className="text-sovia-600 text-sm mb-2 block">
+                  Ukuran
+                </label>
+                <div className="flex flex-wrap gap-2">
                   <button
-                    key={size}
-                    onClick={() => setSelectedSizeFilter(size)}
-                    className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${
-                      selectedSizeFilter === size
-                        ? "bg-sovia-900 text-white border-sovia-900"
-                        : "bg-[#F3EFE6] text-sovia-700 border-sovia-300 hover:border-sovia-900"
-                    }`}
+                    onClick={() => setSelectedSizeFilter("")}
+                    className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${selectedSizeFilter === ""
+                        ? "bg-sovia-900 text-sovia-50 border-sovia-900"
+                        : "bg-sovia-50 text-sovia-700 border-sovia-300 hover:border-sovia-900"
+                      }`}
                   >
-                    {size}
+                    Semua
                   </button>
-                ))}
+                  {SIZES.map((size) => (
+                    <button
+                      key={size}
+                      onClick={() => setSelectedSizeFilter(size)}
+                      className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${selectedSizeFilter === size
+                          ? "bg-sovia-900 text-sovia-50 border-sovia-900"
+                          : "bg-sovia-50 text-sovia-700 border-sovia-300 hover:border-sovia-900"
+                        }`}
+                    >
+                      {size}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Price Range */}
-            <div>
-              <label className="text-sovia-600 text-sm mb-2 block">
-                Price Range
-              </label>
-              <div className="space-y-4">
-                <input
-                  type="range"
-                  min={0}
-                  max={1000000}
-                  value={priceRange[1]}
-                  onChange={(e) =>
-                    setPriceRange([priceRange[0], Number(e.target.value)])
-                  }
-                  className="w-full text-[#DCC4AA]"
-                />
-                <div className="flex justify-between text-sovia-600 text-sm">
-                  <span>{formatPrice(priceRange[0])}</span>
-                  <span>{formatPrice(priceRange[1])}</span>
+              {/* Price Range */}
+              <div>
+                <label className="text-sovia-600 text-sm mb-2 block">
+                  Price Range
+                </label>
+                <div className="space-y-4">
+                  <input
+                    type="range"
+                    min={0}
+                    max={1000000}
+                    value={priceRange[1]}
+                    onChange={(e) =>
+                      setPriceRange([priceRange[0], Number(e.target.value)])
+                    }
+                    className="w-full text-[#DCC4AA]"
+                  />
+                  <div className="flex justify-between text-sovia-600 text-sm">
+                    <span>{formatPrice(priceRange[0])}</span>
+                    <span>{formatPrice(priceRange[1])}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Product Grid */}
-        <div className="flex-1">
-          {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="bg-[#F3EFE6] rounded-lg shadow-lg overflow-hidden animate-pulse"
+          {/* Product Grid */}
+          <div className="flex-1">
+            {loading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(6)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="bg-[#F3EFE6] rounded-lg shadow-lg overflow-hidden animate-pulse"
+                  >
+                    <div className="aspect-[3/4] bg-sovia-200" />
+                    <div className="p-4 space-y-2">
+                      <div className="h-4 bg-sovia-200 rounded w-3/4" />
+                      <div className="h-4 bg-sovia-200 rounded w-1/2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : filteredProducts.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredProducts.map((product) => (
+                  <div
+                    key={product.id}
+                    onClick={() => setSelectedProduct(product)}
+                    className="bg-[#F3EFE6] rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
+                  >
+                    <div className="relative aspect-[3/4]">
+                      <Image
+                        src={getProductImages(product.images)[0] || "/placeholder.jpg"}
+                        alt={product.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <p className="text-sovia-500 text-sm mb-1">
+                        {product.category?.name}
+                      </p>
+                      <h3 className="text-sovia-900 font-medium mb-2">
+                        {product.name}
+                      </h3>
+                      <p className="text-sovia-900 font-serif">
+                        {formatPrice(product.price)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-16">
+                <p className="text-sovia-600 text-lg">No products found</p>
+                <Link
+                  href="/catalog"
+                  className="text-sovia-600 text-sm underline mt-2 block"
                 >
-                  <div className="aspect-[3/4] bg-sovia-200" />
-                  <div className="p-4 space-y-2">
-                    <div className="h-4 bg-sovia-200 rounded w-3/4" />
-                    <div className="h-4 bg-sovia-200 rounded w-1/2" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : filteredProducts.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  onClick={() => setSelectedProduct(product)}
-                  className="bg-[#F3EFE6] rounded-lg shadow-lg overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
-                >
-                  <div className="relative aspect-[3/4]">
-                    <Image
-                      src={getProductImages(product.images)[0] || "/placeholder.jpg"}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="p-4">
-                    <p className="text-sovia-500 text-sm mb-1">
-                      {product.category?.name}
-                    </p>
-                    <h3 className="text-sovia-900 font-medium mb-2">
-                      {product.name}
-                    </h3>
-                    <p className="text-sovia-900 font-serif">
-                      {formatPrice(product.price)}
-                    </p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16">
-              <p className="text-sovia-600 text-lg">No products found</p>
-              <Link
-                href="/catalog"
-                className="text-sovia-600 text-sm underline mt-2 block"
-              >
-                Clear filters
-              </Link>
-            </div>
-          )}
+                  Clear filters
+                </Link>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Product Modal */}
-      {selectedProduct && <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />}
+      {selectedProduct && <ProductModal product={selectedProduct} onClose={() => {
+        setSelectedProduct(null)
+        if (searchParams.get("product")) {
+          router.replace("/catalog")
+        }
+      }} />}
     </div>
   )
 }

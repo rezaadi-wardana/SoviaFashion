@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
-import { LayoutDashboard, Package, ShoppingCart, Users, FileBarChart, Image, LogOut, Folder, Store } from "lucide-react"
+import { LayoutDashboard, Package, ShoppingCart, Users, FileBarChart, Image as ImageIcon, LogOut, Folder, Store, Menu, X, User } from "lucide-react"
+import { useState } from "react"
 import { cn } from "@/lib/utils"
 
 const adminGroups = [
@@ -26,7 +27,7 @@ const adminGroups = [
     title: "Advanced",
     links: [
       { href: "/admin/store-profile", label: "Profil Toko", icon: Store },
-      { href: "/admin/hero", label: "Hero Slider", icon: Image },
+      { href: "/admin/hero", label: "Hero Slider", icon: ImageIcon },
     ]
   },
   {
@@ -44,6 +45,7 @@ export default function AdminLayout({
 }) {
   const pathname = usePathname()
   const { data: session, status } = useSession()
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   console.log("Admin layout session:", session)
   console.log("Admin layout role:", session?.user?.role)
@@ -65,13 +67,43 @@ export default function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-sovia-50">
+      {/* Mobile Top Bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-sovia-50 border-b border-sovia-200/30 z-50 flex items-center justify-between px-4">
+        <Link href="/" className="text-sovia-600 text-xl font-serif tracking-[2.40px] font-semibold">SOVIA</Link>
+        <div className="flex items-center gap-1">
+          <Link href="/cart" className="p-2 text-sovia-600 hover:bg-sovia-100 rounded-lg relative">
+            <ShoppingCart className="w-5 h-5" />
+          </Link>
+          <Link href="/profile" className="p-2 text-sovia-600 hover:bg-sovia-100 rounded-lg">
+            <User className="w-5 h-5" />
+          </Link>
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 text-sovia-600 hover:bg-sovia-100 rounded-lg"
+          >
+            {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-30 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 fixed left-0 top-0 bottom-0 bg-sovia-50 border-r border-sovia-200/30 flex flex-col">
+      <aside className={cn(
+        "w-64 fixed left-0 top-0 bottom-0 bg-sovia-50 border-r border-sovia-200/30 flex flex-col z-40 transition-transform duration-300 lg:translate-x-0",
+        isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+      )}>
         <div className="p-6 border-b border-sovia-200/20">
-          <h1 className="text-sovia-600 text-2xl font-serif tracking-[2.40px] mb-4">
+          <Link href="/" className="text-sovia-600 text-2xl font-serif tracking-[2.40px] mb-4 hidden lg:block font-semibold">
             SOVIA
-          </h1>
+          </Link>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-sovia-200 rounded-xl overflow-hidden">
               {session.user?.image && (
@@ -105,6 +137,7 @@ export default function AdminLayout({
                   <Link
                     key={link.href}
                     href={link.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className={cn(
                       "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
                       isActive
@@ -133,7 +166,7 @@ export default function AdminLayout({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 ml-64 p-8 bg-sovia-50">{children}</main>
+      <main className="flex-1 lg:ml-64 p-4 md:p-8 pt-20 lg:pt-8 w-full max-w-[100vw]">{children}</main>
     </div>
   )
 }

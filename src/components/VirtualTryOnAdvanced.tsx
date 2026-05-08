@@ -1,18 +1,39 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { useSession, signIn } from 'next-auth/react';
 import { Sparkles, UploadCloud, CheckCircle2, AlertCircle, RefreshCw, Download, Image as ImageIcon } from 'lucide-react';
 
-export default function VirtualTryOnAdvanced() {
+interface Product {
+  id: string;
+  name: string;
+  tryOnImage: string;
+  category: string;
+}
+
+export default function VirtualTryOnAdvanced({ products = [] }: { products?: Product[] }) {
+  const { data: session } = useSession();
   const [humanFile, setHumanFile] = useState<File | null>(null);
-  const [garmentFile, setGarmentFile] = useState<File | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [humanPreview, setHumanPreview] = useState<string | null>(null);
-  const [garmentPreview, setGarmentPreview] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [resultImage, setResultImage] = useState<string | null>(null);
   const [predictionId, setPredictionId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('');
   const [category, setCategory] = useState<string>('upper_body');
+
+  useEffect(() => {
+    if (selectedProduct) {
+      const cat = selectedProduct.category.toLowerCase();
+      if (cat.includes('atas') || cat.includes('kemeja') || cat.includes('kaos') || cat.includes('blus')) {
+        setCategory('upper_body');
+      } else if (cat.includes('bawah') || cat.includes('rok') || cat.includes('celana')) {
+        setCategory('lower_body');
+      } else if (cat.includes('dress') || cat.includes('gamis')) {
+        setCategory('dresses');
+      }
+    }
+  }, [selectedProduct]);
 
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
 
@@ -30,8 +51,18 @@ export default function VirtualTryOnAdvanced() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!humanFile || !garmentFile) {
+    if (!humanFile || !selectedProduct) {
       return;
+    }
+
+    if (!session) {
+      const tryOnCount = parseInt(localStorage.getItem('guest_tryon_count') || '0');
+      if (tryOnCount >= 1) {
+        alert("Batas penggunaan gratis Virtual Try-On telah habis. Silakan Masuk (Login) untuk menggunakan fitur ini tanpa batas.");
+        signIn("google", { callbackUrl: "/virtual-tryon" });
+        return;
+      }
+      localStorage.setItem('guest_tryon_count', (tryOnCount + 1).toString());
     }
 
     setIsLoading(true);
@@ -40,10 +71,8 @@ export default function VirtualTryOnAdvanced() {
     setPredictionId(null);
 
     try {
-      const [humanImageUrl, garmentImageUrl] = await Promise.all([
-        uploadImage(humanFile),
-        uploadImage(garmentFile),
-      ]);
+      const humanImageUrl = await uploadImage(humanFile);
+      const garmentImageUrl = selectedProduct.tryOnImage;
 
       setStatus('Memulai proses virtual try-on...');
 
@@ -53,7 +82,7 @@ export default function VirtualTryOnAdvanced() {
         body: JSON.stringify({
           humanImageUrl,
           garmentImageUrl,
-          garmentDesc: 'Pakaian dari Sovia Fashion',
+          garmentDesc: `Pakaian dari Sovia Fashion: ${selectedProduct.name}`,
           category: category, 
         }),
       });
@@ -96,7 +125,7 @@ export default function VirtualTryOnAdvanced() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 md:p-6 lg:p-8 mt-12 bg-[#F3EFE6] rounded-2xl shadow-sm border border-sovia-200/60">
+    <div className="w-full max-w-4xl mx-auto p-4 md:p-6 lg:p-8 mt-12 bg-sovia-50 rounded-2xl shadow-sm border border-sovia-200/60">
       <div className="text-center space-y-3 mb-8">
         <div className="inline-flex items-center justify-center p-3 bg-accent-100 rounded-full mb-2">
           <Sparkles className="w-8 h-8 text-sovia-600" />
@@ -135,53 +164,55 @@ export default function VirtualTryOnAdvanced() {
                 </div>
               )}
               {humanPreview && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-sovia-900/70 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-md z-20 pointer-events-none">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-sovia-900 text-sovia-50 text-xs px-3 py-1.5 rounded-full backdrop-blur-md z-20 pointer-events-none">
                   Klik untuk mengganti foto
                 </div>
               )}
             </div>
           </div>
 
-          {/* Upload Foto Produk */}
+          {/* Pilih Produk */}
           <div className="space-y-3">
-            <label className="block text-sm font-semibold text-sovia-700">2. Foto Pakaian / Produk</label>
-            <div className="relative group border-2 border-dashed border-sovia-300 hover:border-accent-300 bg-sovia-50 rounded-xl transition-all duration-200 overflow-hidden min-h-[300px] flex flex-col items-center justify-center">
-              <input
-                type="file"
-                accept="image/*"
+            <label className="block text-sm font-semibold text-sovia-700">2. Pilih Pakaian</label>
+            <div className="relative">
+              <select
+                className="w-full appearance-none bg-sovia-50 border border-sovia-200 text-sovia-700 py-3 px-4 rounded-xl focus:outline-none focus:ring-2 focus:ring-accent-400 focus:border-transparent transition-all mb-4"
+                value={selectedProduct?.id || ''}
                 onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    setGarmentFile(file);
-                    setGarmentPreview(URL.createObjectURL(file));
-                  }
+                  const p = products.find(prod => prod.id === e.target.value);
+                  setSelectedProduct(p || null);
                 }}
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-              />
-              {garmentPreview ? (
-                <img src={garmentPreview} alt="Preview Produk" className="w-full h-full object-contain bg-[#F3EFE6] absolute inset-0" />
+              >
+                <option value="">-- Pilih Pakaian --</option>
+                {products.map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute top-3 right-0 flex items-center px-4 text-sovia-500">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+              </div>
+            </div>
+
+            <div className="relative border-2 border-sovia-300 bg-sovia-50 rounded-xl overflow-hidden h-[230px] flex flex-col items-center justify-center">
+              {selectedProduct ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={selectedProduct.tryOnImage} alt={selectedProduct.name} className="w-full h-full object-contain p-2" />
               ) : (
-                <div className="flex flex-col items-center text-sovia-400 group-hover:text-accent-400 transition-colors p-6 text-center">
+                <div className="flex flex-col items-center text-sovia-400 p-6 text-center">
                   <ImageIcon className="w-12 h-12 mb-3" />
-                  <p className="font-medium text-sm">Klik atau drop foto pakaian</p>
-                  <p className="text-xs mt-1 opacity-70">Gunakan foto pakaian tanpa latar belakang</p>
-                </div>
-              )}
-              {garmentPreview && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-sovia-900/70 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-md z-20 pointer-events-none">
-                  Klik untuk mengganti produk
+                  <p className="font-medium text-sm">Pilih produk di atas</p>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center gap-4 bg-sovia-50 p-4 rounded-xl border border-sovia-100">
+        <div className="hidden">
           <label className="text-sm font-medium text-sovia-700 whitespace-nowrap">Kategori Pakaian:</label>
           <select 
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="flex-1 w-full bg-[#F3EFE6] border border-sovia-200 text-sovia-700 py-2.5 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-400"
+            className="flex-1 w-full bg-sovia-50 border border-sovia-200 text-sovia-700 py-2.5 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-400"
           >
             <option value="upper_body">Atasan (Kaos, Kemeja, Blus)</option>
             <option value="lower_body">Bawahan (Celana, Rok)</option>
@@ -191,9 +222,9 @@ export default function VirtualTryOnAdvanced() {
 
         <button
           type="submit"
-          disabled={isLoading || !humanFile || !garmentFile}
+          disabled={isLoading || !humanFile || !selectedProduct}
           className={`w-full py-4 rounded-xl font-bold text-lg shadow-sm flex justify-center items-center gap-2 transition-all duration-300
-            ${(isLoading || !humanFile || !garmentFile) 
+            ${(isLoading || !humanFile || !selectedProduct) 
               ? 'bg-sovia-200 text-sovia-400 cursor-not-allowed' 
               : 'bg-gradient-to-r from-sovia-600 to-accent-1000 hover:from-accent-400 hover:to-accent-300 text-white hover:shadow-md hover:-translate-y-0.5'}`}
         >
@@ -258,7 +289,7 @@ export default function VirtualTryOnAdvanced() {
                     window.open(resultImage, '_blank');
                   }
                 }}
-                className="bg-[#F3EFE6] text-sovia-900 font-semibold py-3 px-6 rounded-full flex items-center gap-2 hover:bg-accent-100 hover:text-sovia-600 hover:scale-105 transition-all shadow-lg"
+                className="bg-sovia-50 text-sovia-900 font-semibold py-3 px-6 rounded-full flex items-center gap-2 hover:bg-accent-100 hover:text-sovia-600 hover:scale-105 transition-all shadow-lg"
               >
                 <Download className="w-5 h-5" />
                 Simpan Hasil

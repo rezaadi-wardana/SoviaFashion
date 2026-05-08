@@ -11,17 +11,20 @@ async function getProducts() {
       id: true, 
       name: true, 
       tryOnImage: true,
-      product: { select: { name: true } }
+      product: { select: { name: true, category: { select: { name: true } } } }
     },
-    take: 15,
+    take: 30,
   });
 
   // Map to the shape expected by Virtual Try On
-  return variants.map(v => ({
-    id: v.id,
-    name: `${v.product.name} - ${v.name}`,
-    tryOnImage: v.tryOnImage as string,
-  }));
+  return variants
+    .filter(v => v.product.category?.name.toLowerCase() !== 'hijab')
+    .map(v => ({
+      id: v.id,
+      name: `${v.product.name} - ${v.name}`,
+      tryOnImage: v.tryOnImage as string,
+      category: v.product.category?.name || '',
+    }));
 }
 
 export default async function VirtualTryOnPage() {
@@ -42,7 +45,7 @@ export default async function VirtualTryOnPage() {
           <h2 className="text-3xl font-serif text-sovia-800">Advanced AI Virtual Try-On</h2>
           <p className="text-sovia-500 mt-2">Gunakan mode Advanced berbasis AI untuk hasil pemakaian virtual beresolusi tinggi, realistis, dan pencahayaan yang disesuaikan secara otomatis.</p>
         </div>
-        <VirtualTryOnAdvanced />
+        <VirtualTryOnAdvanced products={products} />
       </section>
     </div>
   );

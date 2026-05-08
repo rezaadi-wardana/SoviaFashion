@@ -118,7 +118,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
                 transform: index === currentIndex ? "scale(1)" : "scale(0.95)",
               }}
             >
-              <div className="bg-[#F3EFE6] rounded-lg shadow-xl overflow-hidden">
+              <div className="bg-sovia-50 rounded-lg shadow-xl overflow-hidden">
                 <Image
                   src={slide.image}
                   alt={slide.title}
@@ -132,7 +132,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
           ))}
           {/* Keep static element for layout sizing */}
           <div className="invisible">
-            <div className="bg-[#F3EFE6] rounded-lg shadow-xl overflow-hidden">
+            <div className="bg-sovia-50 rounded-lg shadow-xl overflow-hidden">
               <div className="w-full h-[597px]" />
             </div>
           </div>
@@ -144,17 +144,17 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
         <>
           <button
             onClick={goPrev}
-            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-[#F3EFE6]/80 hover:bg-[#F3EFE6] rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+            className="absolute left-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-sovia-50/80 hover:bg-sovia-50 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
             aria-label="Previous slide"
           >
-            <ChevronLeft className="w-6 h-6 text-sovia-700" />
+            <ChevronLeft className="w-6 h-6 text-sovia-900" />
           </button>
           <button
             onClick={goNext}
-            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-[#F3EFE6]/80 hover:bg-[#F3EFE6] rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
+            className="absolute right-6 top-1/2 -translate-y-1/2 z-20 w-12 h-12 bg-sovia-50/80 hover:bg-sovia-50 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110"
             aria-label="Next slide"
           >
-            <ChevronRight className="w-6 h-6 text-sovia-700" />
+            <ChevronRight className="w-6 h-6 text-sovia-900" />
           </button>
 
           {/* Dots indicator */}

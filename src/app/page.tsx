@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { ProductCard } from "@/components/ProductCard"
 import Image from "next/image"
 import { prisma } from "@/lib/prisma"
 import { formatPrice } from "@/lib/utils"
@@ -66,38 +67,20 @@ export default async function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {featuredProducts.length > 0 ? (
             featuredProducts.slice(0, 4).map((product) => (
-              <Link
+              <ProductCard
                 key={product.id}
+                product={product}
                 href={`/catalog?product=${product.id}`}
-                className="group"
-              >
-                <div className="bg-[#F3EFE6] rounded-lg overflow-hidden mb-5">
-                  <div className="relative h-[466px]">
-                    <Image
-                      src={getProductImages(product.images)[0] || "https://placehold.co/373x467/F3EFE6/3C3228?text=Product"}
-                      alt={product.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <div className="pt-5">
-                    <h3 className="text-sovia-900 text-xl font-serif">{product.name}</h3>
-                    <p className="text-sovia-700 text-sm mt-1">View Details</p>
-                    <p className="text-sovia-900 text-base font-medium mt-1">
-                      {formatPrice(product.price)}
-                    </p>
-                  </div>
-                </div>
-              </Link>
+              />
             ))
           ) : (
             <>
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-[#F3EFE6] rounded-lg overflow-hidden">
-                  <div className="relative h-[466px] bg-sovia-200">
+                <div key={i} className="bg-sovia-50 rounded-lg overflow-hidden h-full shadow-lg">
+                  <div className="relative aspect-[3/4]">
                     <Image
                       src={`https://placehold.co/373x467/F3EFE6/3C3228?text=Product+${i}`}
                       alt={`Product ${i}`}
@@ -105,12 +88,12 @@ export default async function HomePage() {
                       className="object-cover"
                     />
                   </div>
-                  <div className="pt-5">
-                    <h3 className="text-sovia-900 text-xl font-serif">
+                  <div className="p-4">
+                    <p className="text-sovia-500 text-sm mb-1">Soft Sand</p>
+                    <h3 className="text-sovia-900 font-medium mb-2">
                       Product {i}
                     </h3>
-                    <p className="text-sovia-700 text-sm mt-1">Soft Sand</p>
-                    <p className="text-sovia-900 text-base font-medium mt-1">
+                    <p className="text-sovia-900 font-serif">
                       $45.00
                     </p>
                   </div>
@@ -144,10 +127,10 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="flex gap-8">
+          <div className="flex flex-col lg:flex-row gap-8">
             {/* Main Product */}
-            <div className="w-[696px] relative bg-[#F3EFE6] rounded-lg overflow-hidden">
-              <div className="relative h-[708px]">
+            <div className="flex-1 relative bg-sovia-50 rounded-lg overflow-hidden">
+              <div className="relative h-[400px] md:h-[500px] lg:h-[708px]">
                 <Image
                   src={
                     getProductImages(latestProducts[0]?.images)[0] ||
@@ -157,7 +140,7 @@ export default async function HomePage() {
                   fill
                   className="object-cover"
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-r from-[#F3EFE6]/90 to-transparent">
+                <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t lg:bg-gradient-to-r from-sovia-50 via-sovia-50/90 to-transparent p-4">
                   <span className="px-3 py-1 bg-sovia-50/80 rounded-xl text-sovia-600 text-xs">
                     New Silhouette
                   </span>
@@ -166,7 +149,7 @@ export default async function HomePage() {
                   </h3>
                   <Link
                     href="/catalog"
-                    className="text-sovia-600 text-sm font-medium underline mt-2 block"
+                    className="text-sovia-600 text-sm font-medium underline mt-2 block hover:text-sovia-900 transition-colors"
                   >
                     Shop Now
                   </Link>
@@ -176,7 +159,7 @@ export default async function HomePage() {
 
             {/* Side Products */}
             <div className="flex-1 flex flex-col gap-8">
-              <div className="flex-1 relative bg-[#F3EFE6] rounded-lg overflow-hidden">
+              <div className="flex-1 relative bg-sovia-50 rounded-lg overflow-hidden min-h-[300px] lg:min-h-0">
                 <Image
                   src={
                     getProductImages(latestProducts[1]?.images)[0] ||
@@ -186,14 +169,14 @@ export default async function HomePage() {
                   fill
                   className="object-cover object-top"
                 />
-                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-r from-[#F3EFE6]/80 to-transparent">
+                <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t lg:bg-gradient-to-r from-sovia-50 via-sovia-50/80 to-transparent">
                   <h3 className="text-sovia-900 text-xl font-serif">
                     {latestProducts[1]?.name || "Pleated Maxi Skirts"}
                   </h3>
                 </div>
               </div>
 
-              <div className="flex-1 bg-[#F3EFE6] rounded-lg p-8 flex flex-col items-center justify-center">
+              <div className="flex-1 bg-sovia-50 rounded-lg p-8 flex flex-col items-center justify-center py-16 lg:py-8">
                 <h3 className="text-sovia-900 text-2xl font-serif text-center">
                   Summer Essentials
                 </h3>
@@ -202,7 +185,7 @@ export default async function HomePage() {
                 </p>
                 <Link
                   href="/catalog"
-                  className="px-6 py-2 bg-accent-200 rounded-xl text-sovia-600 text-sm font-medium mt-4"
+                  className="px-6 py-2 bg-accent-200 rounded-xl text-sovia-600 text-sm font-medium mt-4 hover:bg-accent-300 transition-colors"
                 >
                   Explore
                 </Link>
@@ -225,7 +208,7 @@ export default async function HomePage() {
               <Link
                 key={category.id}
                 href={`/catalog?category=${category.id}`}
-                className="group bg-[#F3EFE6] rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300"
+                className="group bg-sovia-50 rounded-2xl overflow-hidden hover:shadow-xl transition-all duration-300"
               >
                 <div className="relative h-48 bg-sovia-100 overflow-hidden">
                   {category.image ? (
@@ -258,7 +241,7 @@ export default async function HomePage() {
               <Link
                 key={cat}
                 href={`/catalog?category=${cat}`}
-                className="bg-[#F3EFE6] rounded-2xl p-8 text-center hover:shadow-lg transition-shadow"
+                className="bg-sovia-50 rounded-2xl p-8 text-center hover:shadow-lg transition-shadow"
               >
                 <div className="h-48 bg-gradient-to-br from-sovia-100 to-accent-100 rounded-xl mb-4 flex items-center justify-center">
                   <span className="text-sovia-300 text-5xl font-serif">{cat.charAt(0)}</span>

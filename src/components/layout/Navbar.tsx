@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signIn, signOut, useSession } from "next-auth/react"
-import { ShoppingCart, User, Menu, X, Sun, Moon } from "lucide-react"
+import { ShoppingCart, User, Menu, X, Sun, Moon, LayoutDashboard, LogOut, LogIn } from "lucide-react"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { useTheme } from "@/components/ThemeProvider"
@@ -66,7 +66,7 @@ export function Navbar() {
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            className="p-2 rounded-lg hover:bg-sovia-100 transition-all duration-300 relative overflow-hidden"
+            className="hidden md:block p-2 rounded-lg hover:bg-sovia-100 transition-all duration-300 relative overflow-hidden"
             aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
             title={theme === "light" ? "Mode Gelap" : "Mode Terang"}
           >
@@ -103,31 +103,33 @@ export function Navbar() {
                   </span>
                 )}
               </Link>
-              <Link
-                href="/profile"
-                className="p-2 hover:bg-sovia-100 rounded-lg transition-colors"
-              >
-                <User className="w-5 h-5 text-sovia-600" />
-              </Link>
-              {isAdmin && (
+              <div className="hidden md:flex items-center gap-3">
                 <Link
-                  href="/admin"
-                  className="px-4 py-2 bg-sovia-600 text-white text-sm font-medium rounded-lg hover:bg-sovia-700 transition-colors"
+                  href="/profile"
+                  className="p-2 hover:bg-sovia-100 rounded-lg transition-colors"
                 >
-                  Admin
+                  <User className="w-5 h-5 text-sovia-600" />
                 </Link>
-              )}
-              <button
-                onClick={() => signOut()}
-                className="text-sm text-sovia-500 hover:text-sovia-600 transition-colors"
-              >
-                Keluar
-              </button>
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    className="px-4 py-2 bg-sovia-600 text-white text-sm font-medium rounded-lg hover:bg-sovia-700 transition-colors"
+                  >
+                    Admin
+                  </Link>
+                )}
+                <button
+                  onClick={() => signOut()}
+                  className="text-sm text-sovia-500 hover:text-sovia-600 transition-colors"
+                >
+                  Keluar
+                </button>
+              </div>
             </>
           ) : (
             <button
               onClick={() => signIn("google")}
-              className="px-6 py-2 bg-sovia-600 text-white text-sm font-medium rounded-lg hover:bg-sovia-700 transition-colors"
+              className="hidden md:block px-6 py-2 bg-sovia-600 text-white text-sm font-medium rounded-lg hover:bg-sovia-700 transition-colors"
             >
               Masuk
             </button>
@@ -182,14 +184,50 @@ export function Navbar() {
             )}
           </button>
 
-          {session && (
-            <Link
-              href="/cart"
-              className="text-sm text-sovia-500 py-2"
-              onClick={() => setMobileMenuOpen(false)}
+          {session ? (
+            <>
+              {/* Optional: Add Cart to mobile menu, but it's already in header. We can skip it or show it. Let's keep it in header and skip from mobile menu to avoid duplication, OR put it here and hide from header.
+                  Let's just show Profile, Admin, Keluar here since they are hidden in header. */}
+              <Link
+                href="/profile"
+                className="flex items-center gap-2 text-sm text-sovia-500 py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                <User className="w-4 h-4" />
+                Profil
+              </Link>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="flex items-center gap-2 text-sm text-sovia-500 py-2"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  Admin Dashboard
+                </Link>
+              )}
+              <button
+                onClick={() => {
+                  signOut()
+                  setMobileMenuOpen(false)
+                }}
+                className="flex items-center gap-2 text-left text-sm text-sovia-500 py-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Keluar
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => {
+                signIn("google")
+                setMobileMenuOpen(false)
+              }}
+              className="flex items-center gap-2 text-left text-sm text-sovia-500 py-2"
             >
-              Keranjang
-            </Link>
+              <LogIn className="w-4 h-4" />
+              Masuk
+            </button>
           )}
         </div>
       )}
