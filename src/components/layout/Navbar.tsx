@@ -3,16 +3,11 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signIn, signOut, useSession } from "next-auth/react"
-import { ShoppingCart, User, Menu, X, Sun, Moon } from "lucide-react"
-import { useState, useEffect } from "react"
+import { ShoppingCart, User, Menu, X, Sun, Moon, Globe } from "lucide-react"
+import { useState, useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 import { useTheme } from "@/components/ThemeProvider"
-
-const navLinks = [
-  { href: "/", label: "Beranda" },
-  { href: "/catalog", label: "Katalog" },
-  { href: "/virtual-tryon", label: "Virtual Try-On" },
-]
+import { useLanguage } from "@/components/LanguageProvider"
 
 export function Navbar() {
   const { data: session, status } = useSession()
@@ -20,8 +15,17 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [cartCount, setCartCount] = useState(0)
   const { theme, toggleTheme } = useTheme()
+  const { locale, setLocale, t } = useLanguage()
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false)
+  const langDropdownRef = useRef<HTMLDivElement>(null)
 
   const isAdmin = session?.user?.role === "ADMIN"
+
+  const navLinks = [
+    { href: "/", label: t("nav.home") },
+    { href: "/catalog", label: t("nav.catalog") },
+    { href: "/virtual-tryon", label: t("nav.virtualTryOn") },
+  ]
 
   useEffect(() => {
     if (session?.user) {
@@ -37,6 +41,17 @@ export function Navbar() {
       setCartCount(0)
     }
   }, [session])
+
+  // Close language dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
+        setLangDropdownOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-sovia-50/70 backdrop-blur-[6px] border-b border-sovia-200/20">
@@ -63,12 +78,77 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
+          {/* Language Toggle Dropdown */}
+          <div className="relative" ref={langDropdownRef}>
+            <button
+              onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+              className="p-2 rounded-lg hover:bg-sovia-100 transition-all duration-300 flex items-center gap-1.5"
+              aria-label="Change language"
+              title={locale === "id" ? "Ganti Bahasa" : "Change Language"}
+              id="lang-toggle-btn"
+            >
+              <Globe className="w-5 h-5 text-sovia-600" />
+              <span className="text-xs font-semibold text-sovia-600 uppercase tracking-wider hidden sm:inline">
+                {locale}
+              </span>
+            </button>
+
+            {/* Dropdown */}
+            <div
+              className={cn(
+                "absolute right-0 top-full mt-2 w-40 bg-sovia-50 border border-sovia-200 rounded-xl shadow-xl overflow-hidden transition-all duration-200 origin-top-right",
+                langDropdownOpen
+                  ? "opacity-100 scale-100 pointer-events-auto"
+                  : "opacity-0 scale-95 pointer-events-none"
+              )}
+            >
+              <button
+                onClick={() => {
+                  setLocale("id")
+                  setLangDropdownOpen(false)
+                }}
+                className={cn(
+                  "w-full px-4 py-3 text-left text-sm flex items-center gap-3 transition-colors",
+                  locale === "id"
+                    ? "bg-sovia-200 text-sovia-900 font-semibold"
+                    : "text-sovia-600 hover:bg-sovia-100"
+                )}
+                id="lang-option-id"
+              >
+                <span className="text-base">🇮🇩</span>
+                <span>Indonesia</span>
+                {locale === "id" && (
+                  <span className="ml-auto text-accent-500">✓</span>
+                )}
+              </button>
+              <button
+                onClick={() => {
+                  setLocale("en")
+                  setLangDropdownOpen(false)
+                }}
+                className={cn(
+                  "w-full px-4 py-3 text-left text-sm flex items-center gap-3 transition-colors",
+                  locale === "en"
+                    ? "bg-sovia-200 text-sovia-900 font-semibold"
+                    : "text-sovia-600 hover:bg-sovia-100"
+                )}
+                id="lang-option-en"
+              >
+                <span className="text-base">🇬🇧</span>
+                <span>English</span>
+                {locale === "en" && (
+                  <span className="ml-auto text-accent-500">✓</span>
+                )}
+              </button>
+            </div>
+          </div>
+
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
             className="p-2 rounded-lg hover:bg-sovia-100 transition-all duration-300 relative overflow-hidden"
             aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
-            title={theme === "light" ? "Mode Gelap" : "Mode Terang"}
+            title={theme === "light" ? t("nav.darkMode") : t("nav.lightMode")}
           >
             <div className="relative w-5 h-5">
               <Sun
@@ -114,14 +194,14 @@ export function Navbar() {
                   href="/admin"
                   className="px-4 py-2 bg-sovia-600 text-white text-sm font-medium rounded-lg hover:bg-sovia-700 transition-colors"
                 >
-                  Admin
+                  {t("nav.admin")}
                 </Link>
               )}
               <button
                 onClick={() => signOut()}
                 className="text-sm text-sovia-500 hover:text-sovia-600 transition-colors"
               >
-                Keluar
+                {t("nav.signOut")}
               </button>
             </>
           ) : (
@@ -129,7 +209,7 @@ export function Navbar() {
               onClick={() => signIn("google")}
               className="px-6 py-2 bg-sovia-600 text-white text-sm font-medium rounded-lg hover:bg-sovia-700 transition-colors"
             >
-              Masuk
+              {t("nav.signIn")}
             </button>
           )}
 
@@ -164,6 +244,33 @@ export function Navbar() {
             </Link>
           ))}
 
+          {/* Language toggle in mobile menu */}
+          <div className="flex items-center gap-2 py-2">
+            <Globe className="w-4 h-4 text-sovia-500" />
+            <button
+              onClick={() => setLocale("id")}
+              className={cn(
+                "px-3 py-1 rounded-lg text-sm transition-colors",
+                locale === "id"
+                  ? "bg-sovia-900 text-white"
+                  : "bg-sovia-100 text-sovia-500 hover:bg-sovia-200"
+              )}
+            >
+              🇮🇩 ID
+            </button>
+            <button
+              onClick={() => setLocale("en")}
+              className={cn(
+                "px-3 py-1 rounded-lg text-sm transition-colors",
+                locale === "en"
+                  ? "bg-sovia-900 text-white"
+                  : "bg-sovia-100 text-sovia-500 hover:bg-sovia-200"
+              )}
+            >
+              🇬🇧 EN
+            </button>
+          </div>
+
           {/* Theme toggle in mobile menu */}
           <button
             onClick={toggleTheme}
@@ -172,12 +279,12 @@ export function Navbar() {
             {theme === "light" ? (
               <>
                 <Moon className="w-4 h-4" />
-                Mode Gelap
+                {t("nav.darkMode")}
               </>
             ) : (
               <>
                 <Sun className="w-4 h-4" />
-                Mode Terang
+                {t("nav.lightMode")}
               </>
             )}
           </button>
@@ -188,7 +295,7 @@ export function Navbar() {
               className="text-sm text-sovia-500 py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
-              Keranjang
+              {t("nav.cart")}
             </Link>
           )}
         </div>

@@ -8,6 +8,7 @@ import { useSession } from "next-auth/react"
 import { Search, Filter, ShoppingCart, ArrowRight, Plus, Check, Loader2 } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
+import { useLanguage } from "@/components/LanguageProvider"
 
 interface Product {
   id: string
@@ -45,6 +46,7 @@ function WhatsAppIcon({ className }: { className?: string }) {
 function ProductModal({ product, onClose }: { product: Product; onClose: () => void }) {
   const { data: session } = useSession()
   const router = useRouter()
+  const { t } = useLanguage()
   const [selectedVariant, setSelectedVariant] = useState<{id: string, name: string, stock: number, image: string | null, sizes: string | null} | null>(null)
   const [selectedSize, setSelectedSize] = useState<string>("")
   const [quantity, setQuantity] = useState<number>(1)
@@ -100,16 +102,16 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
         await new Promise(resolve => setTimeout(resolve, 1500))
         setLoading(false)
         setAddedToCart(true)
-        toast.success("Produk berhasil ditambahkan ke keranjang!")
+        toast.success(t("catalog.addedToCart"))
         // Reset success state after 1.5 seconds
         setTimeout(() => setAddedToCart(false), 1500)
       } else {
         const data = await cartRes.json()
-        toast.error(data.error || "Failed to add to cart")
+        toast.error(data.error || t("common.failedAddToCart"))
         setLoading(false)
       }
     } catch {
-      toast.error("An error occurred")
+      toast.error(t("common.error"))
       setLoading(false)
     }
   }
@@ -139,13 +141,13 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
 
   function handleWhatsAppChat() {
     if (!storeWhatsApp) {
-      toast.error("Nomor WhatsApp toko belum tersedia")
+      toast.error(t("catalog.whatsappUnavailable"))
       return
     }
 
-    const message = `Halo, saya tertarik dengan produk *${product.name}*${
+    const message = `${t("catalog.whatsappMessage")} *${product.name}*${
       selectedVariant ? ` (Varian: ${selectedVariant.name})` : ""
-    } dengan harga ${formatPrice(product.price)}. Apakah masih tersedia?`
+    } ${t("catalog.withPrice")} ${formatPrice(product.price)}. ${t("catalog.isAvailable")}`
 
     const url = `https://wa.me/${storeWhatsApp}?text=${encodeURIComponent(message)}`
     window.open(url, "_blank")
@@ -195,7 +197,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
 
             <div className="mb-6">
               <label className="text-sovia-600 text-sm mb-2 block">
-                Select Variant *
+                {t("catalog.selectVariant")}
               </label>
               <div className="grid grid-cols-2 gap-2">
                 {product.variants?.map((variant) => (
@@ -217,7 +219,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">{variant.name}</span>
                       <span className={`text-xs ${variant.stock === 0 ? "text-red-400" : "text-sovia-500"}`}>
-                        {variant.stock > 0 ? `${variant.stock} avail` : "OOS"}
+                        {variant.stock > 0 ? `${variant.stock} ${t("catalog.available")}` : t("catalog.outOfStock")}
                       </span>
                     </div>
                   </button>
@@ -228,7 +230,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
             {selectedVariant && variantSizes.length > 0 && (
               <div className="mb-6">
                 <label className="text-sovia-600 text-sm mb-2 block">
-                  Select Size
+                  {t("catalog.selectSize")}
                 </label>
                 <div className="flex flex-wrap gap-2">
                   {variantSizes.map((size) => (
@@ -251,7 +253,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
             {selectedVariant && (
               <div className="mb-6">
                 <label className="text-sovia-600 text-sm mb-2 block">
-                  Quantity
+                  {t("catalog.quantity")}
                 </label>
                 <div className="flex items-center gap-3">
                   <button
@@ -270,7 +272,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                   </button>
                 </div>
                 <p className="text-sovia-500 text-sm mt-1">
-                  Stock: {selectedVariant.stock}
+                  {t("catalog.stock")}: {selectedVariant.stock}
                 </p>
               </div>
             )}
@@ -289,17 +291,17 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                   {loading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Adding...
+                      {t("catalog.adding")}
                     </>
                   ) : addedToCart ? (
                     <>
                       <Check className="w-5 h-5" />
-                      Added!
+                      {t("catalog.added")}
                     </>
                   ) : (
                     <>
                       <ShoppingCart className="w-5 h-5" />
-                      Add Cart
+                      {t("catalog.addCart")}
                     </>
                   )}
                 </button>
@@ -309,7 +311,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                   className="flex-1 bg-sovia-900 text-white py-3 rounded-lg hover:bg-sovia-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   <ArrowRight className="w-5 h-5" />
-                  Buy Now
+                  {t("catalog.buyNow")}
                 </button>
               </div>
               {/* WhatsApp Chat Button */}
@@ -318,7 +320,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                 className="w-full py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors flex items-center justify-center gap-2 font-medium"
               >
                 <WhatsAppIcon className="w-5 h-5" />
-                Chat Penjual
+                {t("catalog.chatSeller")}
               </button>
             </div>
           </div>
@@ -330,6 +332,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
 
 function CatalogContent() {
   const searchParams = useSearchParams()
+  const { t } = useLanguage()
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
@@ -390,18 +393,18 @@ function CatalogContent() {
           <div className="bg-[#F3EFE6] p-6 rounded-lg shadow-lg sticky top-24">
             <div className="flex items-center gap-2 mb-6">
               <Filter className="w-5 h-5 text-sovia-600" />
-              <h2 className="text-sovia-900 text-lg font-serif">Filters</h2>
+              <h2 className="text-sovia-900 text-lg font-serif">{t("catalog.filters")}</h2>
             </div>
 
             {/* Search */}
             <div className="mb-6">
               <label className="text-sovia-600 text-sm mb-2 block">
-                Search
+                {t("catalog.search")}
               </label>
               <div className="relative">
                 <input
                   type="text"
-                  placeholder="Search products..."
+                  placeholder={t("catalog.searchPlaceholder")}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
@@ -413,7 +416,7 @@ function CatalogContent() {
             {/* Categories */}
             <div className="mb-6">
               <label className="text-sovia-600 text-sm mb-2 block">
-                Category
+                {t("catalog.category")}
               </label>
               <div className="space-y-2">
                 <button
@@ -424,7 +427,7 @@ function CatalogContent() {
                       : "bg-sovia-100 text-sovia-700 hover:bg-sovia-200"
                   }`}
                 >
-                  Semua
+                  {t("catalog.all")}
                 </button>
                 {displayedCategories.map((category) => (
                   <button
@@ -444,7 +447,7 @@ function CatalogContent() {
                     onClick={() => setShowAllCategories(!showAllCategories)}
                     className="w-full text-left px-3 py-2 text-sovia-500 text-sm hover:text-sovia-900 transition-colors"
                   >
-                    {showAllCategories ? "Tampilkan lebih sedikit" : `Lihat semua kategori (${categories.length})`}
+                    {showAllCategories ? t("catalog.showLess") : `${t("catalog.viewAllCategories")} (${categories.length})`}
                   </button>
                 )}
               </div>
@@ -453,7 +456,7 @@ function CatalogContent() {
             {/* Size Filter */}
             <div className="mb-6">
               <label className="text-sovia-600 text-sm mb-2 block">
-                Ukuran
+                {t("catalog.size")}
               </label>
               <div className="flex flex-wrap gap-2">
                 <button
@@ -464,7 +467,7 @@ function CatalogContent() {
                       : "bg-[#F3EFE6] text-sovia-700 border-sovia-300 hover:border-sovia-900"
                   }`}
                 >
-                  Semua
+                  {t("catalog.all")}
                 </button>
                 {SIZES.map((size) => (
                   <button
@@ -485,7 +488,7 @@ function CatalogContent() {
             {/* Price Range */}
             <div>
               <label className="text-sovia-600 text-sm mb-2 block">
-                Price Range
+                {t("catalog.priceRange")}
               </label>
               <div className="space-y-4">
                 <input
@@ -556,12 +559,12 @@ function CatalogContent() {
             </div>
           ) : (
             <div className="text-center py-16">
-              <p className="text-sovia-600 text-lg">No products found</p>
+              <p className="text-sovia-600 text-lg">{t("catalog.noProducts")}</p>
               <Link
                 href="/catalog"
                 className="text-sovia-600 text-sm underline mt-2 block"
               >
-                Clear filters
+                {t("catalog.clearFilters")}
               </Link>
             </div>
           )}

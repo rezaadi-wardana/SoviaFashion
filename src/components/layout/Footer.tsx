@@ -1,11 +1,16 @@
+"use client"
+
 import Link from "next/link"
+import { useLanguage } from "@/components/LanguageProvider"
 
 export function Footer() {
+  const { t } = useLanguage()
+
   const links = [
-    { href: "/", label: "Sustainability" },
-    { href: "/", label: "Size Guide" },
-    { href: "/", label: "Shipping & Returns" },
-    { href: "/", label: "Privacy Policy" },
+    { href: "/", label: t("footer.sustainability") },
+    { href: "/", label: t("footer.sizeGuide") },
+    { href: "/", label: t("footer.shippingReturns") },
+    { href: "/", label: t("footer.privacyPolicy") },
   ]
 
   return (
@@ -27,7 +32,7 @@ export function Footer() {
             ))}
           </div>
           <div className="text-sovia-600 text-sm">
-            © {new Date().getFullYear()} SOVIA Fashion. All Rights Reserved.
+            {t("footer.copyright", { year: new Date().getFullYear().toString() })}
           </div>
         </div>
       </div>

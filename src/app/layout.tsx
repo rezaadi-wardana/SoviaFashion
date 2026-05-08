@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${inter.variable} ${notoSerif.variable}`} suppressHydrationWarning>
       <head>
-        {/* Inline script to apply saved dark mode before paint — prevents FOUC */}
+        {/* Inline script to apply saved dark mode & language before paint — prevents FOUC */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -38,6 +38,10 @@ export default function RootLayout({
                   var theme = localStorage.getItem('sovia-theme');
                   if (theme === 'dark') {
                     document.documentElement.classList.add('dark');
+                  }
+                  var lang = localStorage.getItem('sovia-lang');
+                  if (lang === 'en' || lang === 'id') {
+                    document.documentElement.setAttribute('lang', lang);
                   }
                 } catch(e) {}
               })();
