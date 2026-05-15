@@ -194,7 +194,7 @@ export function Navbar() {
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className="px-4 py-2 bg-sovia-600  hover:text-white dark:hover:text-sovia-50   text-sm font-medium rounded-lg hover:bg-sovia-800 transition-colors"
+                    className="px-4 py-2 bg-sovia-600 text-white dark:text-white hover:text-white dark:hover:text-sovia-50   text-sm font-medium rounded-lg hover:bg-sovia-800 transition-colors"
                   >
                     {t("nav.admin")}
                   </Link>
@@ -307,10 +307,10 @@ export function Navbar() {
               {isAdmin && (
                 <Link
                   href="/admin"
-                  className="flex items-center gap-3 text-sm font-medium text-sovia-600 dark:text-sovia-300 py-3 px-3 rounded-lg hover:bg-sovia-100 dark:hover:bg-sovia-800 transition-colors"
+                  className="flex items-center gap-3 text-sm font-medium text-white dark:text-sovia-600 py-3 px-3 rounded-lg hover:bg-sovia-100 dark:hover:bg-sovia-800 transition-colors"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <LayoutDashboard className="w-4 h-4" />
+                  <LayoutDashboard className="w-4 h-4  text-sovia-50 dark:text-sovia-600 " />
                   {t("nav.admin")}
                 </Link>
               )}

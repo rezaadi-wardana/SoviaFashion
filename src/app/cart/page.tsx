@@ -138,9 +138,9 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen pt-32 pb-24">
+    <div className="min-h-screen pt-32 pb-24 bg-sovia-300">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-8">
-        <h1 className="text-sovia-900 dark:text-sovia-50 text-3xl sm:text-4xl font-serif mb-8">Shopping Cart</h1>
+        <h1 className="text-sovia-50 dark:text-sovia-900 text-3xl sm:text-4xl font-serif mb-8">Shopping Cart</h1>
 
         {loading ? (
           <div className="text-center py-16">

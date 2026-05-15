@@ -2,6 +2,15 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
+// @ts-expect-error midtrans-client does not have type definitions
+import midtransClient from "midtrans-client"
+
+const snap = new midtransClient.Snap({
+  isProduction: process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true",
+  serverKey: process.env.MIDTRANS_SERVER_KEY || "",
+  clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || "",
+})
+
 export async function GET() {
   const session = await auth()
   if (!session?.user?.id) {
@@ -152,5 +161,29 @@ export async function POST(request: Request) {
     })
   }
 
-  return NextResponse.json(order)
+  // Handle Midtrans Snap Token
+  let midtransToken = null;
+
+  if (paymentMethod !== "COD") {
+    const parameter = {
+      transaction_details: {
+        order_id: order.id,
+        gross_amount: total,
+      },
+      customer_details: {
+        first_name: recipientName,
+        phone: phone,
+      },
+    };
+
+    try {
+      const transaction = await snap.createTransaction(parameter);
+      midtransToken = transaction.token;
+    } catch (e) {
+      console.error("Error creating Midtrans transaction:", e);
+      return NextResponse.json({ error: "Failed to create payment transaction" }, { status: 500 });
+    }
+  }
+
+  return NextResponse.json({ ...order, midtransToken })
 }

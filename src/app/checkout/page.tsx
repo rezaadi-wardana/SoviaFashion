@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import Script from "next/script"
 import { Check, QrCode, Truck, Package, MapPin, Loader2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
@@ -353,8 +354,31 @@ export default function CheckoutPage() {
 
       if (res.ok) {
         const order = await res.json()
-        toast.success("Pesanan berhasil dibuat!")
-        router.push(`/orders?order=${order.id}`)
+        
+        if (order.midtransToken) {
+          // @ts-expect-error window.snap is injected by midtrans script
+          window.snap.pay(order.midtransToken, {
+            onSuccess: function() {
+              toast.success("Pembayaran berhasil!")
+              router.push(`/orders?order=${order.id}`)
+            },
+            onPending: function() {
+              toast.success("Menunggu pembayaran Anda!")
+              router.push(`/orders?order=${order.id}`)
+            },
+            onError: function() {
+              toast.error("Pembayaran gagal")
+              router.push(`/orders?order=${order.id}`)
+            },
+            onClose: function() {
+              toast.error("Anda menutup pop-up sebelum menyelesaikan pembayaran")
+              router.push(`/orders?order=${order.id}`)
+            }
+          })
+        } else {
+          toast.success("Pesanan berhasil dibuat!")
+          router.push(`/orders?order=${order.id}`)
+        }
       } else {
         toast.error("Gagal membuat pesanan")
       }
@@ -376,12 +400,6 @@ export default function CheckoutPage() {
   const currentRates = shippingMethod === "COD" ? codRates : shippingRates
   const displayedRates = showAllCouriers ? currentRates : currentRates.slice(0, 4)
 
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/auth/signin")
-    }
-  }, [status, router])
-
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen pt-32 flex items-center justify-center">
@@ -391,11 +409,19 @@ export default function CheckoutPage() {
   }
 
   if (status === "unauthenticated" || !session) {
+    router.push("/auth/signin")
     return null
   }
 
   return (
     <div className="min-h-screen pt-32 pb-24">
+      <Script 
+        src={process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true" 
+          ? "https://app.midtrans.com/snap/snap.js" 
+          : "https://app.sandbox.midtrans.com/snap/snap.js"}
+        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
+        strategy="lazyOnload"
+      />
       <div className="max-w-[1280px] mx-auto px-8">
         <h1 className="text-sovia-900 text-4xl font-serif mb-8">Checkout</h1>
 
@@ -467,11 +493,10 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <button
                   onClick={() => setShippingMethod("EXPEDITION")}
-                  className={`p-4 rounded-lg outline outline-1 transition-all ${
-                    shippingMethod === "EXPEDITION"
+                  className={`p-4 rounded-lg outline outline-1 transition-all ${shippingMethod === "EXPEDITION"
                       ? "outline-sovia-600 bg-sovia-100 outline-2"
                       : "outline-sovia-300 bg-[#F3EFE6] hover:bg-sovia-50"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <Package className={`w-5 h-5 ${shippingMethod === "EXPEDITION" ? "text-sovia-700" : "text-sovia-400"}`} />
@@ -483,11 +508,10 @@ export default function CheckoutPage() {
                 </button>
                 <button
                   onClick={() => setShippingMethod("COD")}
-                  className={`p-4 rounded-lg outline outline-1 transition-all ${
-                    shippingMethod === "COD"
+                  className={`p-4 rounded-lg outline outline-1 transition-all ${shippingMethod === "COD"
                       ? "outline-sovia-600 bg-sovia-100 outline-2"
                       : "outline-sovia-300 bg-[#F3EFE6] hover:bg-sovia-50"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <Truck className={`w-5 h-5 ${shippingMethod === "COD" ? "text-sovia-700" : "text-sovia-400"}`} />
@@ -533,12 +557,11 @@ export default function CheckoutPage() {
                       <button
                         key={`${rate.courierCode}-${rate.serviceCode}-${index}`}
                         onClick={() => handleSelectCourier(rate)}
-                        className={`w-full p-4 rounded-lg outline outline-1 transition-all text-left ${
-                          selectedCourier?.courierCode === rate.courierCode &&
-                          selectedCourier?.serviceCode === rate.serviceCode
+                        className={`w-full p-4 rounded-lg outline outline-1 transition-all text-left ${selectedCourier?.courierCode === rate.courierCode &&
+                            selectedCourier?.serviceCode === rate.serviceCode
                             ? "outline-sovia-700 bg-sovia-100 outline-2"
                             : "outline-sovia-200 bg-[#F3EFE6] hover:bg-sovia-50"
-                        }`}
+                          }`}
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
@@ -616,17 +639,21 @@ export default function CheckoutPage() {
                 ) : (
                   <div>
                     <p className="text-sovia-700 text-base mb-4">
-                      Scan kode QRIS untuk membayar
+                      Pembayaran aman melalui Payment Gateway (Transfer Bank, GoPay, OVO, dll)
                     </p>
-                    <div className="w-48 h-48 bg-sovia-200 rounded-lg mx-auto flex items-center justify-center mb-4">
-                      <QrCode className="w-24 h-24 text-sovia-400" />
+                    <div className="w-full max-w-sm mx-auto dark:bg-sovia-600 dark:text-sovia-50 bg-white border border-sovia-200 rounded-lg p-6 flex flex-col items-center justify-center mb-4 shadow-sm">
+                      <div className="flex items-center justify-center mb-4 h-8">
+                        <span className="text-2xl font-extrabold tracking-tight text-[#001f3f]  dark:text-sovia-50">
+                          mid<span className="text-[#0081c7]">trans</span>
+                        </span>
+                      </div>
+                      <p className="text-sovia-500 text-sm  dark:text-sovia-50">
+                        Anda akan diarahkan ke pop-up pembayaran Midtrans setelah klik konfirmasi pesanan.
+                      </p>
                     </div>
                     <p className="text-sm">
                       Total pembayaran:{" "}
                       <span className="font-semibold">{formatPrice(total)}</span>
-                    </p>
-                    <p className="text-sovia-700 text-xs mt-2">
-                      Menunggu konfirmasi pembayaran...
                     </p>
                   </div>
                 )}
