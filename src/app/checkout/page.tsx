@@ -107,6 +107,7 @@ export default function CheckoutPage() {
       if (status === "unauthenticated") {
         router.push("/auth/signin")
       }
+      setLoading(false)
       return
     }
     try {
@@ -375,6 +376,12 @@ export default function CheckoutPage() {
   const currentRates = shippingMethod === "COD" ? codRates : shippingRates
   const displayedRates = showAllCouriers ? currentRates : currentRates.slice(0, 4)
 
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/auth/signin")
+    }
+  }, [status, router])
+
   if (status === "loading" || loading) {
     return (
       <div className="min-h-screen pt-32 flex items-center justify-center">
@@ -384,7 +391,6 @@ export default function CheckoutPage() {
   }
 
   if (status === "unauthenticated" || !session) {
-    router.push("/auth/signin")
     return null
   }
 
