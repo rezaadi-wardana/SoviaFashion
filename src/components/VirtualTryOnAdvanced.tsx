@@ -96,7 +96,16 @@ export default function VirtualTryOnAdvanced({ products = [] }: { products?: Pro
       setStatus('AI sedang bekerja, mohon tunggu...');
 
       if (pollingInterval.current) clearInterval(pollingInterval.current);
+      let pollCount = 0;
+      const MAX_POLLS = 72; // 72 * 2.5s = 180s = 3 minutes max
       pollingInterval.current = setInterval(async () => {
+        pollCount++;
+        if (pollCount > MAX_POLLS) {
+          setStatus('Timeout: proses terlalu lama. Silakan coba lagi.');
+          setIsLoading(false);
+          if (pollingInterval.current) clearInterval(pollingInterval.current);
+          return;
+        }
         try {
           const statusRes = await fetch(`/api/tryon/${newPredictionId}`);
           if (!statusRes.ok) return;
@@ -108,11 +117,16 @@ export default function VirtualTryOnAdvanced({ products = [] }: { products?: Pro
             setIsLoading(false);
             if (pollingInterval.current) clearInterval(pollingInterval.current);
           } else if (statusData.status === 'FAILED') {
-            setStatus('Proses gagal, silakan coba lagi.');
+            setStatus(`Proses gagal: ${statusData.error || 'silakan coba lagi.'}`);
             setIsLoading(false);
             if (pollingInterval.current) clearInterval(pollingInterval.current);
           } else {
-            setStatus(`Status: ${statusData.status}`);
+            // Show a human-readable status with progress indicator
+            const statusMap: Record<string, string> = {
+              'starting': 'Menginisialisasi model AI...',
+              'processing': 'AI sedang memproses gambar...',
+            };
+            setStatus(statusMap[statusData.status] || `Status: ${statusData.status}`);
           }
         } catch (err) {
           console.error("Polling error", err);
