@@ -7,6 +7,67 @@ import { Plus, Search, Filter, Edit, Trash2, Eye } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
 
+const MAX_UPLOAD_SIZE = 3 * 1024 * 1024; // 3MB max after compression
+
+const compressImage = async (file: File, maxWidth = 1080): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject(new Error("Gagal membuat canvas untuk kompresi gambar"));
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        // Always use WebP - supports transparency AND great compression
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              if (blob.size > MAX_UPLOAD_SIZE) {
+                // Try again with lower quality
+                canvas.toBlob(
+                  (blob2) => {
+                    if (blob2 && blob2.size <= MAX_UPLOAD_SIZE) {
+                      resolve(new File([blob2], file.name.replace(/\.[^/.]+$/, ".webp"), { type: "image/webp", lastModified: Date.now() }));
+                    } else {
+                      // Use whatever we got, even if still large
+                      resolve(new File([blob2 || blob], file.name.replace(/\.[^/.]+$/, ".webp"), { type: "image/webp", lastModified: Date.now() }));
+                    }
+                  },
+                  "image/webp",
+                  0.5
+                );
+              } else {
+                resolve(new File([blob], file.name.replace(/\.[^/.]+$/, ".webp"), { type: "image/webp", lastModified: Date.now() }));
+              }
+            } else {
+              reject(new Error("Gagal mengompresi gambar. Coba gambar lain."));
+            }
+          },
+          "image/webp",
+          0.8
+        );
+      };
+      img.onerror = () => reject(new Error("Gagal membaca file gambar. Pastikan file adalah gambar yang valid."));
+    };
+    reader.onerror = () => reject(new Error("Gagal membaca file. Pastikan file tidak rusak."));
+  });
+};
+
 function getProductImages(images: string | null): string[] {
   if (!images) return []
   try {
@@ -467,11 +528,13 @@ function ProductFormModal({
                 type="file"
                 accept="image/*"
                 onChange={async (e) => {
-                  const file = e.target.files?.[0]
+                  let file = e.target.files?.[0]
                   if (file && formData.images.length < 5) {
-                    const formDataUpload = new FormData()
-                    formDataUpload.append("file", file)
+                    const loadingToast = toast.loading("Mengunggah gambar...");
                     try {
+                      file = await compressImage(file, 1080);
+                      const formDataUpload = new FormData()
+                      formDataUpload.append("file", file)
                       const res = await fetch("/api/upload", {
                         method: "POST",
                         body: formDataUpload,
@@ -479,9 +542,13 @@ function ProductFormModal({
                       const data = await res.json()
                       if (data.url) {
                         setFormData({ ...formData, images: [...formData.images, data.url] })
+                        toast.success("Gambar berhasil diunggah", { id: loadingToast });
+                      } else {
+                        throw new Error(data.error || "Upload failed");
                       }
                     } catch (error) {
                       console.error("Upload failed:", error)
+                      toast.error("Gagal mengunggah gambar", { id: loadingToast });
                     }
                   }
                 }}
@@ -509,6 +576,7 @@ function ProductFormModal({
                 setFormData({ ...formData, categoryId: e.target.value })
               }
               className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
+              required
             >
               <option value="">Select category</option>
               {categories.map((cat) => (
@@ -629,11 +697,13 @@ function ProductFormModal({
                             type="file"
                             accept="image/*"
                             onChange={async (e) => {
-                              const file = e.target.files?.[0]
+                              let file = e.target.files?.[0]
                               if (file) {
-                                const formDataUpload = new FormData()
-                                formDataUpload.append("file", file)
+                                const loadingToast = toast.loading("Mengunggah gambar varian...");
                                 try {
+                                  file = await compressImage(file, 1080);
+                                  const formDataUpload = new FormData()
+                                  formDataUpload.append("file", file)
                                   const res = await fetch("/api/upload", {
                                     method: "POST",
                                     body: formDataUpload,
@@ -643,9 +713,13 @@ function ProductFormModal({
                                     const newVars = [...variants]
                                     newVars[idx] = { ...newVars[idx], image: data.url }
                                     setVariants(newVars)
+                                    toast.success("Gambar varian berhasil diunggah", { id: loadingToast });
+                                  } else {
+                                    throw new Error(data.error || "Upload failed");
                                   }
                                 } catch (error) {
                                   console.error("Upload failed:", error)
+                                  toast.error("Gagal mengunggah gambar varian", { id: loadingToast });
                                 }
                               }
                             }}
@@ -672,17 +746,19 @@ function ProductFormModal({
 
                       <div>
                         <label className="text-sovia-600 text-xs block mb-1">Try-On Image (optional)</label>
-                        <p className="text-[10px] text-sovia-500 mb-1 leading-tight">Format PNG, tanpa background, untuk Virtual Try-On.</p>
+                        <p className="text-[10px] text-sovia-500 mb-1 leading-tight">Gambar tanpa background untuk Virtual Try-On. Format: PNG/WebP.</p>
                         <div className="flex items-center gap-3">
                           <input
                             type="file"
-                            accept="image/png"
+                            accept="image/*"
                             onChange={async (e) => {
-                              const file = e.target.files?.[0]
+                              let file = e.target.files?.[0]
                               if (file) {
-                                const formDataUpload = new FormData()
-                                formDataUpload.append("file", file)
+                                const loadingToast = toast.loading("Mengunggah gambar try-on...");
                                 try {
+                                  file = await compressImage(file, 720);
+                                  const formDataUpload = new FormData()
+                                  formDataUpload.append("file", file)
                                   const res = await fetch("/api/upload", {
                                     method: "POST",
                                     body: formDataUpload,
@@ -692,9 +768,13 @@ function ProductFormModal({
                                     const newVars = [...variants]
                                     newVars[idx] = { ...newVars[idx], tryOnImage: data.url }
                                     setVariants(newVars)
+                                    toast.success("Gambar try-on berhasil diunggah", { id: loadingToast });
+                                  } else {
+                                    throw new Error(data.error || "Upload failed");
                                   }
                                 } catch (error) {
                                   console.error("Upload failed:", error)
+                                  toast.error("Gagal mengunggah gambar try-on", { id: loadingToast });
                                 }
                               }
                             }}
