@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
@@ -25,6 +26,9 @@ export async function POST(request: Request) {
       image,
     },
   })
+
+  revalidatePath('/')
+  revalidatePath('/admin/categories')
 
   return NextResponse.json(category)
 }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
@@ -29,6 +30,9 @@ export async function PUT(
       },
     })
 
+    revalidatePath('/')
+    revalidatePath('/admin/hero')
+
     return NextResponse.json(slide)
   } catch (error) {
     console.error("Error updating hero slide:", error)
@@ -51,6 +55,9 @@ export async function DELETE(
     await prisma.hero.delete({
       where: { id },
     })
+
+    revalidatePath('/')
+    revalidatePath('/admin/hero')
 
     return NextResponse.json({ success: true })
   } catch (error) {

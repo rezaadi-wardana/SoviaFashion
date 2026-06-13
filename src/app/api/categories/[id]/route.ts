@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
@@ -42,6 +43,9 @@ export async function PUT(
     },
   })
 
+  revalidatePath('/')
+  revalidatePath('/admin/categories')
+
   return NextResponse.json(category)
 }
 
@@ -59,6 +63,9 @@ export async function DELETE(
   await prisma.category.delete({
     where: { id },
   })
+
+  revalidatePath('/')
+  revalidatePath('/admin/categories')
 
   return NextResponse.json({ success: true })
 }

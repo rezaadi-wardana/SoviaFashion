@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
@@ -49,6 +50,11 @@ export async function PUT(
     },
   })
 
+  revalidatePath('/')
+  revalidatePath('/products')
+  revalidatePath('/admin/products')
+  revalidatePath(`/products/${id}`)
+
   return NextResponse.json(product)
 }
 
@@ -66,6 +72,10 @@ export async function DELETE(
   await prisma.product.delete({
     where: { id },
   })
+
+  revalidatePath('/')
+  revalidatePath('/products')
+  revalidatePath('/admin/products')
 
   return NextResponse.json({ success: true })
 }
