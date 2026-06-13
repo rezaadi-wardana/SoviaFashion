@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const uniqueSuffix = `${Date.now()}-${Math.random().toString(36).substring(7)}`
 
     // Process image with sharp (resize + convert to webp)
-    let finalBuffer: Buffer | Uint8Array = buffer;
+    let finalBuffer: Buffer = buffer;
     let fileName = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
 
     if (file.type.startsWith("image/") && file.type !== "image/svg+xml") {
