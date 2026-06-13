@@ -49,6 +49,8 @@ export async function POST(request: Request) {
       const blob = await put(`uploads/${fileName}`, finalBuffer, {
         access: "public",
         contentType: fileName.endsWith(".webp") ? "image/webp" : file.type,
+        addRandomSuffix: false,
+        allowOverwrite: true,
       })
 
       console.log("✅ Uploaded to Vercel Blob:", blob.url)

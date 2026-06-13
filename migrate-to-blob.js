@@ -45,6 +45,8 @@ async function uploadFileToBlob(relativePath) {
   const blob = await put(`uploads/${fileName}`, buffer, {
     access: "public",
     contentType,
+    addRandomSuffix: false,
+    allowOverwrite: true,
   });
 
   return blob.url;
@@ -52,6 +54,34 @@ async function uploadFileToBlob(relativePath) {
 
 function isLocalUploadPath(url) {
   return url && url.startsWith("/uploads/");
+}
+
+async function runWithRetry(fn, retries = 3, delay = 2000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      const isConnectionError = 
+        err.code === 'P1001' || 
+        err.code === 'P2024' || 
+        err.message.includes('Can\'t reach database server') ||
+        err.message.includes('connection') ||
+        err.message.includes('timeout');
+
+      if (isConnectionError && i < retries - 1) {
+        console.warn(`  ⚠️ Database connection dropped. Reconnecting and retrying in ${delay / 1000}s... (Attempt ${i + 1}/${retries})`);
+        try {
+          await prisma.$disconnect();
+          await new Promise(resolve => setTimeout(resolve, delay));
+          await prisma.$connect();
+        } catch (connErr) {
+          console.error("  ❌ Reconnection failed:", connErr.message);
+        }
+      } else {
+        throw err;
+      }
+    }
+  }
 }
 
 async function migrateHeroes() {
@@ -64,9 +94,11 @@ async function migrateHeroes() {
       console.log(`  Uploading: ${hero.image}`);
       const blobUrl = await uploadFileToBlob(hero.image);
       if (blobUrl) {
-        await prisma.hero.update({
-          where: { id: hero.id },
-          data: { image: blobUrl },
+        await runWithRetry(async () => {
+          await prisma.hero.update({
+            where: { id: hero.id },
+            data: { image: blobUrl },
+          });
         });
         console.log(`  ✅ Updated hero "${hero.title}" → ${blobUrl}`);
         count++;
@@ -86,9 +118,11 @@ async function migrateCategories() {
       console.log(`  Uploading: ${cat.image}`);
       const blobUrl = await uploadFileToBlob(cat.image);
       if (blobUrl) {
-        await prisma.category.update({
-          where: { id: cat.id },
-          data: { image: blobUrl },
+        await runWithRetry(async () => {
+          await prisma.category.update({
+            where: { id: cat.id },
+            data: { image: blobUrl },
+          });
         });
         console.log(`  ✅ Updated category "${cat.name}" → ${blobUrl}`);
         count++;
@@ -136,9 +170,11 @@ async function migrateProducts() {
     }
 
     if (updated) {
-      await prisma.product.update({
-        where: { id: product.id },
-        data: { images: JSON.stringify(newImageArray) },
+      await runWithRetry(async () => {
+        await prisma.product.update({
+          where: { id: product.id },
+          data: { images: JSON.stringify(newImageArray) },
+        });
       });
       console.log(`  ✅ Updated product "${product.name}" (${newImageArray.length} images)`);
       count++;
@@ -174,9 +210,11 @@ async function migrateProductVariants() {
     }
 
     if (Object.keys(updates).length > 0) {
-      await prisma.productVariant.update({
-        where: { id: variant.id },
-        data: updates,
+      await runWithRetry(async () => {
+        await prisma.productVariant.update({
+          where: { id: variant.id },
+          data: updates,
+        });
       });
       console.log(`  ✅ Updated variant "${variant.name}" (${Object.keys(updates).join(", ")})`);
       count++;

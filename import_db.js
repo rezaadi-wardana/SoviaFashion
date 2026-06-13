@@ -19,11 +19,12 @@ const TABLE_MAP = {
 };
 
 async function importDB() {
-  const DB_URL = 'mysql://root:ZLgYQYsxrWObbjThWseabTKYLLtXJncM@turntable.proxy.rlwy.net:25375/railway';
+  const DB_URL = 'mysql://4CbWzvT5RZusepQ.root:hkEl03xUN7iVvd6t@gateway01.ap-southeast-1.prod.alicloud.tidbcloud.com:4000/sovia_fashion';
 
   const connection = await mysql.createConnection({
     uri: DB_URL,
     multipleStatements: true,
+    ssl: { rejectUnauthorized: true },
   });
 
   console.log('✅ Connected to Railway MySQL');
