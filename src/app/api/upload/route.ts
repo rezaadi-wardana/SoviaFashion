@@ -42,9 +42,9 @@ export async function POST(request: Request) {
       }
     }
 
-    const isVercel = !!process.env.VERCEL
+    const useBlob = !!process.env.BLOB_READ_WRITE_TOKEN;
 
-    if (isVercel) {
+    if (useBlob) {
       // Production (Vercel): Upload to Vercel Blob Storage
       const blob = await put(`uploads/${fileName}`, finalBuffer, {
         access: "public",
