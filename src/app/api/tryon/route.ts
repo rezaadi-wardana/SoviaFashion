@@ -76,7 +76,10 @@ export async function POST(request: NextRequest) {
     const baseUrl = getBaseUrl(request);
 
     // Handle garment image URL
-    if (finalGarmentImageUrl.startsWith('/')) {
+    if (finalGarmentImageUrl.startsWith('http://') || finalGarmentImageUrl.startsWith('https://')) {
+      // Full URL (e.g., Vercel Blob URL) — use as-is
+      console.log("✅ Garment image is a full URL, using directly");
+    } else if (finalGarmentImageUrl.startsWith('/')) {
       if (!isVercel) {
         // Local dev: read from filesystem and convert to data URI
         // This avoids ngrok interstitial page issues
@@ -95,7 +98,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle human image URL (usually already a data URI from upload endpoint)
-    if (finalHumanImageUrl.startsWith('/')) {
+    if (finalHumanImageUrl.startsWith('http://') || finalHumanImageUrl.startsWith('https://')) {
+      // Full URL (e.g., Vercel Blob URL) — use as-is
+      console.log("✅ Human image is a full URL, using directly");
+    } else if (finalHumanImageUrl.startsWith('/')) {
       if (!isVercel) {
         try {
           finalHumanImageUrl = await localPathToDataUri(finalHumanImageUrl);

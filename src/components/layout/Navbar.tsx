@@ -80,7 +80,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           {/* Language Toggle Dropdown */}
           <div className="relative hidden md:block" ref={langDropdownRef}>
-            <button
+            {/* <button
               onClick={() => setLangDropdownOpen(!langDropdownOpen)}
               className="p-2 rounded-lg hover:bg-sovia-100 transition-all duration-300 flex items-center gap-1.5"
               aria-label="Change language"
@@ -91,10 +91,10 @@ export function Navbar() {
               <span className="text-xs font-semibold text-sovia-600 uppercase tracking-wider hidden sm:inline">
                 {locale}
               </span>
-            </button>
+            </button> */}
 
             {/* Dropdown */}
-            <div
+            {/* <div
               className={cn(
                 "absolute right-0 top-full mt-2 w-40 bg-sovia-50 border border-sovia-200 rounded-xl shadow-xl overflow-hidden transition-all duration-200 origin-top-right",
                 langDropdownOpen
@@ -141,7 +141,7 @@ export function Navbar() {
                   <span className="ml-auto text-accent-500">✓</span>
                 )}
               </button>
-            </div>
+            </div> */}
           </div>
 
           {/* Theme Toggle Button */}

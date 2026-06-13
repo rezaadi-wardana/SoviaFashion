@@ -3,6 +3,7 @@ import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
 import { auth } from "@/lib/auth"
 import sharp from "sharp"
+import { put } from "@vercel/blob"
 
 export async function POST(request: Request) {
   const session = await auth()
@@ -22,10 +23,9 @@ export async function POST(request: Request) {
     const buffer = Buffer.from(bytes)
 
     const uniqueSuffix = `${Date.now()}-${Math.random().toString(36).substring(7)}`
-    const uploadDir = join(process.cwd(), "public", "uploads")
-    await mkdir(uploadDir, { recursive: true })
 
-    let finalBuffer: any = buffer;
+    // Process image with sharp (resize + convert to webp)
+    let finalBuffer: Buffer | Uint8Array = buffer;
     let fileName = `${uniqueSuffix}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "_")}`;
 
     if (file.type.startsWith("image/") && file.type !== "image/svg+xml") {
@@ -42,12 +42,27 @@ export async function POST(request: Request) {
       }
     }
 
-    const filePath = join(uploadDir, fileName)
-    await writeFile(filePath, finalBuffer)
+    const isVercel = !!process.env.VERCEL
 
-    const url = `/uploads/${fileName}`
+    if (isVercel) {
+      // Production (Vercel): Upload to Vercel Blob Storage
+      const blob = await put(`uploads/${fileName}`, finalBuffer, {
+        access: "public",
+        contentType: fileName.endsWith(".webp") ? "image/webp" : file.type,
+      })
 
-    return NextResponse.json({ url })
+      console.log("✅ Uploaded to Vercel Blob:", blob.url)
+      return NextResponse.json({ url: blob.url })
+    } else {
+      // Local development: Save to public/uploads/
+      const uploadDir = join(process.cwd(), "public", "uploads")
+      await mkdir(uploadDir, { recursive: true })
+      const filePath = join(uploadDir, fileName)
+      await writeFile(filePath, finalBuffer)
+
+      const url = `/uploads/${fileName}`
+      return NextResponse.json({ url })
+    }
   } catch (error) {
     console.error("Upload error:", error)
     return NextResponse.json({ error: "Upload failed" }, { status: 500 })
