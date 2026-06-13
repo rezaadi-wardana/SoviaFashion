@@ -210,9 +210,11 @@ function CategoryFormModal({
     image: category?.image || "",
   })
   const [saving, setSaving] = useState(false)
+  const [isUploading, setIsUploading] = useState(false)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    if (isUploading) return;
     setSaving(true)
 
     try {
@@ -271,9 +273,11 @@ function CategoryFormModal({
             <input
               type="file"
               accept="image/*"
+              disabled={isUploading}
               onChange={async (e) => {
                 const file = e.target.files?.[0]
                 if (file) {
+                  setIsUploading(true)
                   const formDataUpload = new FormData()
                   formDataUpload.append("file", file)
                   try {
@@ -283,16 +287,23 @@ function CategoryFormModal({
                     })
                     const data = await res.json()
                     if (data.url) {
-                      setFormData({ ...formData, image: data.url })
+                      setFormData((prev) => ({ ...prev, image: data.url }))
+                      toast.success("Image uploaded successfully")
                     }
                   } catch (error) {
                     console.error("Upload failed:", error)
+                    toast.error("Image upload failed")
+                  } finally {
+                    setIsUploading(false)
                   }
                 }
               }}
-              className="w-full py-2 px-4 bg-sovia-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-white file:cursor-pointer"
+              className="w-full py-2 px-4 bg-sovia-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-white file:cursor-pointer disabled:opacity-50"
             />
-            {formData.image && (
+            {isUploading && (
+              <p className="text-sovia-600 text-sm mt-2 animate-pulse">Uploading image, please wait...</p>
+            )}
+            {formData.image && !isUploading && (
               <div className="mt-2 relative w-24 h-24">
                 <img
                   src={formData.image}
@@ -313,16 +324,17 @@ function CategoryFormModal({
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 border border-sovia-300 rounded-lg text-sovia-600"
+              disabled={isUploading || saving}
+              className="flex-1 py-3 border border-sovia-300 rounded-lg text-sovia-600 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || isUploading}
               className="flex-1 py-3 bg-sovia-600 text-white rounded-lg disabled:opacity-60"
             >
-              {saving ? "Saving..." : "Save Category"}
+              {saving ? "Saving..." : isUploading ? "Uploading..." : "Save Category"}
             </button>
           </div>
         </form>
