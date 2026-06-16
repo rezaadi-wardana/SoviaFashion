@@ -286,7 +286,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                   disabled={!selectedVariant || selectedVariant.stock === 0 || !selectedSize || loading || addedToCart}
                   className={`flex-1 py-3 rounded-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
                     addedToCart
-                      ? "bg-green-600 border border-green-600 text-white"
+                      ? "bg-green-600 border border-green-600 text-sovia-50"
                       : "bg-sovia-50 border border-sovia-900 text-sovia-900 hover:bg-sovia-100 disabled:opacity-50"
                   }`}
                 >
@@ -319,7 +319,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
               {/* WhatsApp Chat Button */}
               <button
                 onClick={handleWhatsAppChat}
-                className="w-full py-3 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors flex items-center justify-center gap-2 font-medium"
+                className="w-full py-3 rounded-lg bg-green-500 hover:bg-green-600 text-sovia-900 transition-colors flex items-center justify-center gap-2 font-medium"
               >
                 <WhatsAppIcon className="w-5 h-5" />
                 {t("catalog.chatSeller")}
@@ -414,15 +414,15 @@ function CatalogContent() {
 
         {/* Sidebar Filters */}
         <div className={`w-full lg:w-64 flex-shrink-0 ${showMobileFilters ? "block" : "hidden lg:block"}`}>
-          <div className="bg-[#F3EFE6] dark:bg-sovia-800 p-6 rounded-lg shadow-lg lg:sticky lg:top-24">
-            <div className="flex items-center gap-2 mb-6 text-white">
-              <Filter className="w-5 h-5 text-sovia-600 text-white" />
-              <h2 className="text-sovia-900 text-lg font-serif text-white">{t("catalog.filters")}</h2>
+          <div className="bg-sovia-200 p-6 rounded-lg shadow-lg lg:sticky lg:top-24">
+            <div className="flex items-center gap-2 mb-6">
+              <Filter className="w-5 h-5" />
+              <h2 className="text-lg font-serif">{t("catalog.filters")}</h2>
             </div>
 
             {/* Search */}
             <div className="mb-6">
-              <label className="text-sovia-600 text-sm mb-2 block text-white">
+              <label className="text-sm mb-2 block">
                 {t("catalog.search")}
               </label>
               <div className="relative">
@@ -431,15 +431,15 @@ function CatalogContent() {
                   placeholder={t("catalog.searchPlaceholder")}
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
+                  className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
                 />
-                <Search className="w-5 h-5 text-sovia-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2" />
               </div>
             </div>
 
             {/* Categories */}
             <div className="mb-6">
-              <label className="text-sovia-600 text-sm mb-2 block text-white" >
+              <label className="text-sovia-600 text-sm mb-2 block text-sovia-50" >
                 {t("catalog.category")}
               </label>
               <div className="space-y-2">
@@ -479,7 +479,7 @@ function CatalogContent() {
 
             {/* Size Filter */}
             <div className="mb-6">
-              <label className="text-sovia-600 text-sm mb-2 block text-white">
+              <label className="text-sovia-600 text-sm mb-2 block text-sovia-50">
                 {t("catalog.size")}
               </label>
               <div className="flex flex-wrap gap-2">
@@ -511,7 +511,7 @@ function CatalogContent() {
 
             {/* Price Range */}
             <div>
-              <label className="text-white text-sm mb-2 block">
+              <label className="text-sm mb-2 block">
                 {t("catalog.priceRange")}
               </label>
               <div className="space-y-4">
@@ -523,9 +523,9 @@ function CatalogContent() {
                   onChange={(e) =>
                     setPriceRange([priceRange[0], Number(e.target.value)])
                   }
-                  className="w-full text-[#DCC4AA]"
+                  className="w-full"
                 />
-                <div className="flex justify-between text-white text-sm">
+                <div className="flex justify-between text-sm">
                   <span>{formatPrice(priceRange[0])}</span>
                   <span>{formatPrice(priceRange[1])}</span>
                 </div>

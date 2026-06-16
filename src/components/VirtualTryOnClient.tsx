@@ -278,7 +278,11 @@ export default function VirtualTryOnClient({ products }: { products: Product[] }
               <label className="block text-sm font-semibold text-sovia-700 mb-2">Pilih Produk</label>
               <div className="relative">
                 <CustomSelect
-                  options={products.map(p => ({ value: String(p.id), label: p.name }))}
+                  options={products.map(p => ({ 
+                    value: String(p.id), 
+                    label: p.name,
+                    image: p.tryOnImage
+                  }))}
                   value={String(selectedProduct?.id || '')}
                   onChange={(val) => {
                     const product = products.find(p => String(p.id) === val);

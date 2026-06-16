@@ -138,9 +138,9 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen pt-32 pb-24 bg-sovia-300">
+    <div className="min-h-screen pt-32 pb-24">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-8">
-        <h1 className="text-sovia-50 dark:text-sovia-900 text-3xl sm:text-4xl font-serif mb-8">Shopping Cart</h1>
+        <h1 className="text-sovia-50 dark:text-sovia-900 text-3xl sm:text-4xl font-serif mb-8">Keranjang Belanja</h1>
 
         {loading ? (
           <div className="text-center py-16">
@@ -152,7 +152,7 @@ export default function CartPage() {
             <p className="text-sovia-600 text-lg mb-4">Your cart is empty</p>
             <Link
               href="/catalog"
-              className="px-6 py-3 bg-sovia-600 text-white rounded-lg inline-block"
+              className="px-6 py-3 bg-sovia-200 text-sovia-900 hover:bg-sovia-100 rounded-lg inline-block"
             >
               Continue Shopping
             </Link>
@@ -164,10 +164,10 @@ export default function CartPage() {
               {items.map((item) => (
                 <div
                   key={item.id}
-                  className="flex flex-col sm:flex-row gap-4 bg-white dark:bg-sovia-800 border border-sovia-200 dark:border-sovia-700 rounded-xl p-4 shadow-sm"
+                  className="flex flex-col sm:flex-row gap-4 bg-sovia-100 order-1 border border-sovia-100 rounded-xl p-4 shadow-sm"
                 >
                   <div className="flex gap-4">
-                    <div className="w-20 h-24 bg-sovia-200 rounded flex-shrink-0 overflow-hidden">
+                    <div className="w-20 h-24 bg-sovia-100 rounded flex-shrink-0 overflow-hidden">
                       <Image
                         src={
                           item.product.variants.find(v => v.name === item.color)?.image ||
@@ -181,27 +181,27 @@ export default function CartPage() {
                       />
                     </div>
                     <div className="flex-1 sm:hidden">
-                      <h3 className="text-sovia-900 dark:text-sovia-50 text-lg font-serif">
+                      <h3 className="text-lg font-serif">
                         {item.product.name}
                       </h3>
-                      <p className="text-sovia-700 dark:text-sovia-300 text-sm">
+                      <p className="text-sm">
                         {item.color && `Variant: ${item.color}`}
                         {item.size && ` | Size: ${item.size}`}
                       </p>
-                      <p className="text-sovia-900 dark:text-sovia-50 text-base font-medium mt-2">
+                      <p className="text-base font-medium mt-2">
                         {formatPrice(item.product.price)}
                       </p>
                     </div>
                   </div>
                   <div className="hidden sm:block flex-1">
-                    <h3 className="text-sovia-900 dark:text-sovia-50 text-lg font-serif">
+                    <h3 className="text-lg font-serif">
                       {item.product.name}
                     </h3>
-                    <p className="text-sovia-700 dark:text-sovia-300 text-sm">
+                    <p className="text-sm">
                       {item.color && `Variant: ${item.color}`}
                       {item.size && ` | Size: ${item.size}`}
                     </p>
-                    <p className="text-sovia-900 dark:text-sovia-50 text-base font-medium mt-2">
+                    <p className="text-base font-medium mt-2">
                       {formatPrice(item.product.price)}
                     </p>
                   </div>
@@ -209,21 +209,21 @@ export default function CartPage() {
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => updateQuantity(item.id, -1)}
-                        className="w-8 h-8 flex items-center justify-center bg-sovia-200 dark:bg-sovia-700 rounded text-sovia-900 dark:text-sovia-50"
+                        className="w-8 h-8 flex items-center justify-center hover:bg-sovia-200 rounded-md"
                       >
                         <Minus className="w-4 h-4" />
                       </button>
-                      <span className="w-8 text-center text-sovia-900 dark:text-sovia-50">{item.quantity}</span>
+                      <span className="w-8 text-center">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, 1)}
-                        className="w-8 h-8 flex items-center justify-center bg-sovia-200 dark:bg-sovia-700 rounded text-sovia-900 dark:text-sovia-50"
+                        className="w-8 h-8 flex items-center justify-center hover:bg-sovia-200 rounded-md"
                       >
                         <Plus className="w-4 h-4" />
                       </button>
                     </div>
                     <button
                       onClick={() => removeItem(item.id)}
-                      className="p-2 text-sovia-500 hover:text-accent-500"
+                      className="p-2 text-sovia-500 hover:bg-sovia-200 rounded-md"
                     >
                       <Trash2 className="w-5 h-5" />
                     </button>
@@ -234,33 +234,33 @@ export default function CartPage() {
 
             {/* Order Summary */}
             <div className="w-full lg:w-96">
-              <div className="bg-white dark:bg-sovia-800 border border-sovia-200 dark:border-sovia-700 rounded-xl p-6 lg:p-8 shadow-sm">
-                <h2 className="text-sovia-900 dark:text-sovia-50 text-2xl font-serif mb-6">
+              <div className="border border-sovia-200 bg-sovia-100 rounded-xl p-6 lg:p-8 shadow-sm">
+                <h2 className="text-2xl font-serif mb-6">
                   Order Summary
                 </h2>
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
-                    <span className="text-sovia-700 dark:text-sovia-300 text-sm">Subtotal</span>
-                    <span className="text-sovia-700 dark:text-sovia-300 text-sm">
+                    <span className="text-sm">Subtotal</span>
+                    <span className="text-sm">
                       {formatPrice(subtotal)}
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sovia-700 dark:text-sovia-300 text-sm">Shipping</span>
-                    <span className="text-sovia-700 dark:text-sovia-300 text-sm">
+                    <span className="text-sm">Shipping</span>
+                    <span className="text-sm">
                       {formatPrice(shipping)}
                     </span>
                   </div>
-                  <div className="flex justify-between pt-3 border-t border-sovia-200 dark:border-sovia-700">
-                    <span className="text-sovia-900 dark:text-sovia-50 text-lg font-medium">Total</span>
-                    <span className="text-sovia-900 dark:text-sovia-50 text-lg font-medium">
+                  <div className="flex justify-between pt-3 border-t border-sovia-200">
+                    <span className="text-lg font-medium">Total</span>
+                    <span className="text-lg font-medium">
                       {formatPrice(total)}
                     </span>
                   </div>
                 </div>
                 <Link
                   href="/checkout"
-                  className="block w-full py-4 bg-gradient-to-r from-sovia-600 to-accent-300 text-white text-center rounded-lg font-medium"
+                  className="flex items-center justify-center w-full py-4 bg-gradient-to-r from-sovia-600 to-accent-300 text-white text-center rounded-lg font-medium"
                 >
                   Proceed to Checkout
                 </Link>

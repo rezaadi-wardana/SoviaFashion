@@ -69,7 +69,7 @@ function SignInContent() {
           {/* Logo */}
           <div className="text-center mb-10">
             <h1 className="text-sovia-600 text-4xl font-serif tracking-[4px] mb-2">
-              SOVIA
+              Sovia
             </h1>
             <p className="text-sovia-400 text-xs tracking-[3px] uppercase">
               Fashion Collection
@@ -103,7 +103,7 @@ function SignInContent() {
           {/* Divider */}
           <div className="mt-8 pt-6 border-t border-sovia-100">
             <p className="text-sovia-400 text-xs text-center leading-relaxed">
-              Dengan masuk, Anda menyetujui syarat dan ketentuan yang berlaku di SOVIA Fashion
+              Dengan masuk, Anda menyetujui syarat dan ketentuan yang berlaku di Sovia Fashion
             </p>
           </div>
         </div>

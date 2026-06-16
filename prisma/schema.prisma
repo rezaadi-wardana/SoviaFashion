@@ -38,7 +38,8 @@ model User {
   image     String?
   role      Role     @default(USER)
   phone     String?
-  address   String?
+  address   String?   @db.Text
+  detailAddress String? @db.Text
   lat       Float?
   lng       Float?
   createdAt DateTime @default(now())
@@ -167,7 +168,8 @@ model Order {
   status        OrderStatus   @default(PENDING_PAYMENT)
   recipientName String
   phone        String
-  address      String
+  address      String        @db.Text
+  detailAddress String?      @db.Text
   lat          Float?
   lng          Float?
   courierName    String?
@@ -198,7 +200,7 @@ model OrderItem {
 
 model StoreProfile {
   id          String   @id @default("store-profile")
-  name        String   @default("SOVIA Fashion")
+  name        String   @default("Sovia Fashion")
   description String?  @db.Text
   ownerName   String?
   phone       String?

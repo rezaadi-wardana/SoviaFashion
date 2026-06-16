@@ -71,7 +71,7 @@ export default function AdminLayout({
     <div className="min-h-screen flex bg-sovia-50">
       {/* Mobile Top Bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-sovia-50 border-b border-sovia-200/30 z-50 flex items-center justify-between px-4">
-        <Link href="/" className="text-sovia-600 text-xl font-serif tracking-[2.40px] font-semibold">SOVIA</Link>
+        <Link href="/" className="text-sovia-600 text-xl font-serif flex items-center gap-2 font-semibold">  <img src={theme === "dark" ? "/just-logo-dark.png" : "/just-logo.png"} alt="logo by sovia fashion" className="h-[40px] w-auto" /> Sovia Fashion</Link>
         <div className="flex items-center gap-1">
           <Link href="/cart" className="p-2 text-sovia-600 hover:bg-sovia-100 rounded-lg relative">
             <ShoppingCart className="w-5 h-5" />
@@ -102,8 +102,8 @@ export default function AdminLayout({
         isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="p-6 border-b border-sovia-200/20">
-          <Link href="/" className="text-sovia-600 text-2xl font-serif tracking-[2.40px] mb-4 hidden lg:block font-semibold">
-            SOVIA
+          <Link href="/" className="text-sovia-600 text-2xl font-serif flex items-center gap-2 mb-4 hidden lg:block font-semibold">
+        <img src={theme === "dark" ? "/just-logo-dark.png" : "/just-logo.png"} alt="logo by sovia fashion" className="h-[40px] w-auto" /> Sovia Fashion
           </Link>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-sovia-200 rounded-xl overflow-hidden">
@@ -157,13 +157,13 @@ export default function AdminLayout({
 
         <div className="p-4 border-t border-sovia-200/20 space-y-1">
           <div className="flex items-center gap-2 mb-2 px-2">
-            <button
+            {/* <button
               onClick={() => setLocale(locale === "id" ? "en" : "id")}
               className="flex items-center justify-center flex-1 p-2 bg-sovia-100 hover:bg-sovia-200 rounded-lg transition-colors text-sovia-600 text-sm font-medium"
             >
               <Globe className="w-4 h-4 mr-2" />
               {locale === "id" ? "ID" : "EN"}
-            </button>
+            </button> */}
             <button
               onClick={toggleTheme}
               className="flex items-center justify-center flex-1 p-2 bg-sovia-100 hover:bg-sovia-200 rounded-lg transition-colors text-sovia-600 text-sm font-medium"

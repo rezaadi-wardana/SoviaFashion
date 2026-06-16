@@ -13,6 +13,7 @@ interface Order {
   courierName: string | null
   courierService: string | null
   address: string
+  detailAddress: string | null
   recipientName: string
   phone: string
   createdAt: string
@@ -199,6 +200,9 @@ export default function AdminOrdersPage() {
                       <p><span className="text-sovia-500">Penerima:</span> <span className="text-sovia-900 font-medium">{order.recipientName}</span></p>
                       <p><span className="text-sovia-500">No. HP:</span> <span className="text-sovia-900">{order.phone}</span></p>
                       <p><span className="text-sovia-500">Alamat:</span> <span className="text-sovia-900 block mt-1">{order.address}</span></p>
+                      {order.detailAddress && (
+                        <p><span className="text-sovia-500">Detail Alamat:</span> <span className="text-sovia-900 block mt-1">{order.detailAddress}</span></p>
+                      )}
                       {order.lat && order.lng && (
                         <a
                           href={`https://www.google.com/maps?q=${order.lat},${order.lng}`}

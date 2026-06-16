@@ -9,7 +9,7 @@
    * These use CSS variables so they can be swapped by dark mode.
    * Initial values defined in :root below.
    */
-  --color-sovia-900: var(--sovia-900, #3C3228);
+  --color-sovia-900: var(--sovia-900, #3c3228);
   --color-sovia-800: var(--sovia-800, #504738);
   --color-sovia-700: var(--sovia-700, #504738);
   --color-sovia-600: var(--sovia-600, #645445);
@@ -96,4 +96,12 @@ body {
 /* Dark mode overrides for hardcoded bg-[#F3EFE6] */
 html.dark .bg-\[\#F3EFE6\] {
   background-color: var(--card-bg) !important;
+}
+
+/* Custom background for HomeContent */
+.bg-summer {
+  background-image: url('/bg-summer.png');
+}
+html.dark .bg-summer {
+  background-image: url('/bg-summer-dark.png');
 }

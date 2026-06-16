@@ -151,7 +151,7 @@ export default function StoreProfilePage() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
-                placeholder="SOVIA Fashion"
+                placeholder="Sovia Fashion"
               />
             </div>
             <div>

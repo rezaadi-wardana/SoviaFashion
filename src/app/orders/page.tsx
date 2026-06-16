@@ -19,6 +19,7 @@ interface OrderItem {
   courierService: string | null
   paymentMethod: string
   address: string
+  detailAddress: string | null
   trackingNumber: string | null
   createdAt: string
   updatedAt: string
@@ -273,6 +274,9 @@ export default function OrdersPage() {
                         <p className="text-sovia-600 text-sm mt-1">No Resi: <span className="font-mono bg-sovia-100 px-1 py-0.5 rounded">{order.trackingNumber}</span></p>
                       )}
                       <p className="text-sovia-500 text-xs mt-1">{order.address}</p>
+                      {order.detailAddress && (
+                        <p className="text-sovia-500 text-xs mt-0.5">{order.detailAddress}</p>
+                      )}
                     </div>
                     <div className="text-right w-full md:w-auto flex flex-col items-end gap-3">
                       <p className="text-sovia-900 text-lg font-medium">

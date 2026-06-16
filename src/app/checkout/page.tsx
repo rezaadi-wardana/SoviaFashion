@@ -52,6 +52,7 @@ interface UserData {
   name: string
   phone: string
   address: string
+  detailAddress: string
   lat: number
   lng: number
 }
@@ -88,6 +89,7 @@ export default function CheckoutPage() {
     name: session?.user?.name || "",
     phone: "",
     address: "",
+    detailAddress: "",
     lat: 0,
     lng: 0,
   })
@@ -135,6 +137,7 @@ export default function CheckoutPage() {
         name: userDataResult.name || session?.user?.name || "",
         phone: userDataResult.phone || "",
         address: userDataResult.address || "",
+        detailAddress: userDataResult.detailAddress || "",
         lat: userDataResult.lat || 0,
         lng: userDataResult.lng || 0,
       })
@@ -338,6 +341,7 @@ export default function CheckoutPage() {
         recipientName: userData.name,
         phone: userData.phone,
         address: userData.address,
+        detailAddress: userData.detailAddress,
         lat: userData.lat,
         lng: userData.lng,
         courierName: selectedCourier.courierName,
@@ -455,6 +459,7 @@ export default function CheckoutPage() {
                 <div>
                   <p className="text-sovia-700 text-sm">Alamat</p>
                   <p className="text-sovia-900 font-medium">{userData.address || "-"}</p>
+                  <p className="text-sovia-600 text-sm mt-1">{userData.detailAddress || ""}</p>
                 </div>
                 {userData.lat && userData.lng ? (
                   <div className="flex items-center gap-2 text-green-700 bg-green-50 px-3 py-2 rounded-lg">

@@ -27,6 +27,7 @@ export async function GET(
         email: true,
         phone: true,
         address: true,
+        detailAddress: true,
         lat: true,
         lng: true,
         image: true,

@@ -179,19 +179,21 @@ export function HomeContent({
                 </div>
               </div>
 
-              <div className="flex-1 bg-sovia-50 dark:bg-sovia-800 rounded-lg p-8 flex flex-col items-center justify-center min-h-[300px]">
-                <h3 className="text-sovia-900 dark:text-sovia-50 text-2xl font-serif text-center">
-                  {t("home.summerEssentials")}
-                </h3>
-                <p className="text-sovia-700 dark:text-sovia-300 text-sm text-center mt-3">
-                  {t("home.summerDescription")}
-                </p>
-                <Link
-                  href="/catalog"
-                  className="px-6 py-2 bg-accent-500 rounded-xl text-white text-sm font-medium mt-4 hover:bg-accent-600 transition-colors"
-                >
-                  {t("home.explore")}
-                </Link>
+              <div className="flex-1 bg-sovia-50 dark:bg-sovia-800 rounded-lg flex flex-col items-center justify-center min-h-[300px]">
+                <div className="wrap bg-summer bg-cover bg-center bg-no-repeat p-8 flex flex-col items-center justify-center min-h-[300px] w-full h-full rounded-lg">
+                  <h3 className="text-sovia-900 dark:text-sovia-50 text-2xl font-serif text-center">
+                    {t("home.summerEssentials")}
+                  </h3>
+                  <p className="text-sovia-700 dark:text-sovia-300 text-sm text-center mt-3">
+                    {t("home.summerDescription")}
+                  </p>
+                  <Link
+                    href="/catalog"
+                    className="px-6 py-2 bg-accent-500 rounded-xl text-white text-sm font-medium mt-4 hover:bg-accent-600 transition-colors"
+                  >
+                    {t("home.explore")}
+                  </Link>
+                </div>
               </div>
             </div>
           </div>
@@ -333,14 +335,14 @@ function HeroSliderTranslated({ slides }: { slides: Hero[] }) {
             key={`title-${currentIndex}`}
             style={{ animation: "fadeInUp 0.6s ease-out" }}
           >
-            {currentSlide.title}
+            {currentSlide.subtitle}
           </p>
           <h1
             className="text-sovia-900 text-4xl sm:text-5xl lg:text-7xl font-serif leading-tight lg:leading-[72px] transition-all duration-500"
             key={`subtitle-${currentIndex}`}
             style={{ animation: "fadeInUp 0.6s ease-out 0.1s both" }}
           >
-            {currentSlide.subtitle || currentSlide.title}
+            {currentSlide.title}
           </h1>
           {currentSlide.description && (
             <p
@@ -413,11 +415,10 @@ function HeroSliderTranslated({ slides }: { slides: Hero[] }) {
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={`transition-all duration-300 rounded-full ${
-                  index === currentIndex
+                className={`transition-all duration-300 rounded-full ${index === currentIndex
                     ? "w-8 h-3 bg-sovia-700"
                     : "w-3 h-3 bg-sovia-400/50 hover:bg-sovia-400"
-                }`}
+                  }`}
                 aria-label={`Go to slide ${index + 1}`}
               />
             ))}

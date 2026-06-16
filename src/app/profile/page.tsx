@@ -7,7 +7,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { User, MapPin, Save, Package, Truck, CheckCircle, Clock, ChevronDown, ChevronUp } from "lucide-react"
 import { toast } from "sonner"
-import { formatPrice, formatDate } from "@/lib/utils"
+import { formatPrice, formatDate, toTitleCase } from "@/lib/utils"
 
 interface OrderItem {
   id: string
@@ -69,9 +69,70 @@ export default function ProfilePage() {
     name: session?.user?.name || "",
     phone: "",
     address: "",
+    detailAddress: "",
     lat: 0,
     lng: 0,
   })
+
+  const [addressDetails, setAddressDetails] = useState({
+    street: "",
+    rt: "",
+    rw: "",
+    provinceId: "",
+    provinceName: "",
+    regencyId: "",
+    regencyName: "",
+    districtId: "",
+    districtName: "",
+    villageId: "",
+    villageName: "",
+    postalCode: "",
+  })
+
+  const [provinces, setProvinces] = useState<{ id: string; name: string }[]>([])
+  const [regencies, setRegencies] = useState<{ id: string; name: string }[]>([])
+  const [districts, setDistricts] = useState<{ id: string; name: string }[]>([])
+  const [villages, setVillages] = useState<{ id: string; name: string }[]>([])
+
+  useEffect(() => {
+    fetch("https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json")
+      .then(res => res.json())
+      .then(data => setProvinces(data.map((item: any) => ({ ...item, name: toTitleCase(item.name) }))))
+      .catch(err => console.error("Error fetching provinces:", err))
+  }, [])
+
+  useEffect(() => {
+    if (!addressDetails.provinceId) {
+      setRegencies([])
+      return
+    }
+    fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/regencies/${addressDetails.provinceId}.json`)
+      .then(res => res.json())
+      .then(data => setRegencies(data.map((item: any) => ({ ...item, name: toTitleCase(item.name) }))))
+      .catch(err => console.error("Error fetching regencies:", err))
+  }, [addressDetails.provinceId])
+
+  useEffect(() => {
+    if (!addressDetails.regencyId) {
+      setDistricts([])
+      return
+    }
+    fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/districts/${addressDetails.regencyId}.json`)
+      .then(res => res.json())
+      .then(data => setDistricts(data.map((item: any) => ({ ...item, name: toTitleCase(item.name) }))))
+      .catch(err => console.error("Error fetching districts:", err))
+  }, [addressDetails.regencyId])
+
+  useEffect(() => {
+    if (!addressDetails.districtId) {
+      setVillages([])
+      return
+    }
+    fetch(`https://www.emsifa.com/api-wilayah-indonesia/api/villages/${addressDetails.districtId}.json`)
+      .then(res => res.json())
+      .then(data => setVillages(data.map((item: any) => ({ ...item, name: toTitleCase(item.name) }))))
+      .catch(err => console.error("Error fetching villages:", err))
+  }, [addressDetails.districtId])
 
   const [activeTab, setActiveTab] = useState<"profile" | "orders">("profile")
   const [orders, setOrders] = useState<OrderItem[]>([])
@@ -142,9 +203,15 @@ export default function ProfilePage() {
             name: data.name || userName || "",
             phone: data.phone || "",
             address: data.address || "",
+            detailAddress: data.detailAddress || "",
             lat: data.lat || 0,
             lng: data.lng || 0,
           })
+          if (data.detailAddress) {
+            setAddressDetails(prev => ({ ...prev, street: data.detailAddress }))
+          } else if (data.address) {
+            setAddressDetails(prev => ({ ...prev, street: data.address }))
+          }
         }
       } catch {
         console.error("Error loading user data")
@@ -178,11 +245,29 @@ export default function ProfilePage() {
     e.preventDefault()
     setLoading(true)
 
+    let finalAddress = ""
+    if (addressDetails.provinceName) {
+      const parts = [
+        addressDetails.rt || addressDetails.rw ? `RT ${addressDetails.rt || "-"}/RW ${addressDetails.rw || "-"}` : "",
+        addressDetails.villageName ? `Desa/Kel. ${addressDetails.villageName}` : "",
+        addressDetails.districtName ? `Kec. ${addressDetails.districtName}` : "",
+        addressDetails.regencyName,
+        addressDetails.provinceName ? `Prov. ${addressDetails.provinceName}` : "",
+        addressDetails.postalCode,
+        "Indonesia"
+      ].filter(Boolean)
+      finalAddress = parts.join(", ")
+    } else {
+      finalAddress = formData.address
+    }
+
+    const updatedFormData = { ...formData, address: finalAddress, detailAddress: addressDetails.street }
+
     try {
       const res = await fetch(`/api/users/profile`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(updatedFormData),
       })
 
       if (res.ok) {
@@ -213,10 +298,9 @@ export default function ProfilePage() {
     <div className="min-h-screen pt-32 pb-24">
       <div className="max-w-[1280px] mx-auto px-8">
         <div className="mb-12">
-          <h1 className="text-sovia-600 text-6xl font-serif">Your Profile</h1>
+          <h1 className="text-sovia-600 text-6xl font-serif">Halaman Profil</h1>
           <p className="text-sovia-700 text-lg mt-4 max-w-[672px]">
-            Manage your personal details and delivery logistics to ensure a seamless
-            editorial experience with SOVIA.
+            Kelola data diri dan pengiriman Anda untuk memastikan pengalaman berbelanja yang nyaman dengan SOVIA.
           </p>
         </div>
 
@@ -244,150 +328,306 @@ export default function ProfilePage() {
         </div>
 
         {activeTab === "profile" ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Personal Details */}
-          <div className="bg-sovia-50 rounded-lg p-12">
-            <h2 className="text-sovia-600 text-3xl font-serif mb-8">
-              Personal Dossier
-            </h2>
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <label className="text-sovia-700 text-sm block mb-2">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  className="w-full py-2 bg-sovia-200 border-b border-sovia-300/40 text-sovia-900"
-                />
+          <form onSubmit={handleSubmit} className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Personal Details */}
+              <div className="bg-sovia-50 rounded-lg p-6 lg:p-12 shadow-sm border border-sovia-100">
+                <h2 className="text-sovia-600 text-2xl lg:text-3xl font-serif mb-6">
+                  Data Pribadi
+                </h2>
+                <div className="space-y-6">
+                  <div>
+                    <label className="text-sovia-700 text-sm font-medium block mb-2">
+                      Nama Lengkap <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, name: e.target.value }))
+                      }
+                      className="w-full py-3 px-4 bg-sovia-100 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-500 text-sovia-900 transition-all"
+                      placeholder="Masukkan nama lengkap Anda"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sovia-700 text-sm font-medium block mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={session.user?.email || ""}
+                      disabled
+                      className="w-full py-3 px-4 bg-sovia-100 border border-sovia-300 rounded-lg text-sovia-500 cursor-not-allowed"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sovia-700 text-sm font-medium block mb-2">
+                      Nomor Telepon <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="tel"
+                      required
+                      value={formData.phone}
+                      onChange={(e) =>
+                        setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                      }
+                      placeholder="+62 812 3456 7890"
+                      className="w-full py-3 px-4 bg-sovia-100 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-500 text-sovia-900 transition-all"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="text-sovia-700 text-sm block mb-2">
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  value={session.user?.email || ""}
-                  disabled
-                  className="w-full py-2 bg-sovia-200 border-b border-sovia-300/40 text-sovia-900 opacity-60"
-                />
+
+              {/* Delivery Coordinates */}
+              <div className="bg-sovia-50 rounded-lg p-6 lg:p-12 shadow-sm border border-sovia-100">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-sovia-600 text-2xl lg:text-3xl font-serif">
+                    Lokasi Pengiriman
+                  </h2>
+                  <button
+                    type="button"
+                    onClick={handleGetLocation}
+                    className="p-2.5 bg-sovia-200 hover:bg-sovia-300 rounded-lg transition-colors flex items-center gap-2 text-sovia-700 text-sm font-medium"
+                    title="Dapatkan Lokasi Saat Ini"
+                  >
+                    <MapPin className="w-5 h-5" />
+                    <span className="hidden sm:inline">Lokasi Saya</span>
+                  </button>
+                </div>
+
+                <div className="space-y-5 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                      <label className="text-sovia-700 text-sm font-medium block mb-2">Negara</label>
+                      <input
+                        type="text"
+                        value="Indonesia"
+                        disabled
+                        className="w-full py-3 px-4 bg-sovia-100 border border-sovia-300 rounded-lg text-sovia-500 cursor-not-allowed"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sovia-700 text-sm font-medium block mb-2">Provinsi <span className="text-red-500">*</span></label>
+                      <select
+                        required
+                        value={addressDetails.provinceId}
+                        onChange={(e) => {
+                          const selected = provinces.find(p => p.id === e.target.value);
+                          setAddressDetails(prev => ({
+                            ...prev,
+                            provinceId: e.target.value,
+                            provinceName: selected ? selected.name : "",
+                            regencyId: "", regencyName: "",
+                            districtId: "", districtName: "",
+                            villageId: "", villageName: ""
+                          }))
+                        }}
+                        className="w-full py-3 px-4 bg-sovia-100 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-500 text-sovia-900 transition-all appearance-none"
+                      >
+                        <option value="">Pilih Provinsi</option>
+                        {provinces.map(p => (
+                          <option key={p.id} value={p.id}>{p.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sovia-700 text-sm font-medium block mb-2">Kabupaten/Kota <span className="text-red-500">*</span></label>
+                      <select
+                        required
+                        value={addressDetails.regencyId}
+                        onChange={(e) => {
+                          const selected = regencies.find(r => r.id === e.target.value);
+                          setAddressDetails(prev => ({
+                            ...prev,
+                            regencyId: e.target.value,
+                            regencyName: selected ? selected.name : "",
+                            districtId: "", districtName: "",
+                            villageId: "", villageName: ""
+                          }))
+                        }}
+                        disabled={!addressDetails.provinceId}
+                        className="w-full py-3 px-4 bg-sovia-100 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-500 text-sovia-900 transition-all appearance-none disabled:bg-sovia-100 disabled:text-sovia-500 disabled:cursor-not-allowed"
+                      >
+                        <option value="">Pilih Kabupaten/Kota</option>
+                        {regencies.map(r => (
+                          <option key={r.id} value={r.id}>{r.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-sovia-700 text-sm font-medium block mb-2">Kecamatan <span className="text-red-500">*</span></label>
+                      <select
+                        required
+                        value={addressDetails.districtId}
+                        onChange={(e) => {
+                          const selected = districts.find(d => d.id === e.target.value);
+                          setAddressDetails(prev => ({
+                            ...prev,
+                            districtId: e.target.value,
+                            districtName: selected ? selected.name : "",
+                            villageId: "", villageName: ""
+                          }))
+                        }}
+                        disabled={!addressDetails.regencyId}
+                        className="w-full py-3 px-4 bg-sovia-100 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-500 text-sovia-900 transition-all appearance-none disabled:bg-sovia-100 disabled:text-sovia-500 disabled:cursor-not-allowed"
+                      >
+                        <option value="">Pilih Kecamatan</option>
+                        {districts.map(d => (
+                          <option key={d.id} value={d.id}>{d.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="text-sovia-700 text-sm font-medium block mb-2">Desa/Kelurahan <span className="text-red-500">*</span></label>
+                      <select
+                        required
+                        value={addressDetails.villageId}
+                        onChange={(e) => {
+                          const selected = villages.find(v => v.id === e.target.value);
+                          setAddressDetails(prev => ({
+                            ...prev,
+                            villageId: e.target.value,
+                            villageName: selected ? selected.name : ""
+                          }))
+                        }}
+                        disabled={!addressDetails.districtId}
+                        className="w-full py-3 px-4 bg-sovia-100 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-500 text-sovia-900 transition-all appearance-none disabled:bg-sovia-100 disabled:text-sovia-500 disabled:cursor-not-allowed"
+                      >
+                        <option value="">Pilih Desa/Kelurahan</option>
+                        {villages.map(v => (
+                          <option key={v.id} value={v.id}>{v.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex gap-4 md:col-span-2">
+                      <div className="flex-1">
+                        <label className="text-sovia-700 text-sm font-medium block mb-2">RT <span className="text-red-500">*</span></label>
+                        <input
+                          type="text"
+                          required
+                          value={addressDetails.rt}
+                          onChange={(e) => setAddressDetails(prev => ({ ...prev, rt: e.target.value }))}
+                          placeholder="001"
+                          className="w-full py-3 px-4 bg-sovia-100 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-500 text-sovia-900 transition-all"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-sovia-700 text-sm font-medium block mb-2">RW <span className="text-red-500">*</span></label>
+                        <input
+                          type="text"
+                          required
+                          value={addressDetails.rw}
+                          onChange={(e) => setAddressDetails(prev => ({ ...prev, rw: e.target.value }))}
+                          placeholder="002"
+                          className="w-full py-3 px-4 bg-sovia-100 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-500 text-sovia-900 transition-all"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-sovia-700 text-sm font-medium block mb-2">Kode Pos <span className="text-red-500">*</span></label>
+                        <input
+                          type="text"
+                          required
+                          value={addressDetails.postalCode}
+                          onChange={(e) => setAddressDetails(prev => ({ ...prev, postalCode: e.target.value }))}
+                          placeholder="12345"
+                          className="w-full py-3 px-4 bg-sovia-100 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-500 text-sovia-900 transition-all"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-sovia-700 text-sm font-medium block mb-2">
+                      Detail Alamat (Jalan, No Rumah, Blok, dll) <span className="text-red-500">*</span>
+                    </label>
+                    <textarea
+                      required
+                      value={addressDetails.street}
+                      onChange={(e) =>
+                        setAddressDetails((prev) => ({ ...prev, street: e.target.value }))
+                      }
+                      placeholder="Contoh: Jl. Sudirman Kav. 21, No. 15, Patokan: Depan minimarket"
+                      rows={3}
+                      className="w-full py-3 px-4 bg-sovia-100 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-500 text-sovia-900 transition-all resize-none"
+                    />
+                    <p className="text-xs text-sovia-500 mt-2">Pastikan alamat terisi dengan lengkap dan jelas untuk mempermudah kurir.</p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sovia-700 text-sm font-medium block mb-2">
+                        Latitude <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        required
+                        value={formData.lat || ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            lat: parseFloat(e.target.value),
+                          }))
+                        }
+                        className="w-full py-3 px-4 bg-sovia-100 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-500 text-sovia-900 transition-all"
+                        placeholder="-6.2088"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sovia-700 text-sm font-medium block mb-2">
+                        Longitude <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        step="any"
+                        required
+                        value={formData.lng || ""}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            lng: parseFloat(e.target.value),
+                          }))
+                        }
+                        className="w-full py-3 px-4 bg-sovia-100 border border-sovia-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-500 text-sovia-900 transition-all"
+                        placeholder="106.8456"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Interactive Map */}
+                <div className="mb-4">
+                  <p className="text-sovia-600 text-sm font-medium mb-3">
+                    Titik Lokasi Peta (Opsional namun disarankan)
+                  </p>
+                  <div className="rounded-xl overflow-hidden border border-sovia-200">
+                    <MapPicker
+                      lat={formData.lat}
+                      lng={formData.lng}
+                      onLocationChange={(lat, lng) => {
+                        setFormData((prev) => ({ ...prev, lat, lng }))
+                        toast.success("Lokasi berhasil ditentukan dari peta!")
+                      }}
+                      height="h-[300px]"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="text-sovia-700 text-sm block mb-2">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, phone: e.target.value }))
-                  }
-                  placeholder="+62 812 3456 7890"
-                  className="w-full py-2 bg-sovia-200 border-b border-sovia-300/40 text-sovia-900"
-                />
-              </div>
+            </div>
+
+            <div className="flex justify-end border-t border-sovia-200 pt-6 mt-8">
               <button
                 type="submit"
                 disabled={loading}
-                className="px-8 py-4 bg-sovia-600 text-white rounded-lg flex items-center gap-2 disabled:opacity-60"
+                className="w-full md:w-auto px-10 py-4 bg-sovia-900 text-sovia-50 font-medium rounded-lg flex items-center justify-center gap-3 hover:bg-sovia-800 disabled:opacity-70 disabled:cursor-not-allowed transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
-                <Save className="w-4 h-4" />
-                {loading ? "Saving..." : "Save Details"}
-              </button>
-            </form>
-          </div>
-
-          {/* Delivery Coordinates */}
-          <div className="bg-sovia-50 rounded-lg p-12">
-            <div className="flex justify-between items-center mb-8">
-              <h2 className="text-sovia-600 text-3xl font-serif">
-                Delivery Coordinates
-              </h2>
-              <button
-                onClick={handleGetLocation}
-                className="p-2 hover:bg-sovia-100 rounded-lg"
-                title="Get Current Location"
-              >
-                <MapPin className="w-5 h-5 text-sovia-600" />
+                <Save className="w-5 h-5" />
+                {loading ? "Menyimpan Data..." : "Simpan Profil & Alamat"}
               </button>
             </div>
-
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="text-sovia-700 text-sm block mb-2">
-                  Full Address
-                </label>
-                <textarea
-                  value={formData.address}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, address: e.target.value }))
-                  }
-                  placeholder="Jl. Sudirman Kav. 21, Jakarta"
-                  rows={3}
-                  className="w-full py-2 bg-sovia-200 border-b border-sovia-300/40 text-sovia-900 resize-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sovia-700 text-sm block mb-2">
-                    Latitude
-                  </label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={formData.lat || ""}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        lat: parseFloat(e.target.value),
-                      }))
-                    }
-                    className="w-full py-2 bg-sovia-200 border-b border-sovia-300/40 text-sovia-900"
-                    placeholder="-6.2088"
-                  />
-                </div>
-                <div>
-                  <label className="text-sovia-700 text-sm block mb-2">
-                    Longitude
-                  </label>
-                  <input
-                    type="number"
-                    step="any"
-                    value={formData.lng || ""}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        lng: parseFloat(e.target.value),
-                      }))
-                    }
-                    className="w-full py-2 bg-sovia-200 border-b border-sovia-300/40 text-sovia-900"
-                    placeholder="106.8456"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Interactive Map */}
-            <div className="mb-4">
-              <p className="text-sovia-500 text-sm mb-3">
-                Klik pada peta atau geser pin untuk menentukan lokasi pengiriman
-              </p>
-              <MapPicker
-                lat={formData.lat}
-                lng={formData.lng}
-                onLocationChange={(lat, lng) => {
-                  setFormData((prev) => ({ ...prev, lat, lng }))
-                  toast.success("Lokasi berhasil ditentukan!")
-                }}
-                height="h-80"
-              />
-            </div>
-          </div>
-        </div>
+          </form>
         ) : (
           <div className="space-y-8">
             <div className="flex gap-2 overflow-x-auto pb-2">
@@ -430,7 +670,7 @@ export default function ProfilePage() {
                     const Icon = statusInfo.icon
 
                     return (
-                      <div key={order.id} className="bg-sovia-50 rounded-lg p-6 shadow-sm border border-sovia-200">
+                      <div key={order.id} className="bg-sovia-100 rounded-lg p-6 shadow-sm border-3 border-sovia-200">
                         <div className="flex justify-between items-start pb-4 border-b border-sovia-200 cursor-pointer" onClick={() => toggleExpand(order.id)}>
                           <div>
                             <p className="text-sovia-500 text-sm">Order #{order.id.slice(-8)}</p>
@@ -454,7 +694,7 @@ export default function ProfilePage() {
                         {expandedOrders.has(order.id) && (
                           <div className="py-4 space-y-4">
                             {/* Timeline Status */}
-                            <div className="bg-sovia-50 p-4 rounded-lg mb-6">
+                            <div className="bg-sovia-50 border border-sovia-200 p-4 rounded-lg mb-6">
                               <h4 className="text-sovia-800 text-sm font-medium mb-3">Riwayat Status Pesanan</h4>
                               <div className="flex flex-col gap-2 relative">
                                  <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-sovia-200"></div>

@@ -56,8 +56,8 @@ export function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-sovia-50/70 backdrop-blur-[6px] border-b border-sovia-200/20">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
-        <Link href="/" className="text-sovia-600 text-2xl font-['Noto_Serif'] tracking-[4.80px] font-semibold">
-          SOVIA
+        <Link href="/" className="text-sovia-600 text-2xl font-['Noto_Serif'] font-semibold flex items-center gap-2">
+          <img src={theme === "dark" ? "/just-logo-dark.png" : "/just-logo.png"} alt="logo by sovia fashion" className="h-[40px] w-auto" />Sovia Fashion
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
@@ -175,9 +175,9 @@ export function Navbar() {
             <div className="flex items-center gap-1 md:gap-3">
               <Link
                 href="/cart"
-                className="p-2 hover:bg-sovia-100 dark:hover:bg-sovia-800 rounded-lg transition-colors relative"
+                className="p-2 hover:bg-sovia-100 rounded-lg transition-colors relative"
               >
-                <ShoppingCart className="w-5 h-5 hover:text-white dark:hover:text-sovia-50  text-sovia-600 dark:text-sovia-600" />
+                <ShoppingCart className="w-5 h-5 text-sovia-600 dark:text-sovia-600" />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-accent-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                     {cartCount > 9 ? "9+" : cartCount}
@@ -186,9 +186,9 @@ export function Navbar() {
               </Link>
               <Link
                 href="/profile"
-                className="p-2 hover:bg-sovia-100 hover:text-white dark:hover:bg-sovia-800 rounded-lg transition-colors"
+                className="p-2 hover:bg-sovia-100 rounded-lg transition-colors"
               >
-                <User className="w-5 h-5 text-sovia-600 dark:text-sovia-600  hover:text-white dark:hover:text-sovia-50" />
+                <User className="w-5 h-5 text-sovia-600 dark:text-sovia-600" />
               </Link>
               <div className="hidden md:flex items-center gap-3">
                 {isAdmin && (
@@ -201,7 +201,7 @@ export function Navbar() {
                 )}
                 <button
                   onClick={() => signOut()}
-                  className="p-2 text-sovia-500 hover:text-sovia-600 hover:bg-sovia-100   hover:text-white dark:hover:text-sovia-50 dark:hover:bg-sovia-800 rounded-lg transition-colors"
+                  className="p-2 text-sovia-500 hover:bg-sovia-100 rounded-lg transition-colors"
                   title={t("nav.signOut")}
                 >
                   <LogOut className="w-5 h-5" />
@@ -231,7 +231,7 @@ export function Navbar() {
       </div>
 
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white dark:bg-sovia-950 border-t border-sovia-200/30 dark:border-sovia-700/30 px-5 py-5 flex flex-col gap-1 shadow-lg">
+        <div className="md:hidden bg-sovia-100 border-t border-sovia-200/30 dark:border-sovia-700/30 px-5 py-5 flex flex-col gap-1 shadow-lg">
           {/* Navigation Links */}
           {navLinks.map((link) => (
             <Link
@@ -240,8 +240,8 @@ export function Navbar() {
               className={cn(
                 "flex items-center gap-3 text-sm font-medium py-3 px-3 rounded-lg transition-colors",
                 pathname === link.href
-                  ? "text-sovia-900 dark:text-white bg-sovia-100 dark:bg-sovia-600"
-                  : "text-sovia-600 dark:text-sovia-300 hover:bg-sovia-100 dark:hover:bg-sovia-800"
+                  ? "text-sovia-900 bg-sovia-200"
+                  : "text-sovia-900 hover:bg-sovia-50"
               )}
               onClick={() => setMobileMenuOpen(false)}
             >
@@ -254,7 +254,7 @@ export function Navbar() {
           {/* Settings Row */}
           <div className="flex items-center gap-3 px-3 py-2">
             {/* Language toggle */}
-            <div className="flex items-center gap-1.5 flex-1">
+            {/* <div className="flex items-center gap-1.5 flex-1">
               <Globe className="w-4 h-4 text-sovia-500 dark:text-sovia-400" />
               <button
                 onClick={() => setLocale("id")}
@@ -278,17 +278,17 @@ export function Navbar() {
               >
                 EN
               </button>
-            </div>
+            </div> */}
 
             {/* Theme toggle */}
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-2 p-2.5 rounded-lg bg-sovia-600 dark:bg-sovia-600  text-white dark:text-white hover:bg-sovia-200 dark:hover:bg-sovia-700 transition-colors"
+              className="flex items-center gap-2 p-2.5 rounded-lg transition-colors"
             >
               {theme === "light" ? (
                 <>
-                  <Moon className="w-4 h-4 text-white" />
-                  <span className="text-sm font-medium text-white">{t("nav.darkMode")}</span>
+                  <Moon className="w-4 h-4" />
+                  <span className="text-sm font-medium">{t("nav.darkMode")}</span>
                 </>
               ) : (
                 <>
@@ -307,10 +307,10 @@ export function Navbar() {
               {isAdmin && (
                 <Link
                   href="/admin"
-                  className="flex items-center gap-3 text-sm font-medium text-white dark:text-sovia-600 py-3 px-3 rounded-lg hover:bg-sovia-100 dark:hover:bg-sovia-800 transition-colors"
+                  className="flex items-center text-center gap-3 text-sm font-medium py-3 px-3 rounded-lg transition-colors bg-sovia-900 text-sovia-50 hover:bg-sovia-800 w-[30%]"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <LayoutDashboard className="w-4 h-4  text-sovia-50 dark:text-sovia-600 " />
+                  <LayoutDashboard className="w-4 h-4" />
                   {t("nav.admin")}
                 </Link>
               )}
@@ -319,7 +319,7 @@ export function Navbar() {
                   signOut()
                   setMobileMenuOpen(false)
                 }}
-                className="flex items-center gap-3 text-left text-sm font-medium text-red-500 dark:text-red-400 py-3 px-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                className="flex items-center gap-3 text-left text-sm font-black text-red-900 dark:text-red-400 py-3 px-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 {t("nav.signOut")}

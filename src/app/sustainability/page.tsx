@@ -11,10 +11,10 @@ export default function SustainabilityPage() {
           <p>
             Kami selalu berinovasi dengan menggunakan bahan baku alternatif yang dapat didaur ulang dan mengurangi penggunaan plastik sekali pakai dalam pengemasan produk kami.
           </p>
-          <h2 className="text-2xl font-serif text-sovia-900 mt-8 mb-4">Proses Etis</h2>
+          {/* <h2 className="text-2xl font-serif text-sovia-900 mt-8 mb-4">Proses Etis</h2>
           <p>
-            Kesejahteraan para pekerja dan pengrajin kami adalah prioritas utama. Kami memastikan lingkungan kerja yang aman dan upah yang adil di setiap tahap produksi pakaian hijab kami.
-          </p>
+            Kesejahteraan para pekerja kami adalah prioritas utama. Kami memastikan lingkungan kerja yang aman dan upah yang adil di setiap tahap produksi pakaian hijab kami.
+          </p> */}
         </div>
       </div>
     </div>

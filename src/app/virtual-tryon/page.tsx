@@ -42,8 +42,8 @@ export default async function VirtualTryOnPage() {
       {/* Advanced AI Try-On using Replicate */}
       <section className="pt-8">
         <div className="text-center max-w-2xl mx-auto mb-4">
-          <h2 className="text-3xl font-serif text-sovia-800">Advanced AI Virtual Try-On</h2>
-          <p className="text-sovia-500 mt-2">Gunakan mode Advanced berbasis AI untuk hasil pemakaian virtual beresolusi tinggi, realistis, dan pencahayaan yang disesuaikan secara otomatis.</p>
+          <h2 className="text-3xl font-serif text-sovia-800">Virtual Try-On</h2>
+          <p className="text-sovia-500 mt-2">Gunakan fitur coba virtual kami  berbasis AI untuk mencoba pakaian dengan realistis, dan pencahayaan yang disesuaikan secara otomatis.</p>
         </div>
         <VirtualTryOnAdvanced products={products} />
       </section>

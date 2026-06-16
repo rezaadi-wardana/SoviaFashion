@@ -17,8 +17,11 @@ const notoSerif = Noto_Serif({
 })
 
 export const metadata: Metadata = {
-  title: "SOVIA Fashion | Toko Fashion Wanita",
+  title: "Sovia Fashion | Toko Fashion Wanita",
   description: "Toko online fashion wanita dengan koleksi hijab, gamis, atasan, dan bawahan.",
+  icons: {
+    icon: '/sovia-logo.png',
+  },
 }
 
 export default function RootLayout({

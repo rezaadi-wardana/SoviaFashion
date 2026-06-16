@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json()
-  const { productId, quantity, size, color, price, name, phone, address, lat, lng } = body
+  const { productId, quantity, size, color, price, name, phone, address, detailAddress, lat, lng } = body
 
   if (!productId || !quantity || !name || !phone || !address) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -38,6 +38,7 @@ export async function POST(request: Request) {
       recipientName: name,
       phone,
       address,
+      detailAddress,
       lat: lat || 0,
       lng: lng || 0,
       items: {

@@ -82,7 +82,7 @@ export default function AdminCategoriesPage() {
             Category Management
           </h1>
           <p className="text-sovia-700 text-sm">
-            Manage product categories for the SOVIA collection.
+            Manage product categories for the Sovia collection.
           </p>
         </div>
         <button

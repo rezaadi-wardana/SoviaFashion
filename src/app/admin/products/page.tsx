@@ -196,7 +196,7 @@ export default function AdminProductsPage() {
             Inventory Management
           </h1>
           <p className="text-sovia-700 text-sm">
-            Curate and manage the SOVIA collection.
+            Curate and manage the Sovia collection.
           </p>
         </div>
         <button

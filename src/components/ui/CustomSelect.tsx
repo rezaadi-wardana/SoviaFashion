@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 export interface SelectOption {
   value: string;
   label: string;
+  image?: string;
+  category?: string;
 }
 
 interface CustomSelectProps {
@@ -39,7 +41,7 @@ export function CustomSelect({ options, value, onChange, placeholder = "Select..
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex h-12 w-full items-center justify-between rounded-xl border border-sovia-200 bg-sovia-50 dark:bg-sovia-800 px-4 py-3 text-sm text-sovia-700 dark:text-sovia-200 focus:outline-none focus:ring-2 focus:ring-accent-400 transition-all",
+          "flex h-12 w-full items-center justify-between rounded-xl border border-sovia-200 bg-sovia-100  px-4 py-3 text-sm text-sovia-700 focus:outline-none focus:ring-2 focus:ring-accent-400 transition-all",
           isOpen ? "ring-2 ring-accent-400" : ""
         )}
       >
@@ -48,7 +50,7 @@ export function CustomSelect({ options, value, onChange, placeholder = "Select..
       </button>
 
       {isOpen && (
-        <div className="absolute z-[100] mt-2 max-h-60 w-full overflow-auto rounded-xl border border-sovia-200/60 dark:border-sovia-700/60 bg-white dark:bg-sovia-900 shadow-xl animate-in fade-in zoom-in-95 duration-200 origin-top">
+        <div className="absolute z-[100] mt-2 max-h-60 w-full overflow-auto rounded-xl border border-sovia-200/60 bg-sovia-100 shadow-xl animate-in fade-in zoom-in-95 duration-200 origin-top">
           <div className="p-1.5 flex flex-col gap-0.5">
             {options.map((option) => (
               <div
@@ -58,16 +60,28 @@ export function CustomSelect({ options, value, onChange, placeholder = "Select..
                   setIsOpen(false);
                 }}
                 className={cn(
-                  "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2.5 pl-9 pr-3 text-sm outline-none hover:bg-sovia-100 dark:hover:bg-sovia-800 focus:bg-sovia-100 transition-colors",
-                  value === option.value ? "bg-sovia-50 dark:bg-sovia-800/80 font-medium text-sovia-900 dark:text-sovia-50" : "text-sovia-600 dark:text-sovia-300"
+                  "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2.5 pl-9 pr-3 text-sm outline-none hover:bg-sovia-200 focus:bg-sovia-100 transition-colors",
+                  value === option.value ? "bg-sovia-500 dark:bg-sovia-400 font-medium text-sovia-900" : "text-sovia-900"
                 )}
               >
                 {value === option.value && (
                   <span className="absolute left-2.5 flex h-3.5 w-3.5 items-center justify-center">
-                    <Check className="h-4 w-4 text-accent-600 dark:text-accent-400" />
+                    <Check className="h-4 w-4 text-sovia-900" />
                   </span>
                 )}
-                <span className="truncate">{option.label}</span>
+                <div className="flex items-center gap-3 w-full">
+                  {option.image && (
+                    <div className="w-8 h-10 rounded overflow-hidden flex-shrink-0 bg-white border border-sovia-200">
+                      <img src={option.image} alt={option.label} className="w-full h-full object-cover" />
+                    </div>
+                  )}
+                  <div className="flex flex-col flex-1 overflow-hidden">
+                    <span className="truncate">{option.label}</span>
+                    {option.category && (
+                      <span className="text-xs text-sovia-600 truncate opacity-80">{option.category}</span>
+                    )}
+                  </div>
+                </div>
               </div>
             ))}
           </div>

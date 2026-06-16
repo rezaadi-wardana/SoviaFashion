@@ -145,9 +145,9 @@ export default function VirtualTryOnAdvanced({ products = [] }: { products?: Pro
         <div className="inline-flex items-center justify-center p-3 bg-accent-100 rounded-full mb-2">
           <Sparkles className="w-8 h-8 text-sovia-600" />
         </div>
-        <h2 className="text-3xl font-extrabold tracking-tight text-sovia-900">Advanced AI Try-On</h2>
+        <h2 className="text-3xl font-extrabold tracking-tight text-sovia-900">Coba Pakaian dengan Teknologi AI</h2>
         <p className="text-sovia-500 max-w-lg mx-auto">
-          Unggah foto Anda dan foto produk pilihan Anda. Teknologi AI kami akan menggabungkannya dengan sangat realistis!
+          Unggah foto Anda dan pilih produk pilihan Anda. Teknologi AI kami akan menggabungkannya untuk mencoba pakaian dengan sangat realistis!
         </p>
       </div>
 
@@ -191,7 +191,12 @@ export default function VirtualTryOnAdvanced({ products = [] }: { products?: Pro
             <label className="block text-sm font-semibold text-sovia-700">2. Pilih Pakaian</label>
             <div className="relative mb-4">
               <CustomSelect
-                options={products.map(p => ({ value: p.id, label: p.name }))}
+                options={products.map(p => ({ 
+                  value: p.id, 
+                  label: p.name,
+                  image: p.tryOnImage,
+                  category: p.category
+                }))}
                 value={selectedProduct?.id || ''}
                 onChange={(val) => {
                   const p = products.find(prod => prod.id === val);
@@ -220,7 +225,7 @@ export default function VirtualTryOnAdvanced({ products = [] }: { products?: Pro
           <select 
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="flex-1 w-full bg-sovia-50 border border-sovia-200 text-sovia-700 py-2.5 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-400"
+            className="flex-1 w-full bg-sovia-200 border border-sovia-200 text-sovia-700 py-2.5 px-4 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-400"
           >
             <option value="upper_body">Atasan (Kaos, Kemeja, Blus)</option>
             <option value="lower_body">Bawahan (Celana, Rok)</option>

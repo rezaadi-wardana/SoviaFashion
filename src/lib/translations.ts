@@ -239,8 +239,8 @@ export const translations = {
     en: "Privacy Policy",
   },
   "footer.copyright": {
-    id: "© {year} SOVIA Fashion. Hak Cipta Dilindungi.",
-    en: "© {year} SOVIA Fashion. All Rights Reserved.",
+    id: "© {year} Sovia Fashion. Hak Cipta Dilindungi.",
+    en: "© {year} Sovia Fashion. All Rights Reserved.",
   },
 
   // ──────────────────── Common ────────────────────
