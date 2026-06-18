@@ -10,7 +10,7 @@ export async function PUT(request: Request) {
 
   try {
     const body = await request.json()
-    const { name, phone, address, detailAddress, lat, lng } = body
+    const { name, phone, address, detailAddress, lat, lng, job, birthDate, image } = body
 
     const updatedUser = await prisma.user.update({
       where: { id: session.user.id },
@@ -21,6 +21,9 @@ export async function PUT(request: Request) {
         detailAddress,
         lat: lat || null,
         lng: lng || null,
+        job: job || null,
+        birthDate: birthDate ? new Date(birthDate) : null,
+        ...(image !== undefined && { image }),
       },
       select: {
         id: true,
@@ -31,6 +34,8 @@ export async function PUT(request: Request) {
         detailAddress: true,
         lat: true,
         lng: true,
+        job: true,
+        birthDate: true,
       },
     })
 

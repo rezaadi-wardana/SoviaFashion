@@ -364,24 +364,24 @@ export default function CheckoutPage() {
           window.snap.pay(order.midtransToken, {
             onSuccess: function() {
               toast.success("Pembayaran berhasil!")
-              router.push(`/orders?order=${order.id}`)
+              router.push(`/profile?tab=orders&order=${order.id}`)
             },
             onPending: function() {
               toast.success("Menunggu pembayaran Anda!")
-              router.push(`/orders?order=${order.id}`)
+              router.push(`/profile?tab=orders&order=${order.id}`)
             },
             onError: function() {
               toast.error("Pembayaran gagal")
-              router.push(`/orders?order=${order.id}`)
+              router.push(`/profile?tab=orders&order=${order.id}`)
             },
             onClose: function() {
               toast.error("Anda menutup pop-up sebelum menyelesaikan pembayaran")
-              router.push(`/orders?order=${order.id}`)
+              router.push(`/profile?tab=orders&order=${order.id}`)
             }
           })
         } else {
           toast.success("Pesanan berhasil dibuat!")
-          router.push(`/orders?order=${order.id}`)
+          router.push(`/profile?tab=orders&order=${order.id}`)
         }
       } else {
         toast.error("Gagal membuat pesanan")

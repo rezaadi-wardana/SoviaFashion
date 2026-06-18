@@ -54,9 +54,15 @@ export function Navbar() {
   }, [])
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-sovia-50/70 backdrop-blur-[6px] border-b border-sovia-200/20">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-8 py-4 flex items-center justify-between">
-        <Link href="/" className="text-sovia-600 text-2xl font-['Noto_Serif'] font-semibold flex items-center gap-2">
+    <nav className={cn("top-0 left-0 right-0 z-50 border-b border-sovia-200/20", pathname.startsWith("/admin") ? "absolute bg-sovia-50" : "fixed bg-sovia-50/70 backdrop-blur-[6px]")}>
+      <div className={cn("mx-auto px-4 sm:px-8 py-4 flex items-center justify-between", pathname.startsWith("/admin") ? "w-full" : "max-w-[1280px]")}>
+        <Link 
+          href="/" 
+          className={cn(
+            "text-sovia-800 text-2xl font-serif font-semibold flex items-center gap-2 transition-all duration-200 active:transform-[scale(0.95)]",
+            pathname.startsWith("/admin") ? "opacity-0 pointer-events-none invisible" : "opacity-100 visible"
+          )}
+        >
           <img src={theme === "dark" ? "/just-logo-dark.png" : "/just-logo.png"} alt="logo by sovia fashion" className="h-[40px] w-auto" />Sovia Fashion
         </Link>
 
@@ -66,11 +72,12 @@ export function Navbar() {
               key={link.href}
               href={link.href}
               className={cn(
-                "text-sm font-medium transition-colors",
+                "text-sm font-medium transition-all duration-200 hover:transform-[scale(1.05)] active:transform-[scale(0.95)]",
                 pathname === link.href
-                  ? "text-sovia-600 border-b-2 border-accent-300"
-                  : "text-sovia-500 hover:text-sovia-600"
+                  ? "text-sovia-800 border-b-3 border-accent-300 font-bold"
+                  : ""
               )}
+              
             >
               {link.label}
             </Link>
@@ -87,8 +94,8 @@ export function Navbar() {
               title={locale === "id" ? "Ganti Bahasa" : "Change Language"}
               id="lang-toggle-btn"
             >
-              <Globe className="w-5 h-5 text-sovia-600" />
-              <span className="text-xs font-semibold text-sovia-600 uppercase tracking-wider hidden sm:inline">
+              <Globe className="w-5 h-5 text-sovia-800" />
+              <span className="text-xs font-semibold text-sovia-800 uppercase tracking-wider hidden sm:inline">
                 {locale}
               </span>
             </button> */}
@@ -111,7 +118,7 @@ export function Navbar() {
                   "w-full px-4 py-3 text-left text-sm flex items-center gap-3 transition-colors",
                   locale === "id"
                     ? "bg-sovia-200 text-sovia-900 font-semibold"
-                    : "text-sovia-600 hover:bg-sovia-100"
+                    : "text-sovia-800 hover:bg-sovia-100"
                 )}
                 id="lang-option-id"
               >
@@ -130,7 +137,7 @@ export function Navbar() {
                   "w-full px-4 py-3 text-left text-sm flex items-center gap-3 transition-colors",
                   locale === "en"
                     ? "bg-sovia-200 text-sovia-900 font-semibold"
-                    : "text-sovia-600 hover:bg-sovia-100"
+                    : "text-sovia-800 hover:bg-sovia-100"
                 )}
                 id="lang-option-en"
               >
@@ -147,14 +154,14 @@ export function Navbar() {
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            className="hidden md:block p-2 rounded-lg hover:bg-sovia-100 transition-all duration-300 relative overflow-hidden"
+            className="hidden md:block p-2 rounded-lg hover:bg-sovia-100 hover:transform-[scale(1.05)] active:transform-[scale(0.95)] transition-all duration-300 relative overflow-hidden"
             aria-label={theme === "light" ? "Switch to dark mode" : "Switch to light mode"}
             title={theme === "light" ? t("nav.darkMode") : t("nav.lightMode")}
           >
             <div className="relative w-5 h-5">
               <Sun
                 className={cn(
-                  "w-5 h-5 text-sovia-600 absolute inset-0 transition-all duration-300",
+                  "w-5 h-5 text-sovia-800 absolute inset-0 transition-all duration-300",
                   theme === "light"
                     ? "opacity-100 rotate-0 scale-100"
                     : "opacity-0 rotate-90 scale-50"
@@ -162,7 +169,7 @@ export function Navbar() {
               />
               <Moon
                 className={cn(
-                  "w-5 h-5 text-accent-400 absolute inset-0 transition-all duration-300",
+                  "w-5 h-5 text-sovia-800 absolute inset-0 transition-all duration-300",
                   theme === "dark"
                     ? "opacity-100 rotate-0 scale-100"
                     : "opacity-0 -rotate-90 scale-50"
@@ -175,9 +182,12 @@ export function Navbar() {
             <div className="flex items-center gap-1 md:gap-3">
               <Link
                 href="/cart"
-                className="p-2 hover:bg-sovia-100 rounded-lg transition-colors relative"
+                className={cn(
+                  "p-2 hover:bg-sovia-100 hover:transform-[scale(1.05)] active:transform-[scale(0.95)] transition-all duration-300 rounded-lg transition-colors relative",
+                  pathname === "/cart" ? "bg-sovia-200" : ""
+                )}
               >
-                <ShoppingCart className="w-5 h-5 text-sovia-600 dark:text-sovia-600" />
+                <ShoppingCart className="w-5 h-5 text-sovia-800 " />
                 {cartCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-5 h-5 bg-accent-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
                     {cartCount > 9 ? "9+" : cartCount}
@@ -186,22 +196,25 @@ export function Navbar() {
               </Link>
               <Link
                 href="/profile"
-                className="p-2 hover:bg-sovia-100 rounded-lg transition-colors"
+                className={cn(
+                  "p-2 hover:bg-sovia-100 hover:transform-[scale(1.05)] active:transform-[scale(0.95)] transition-all duration-300 rounded-lg transition-colors",
+                  pathname === "/profile" ? "bg-sovia-200" : ""
+                )}
               >
-                <User className="w-5 h-5 text-sovia-600 dark:text-sovia-600" />
+                <User className="w-5 h-5 text-sovia-800" />
               </Link>
               <div className="hidden md:flex items-center gap-3">
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className="px-4 py-2 bg-sovia-600 text-white dark:text-white hover:text-white dark:hover:text-sovia-50   text-sm font-medium rounded-lg hover:bg-sovia-800 transition-colors"
+                    className="px-4 py-2 bg-sovia-800 text-sovia-50 hover:bg-sovia-900 hover:transform-[scale(1.05)] active:transform-[scale(0.95)] transition duration-300 text-sm font-medium rounded-lg flex items-center gap-2"
                   >
                     {t("nav.admin")}
                   </Link>
                 )}
                 <button
                   onClick={() => signOut()}
-                  className="p-2 text-sovia-500 hover:bg-sovia-100 rounded-lg transition-colors"
+                  className="p-2 text-sovia-800 hover:bg-sovia-100 hover:transform-[scale(1.05)] active:transform-[scale(0.95)] transition-all duration-300 rounded-lg transition-colors"
                   title={t("nav.signOut")}
                 >
                   <LogOut className="w-5 h-5" />
@@ -222,9 +235,9 @@ export function Navbar() {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (
-              <X className="w-5 h-5 text-sovia-600" />
+              <X className="w-5 h-5 text-sovia-800" />
             ) : (
-              <Menu className="w-5 h-5 text-sovia-600" />
+              <Menu className="w-5 h-5 text-sovia-800" />
             )}
           </button>
         </div>

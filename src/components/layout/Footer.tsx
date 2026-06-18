@@ -3,9 +3,13 @@
 import Link from "next/link"
 import { MapPin, MessageCircle } from "lucide-react"
 import { useLanguage } from "@/components/LanguageProvider"
+import { usePathname } from "next/navigation"
+import { cn } from "@/lib/utils"
+
 
 export function Footer() {
   const { t } = useLanguage()
+  const pathname = usePathname()
 
   const links = [
     { href: "/sustainability", label: t("footer.sustainability") },
@@ -15,8 +19,8 @@ export function Footer() {
   ]
 
   return (
-    <footer className="bg-sovia-100 px-4 md:px-8 py-12 md:py-16">
-      <div className="max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+    <footer className={cn("bg-sovia-100 px-4 md:px-8 py-12 md:py-16 transition-all duration-300")}>
+      <div className={cn("max-w-[1280px] mx-auto grid grid-cols-1 md:grid-cols-3", pathname.startsWith("/admin") ? "gap-5 lg:mx-8 lg:ps-[13em]" : " gap-12")}>
         
         {/* Brand & Socials */}
         <div className="flex flex-col items-center md:items-start text-center md:text-left">

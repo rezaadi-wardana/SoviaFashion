@@ -9,6 +9,7 @@ export interface SelectOption {
   label: string;
   image?: string;
   category?: string;
+  badge?: React.ReactNode;
 }
 
 interface CustomSelectProps {
@@ -61,7 +62,7 @@ export function CustomSelect({ options, value, onChange, placeholder = "Select..
                 }}
                 className={cn(
                   "relative flex w-full cursor-pointer select-none items-center rounded-lg py-2.5 pl-9 pr-3 text-sm outline-none hover:bg-sovia-200 focus:bg-sovia-100 transition-colors",
-                  value === option.value ? "bg-sovia-500 dark:bg-sovia-400 font-medium text-sovia-900" : "text-sovia-900"
+                  value === option.value ? "bg-sovia-200/50 font-medium text-sovia-900" : "text-sovia-900"
                 )}
               >
                 {value === option.value && (
@@ -75,10 +76,17 @@ export function CustomSelect({ options, value, onChange, placeholder = "Select..
                       <img src={option.image} alt={option.label} className="w-full h-full object-cover" />
                     </div>
                   )}
-                  <div className="flex flex-col flex-1 overflow-hidden">
-                    <span className="truncate">{option.label}</span>
-                    {option.category && (
-                      <span className="text-xs text-sovia-600 truncate opacity-80">{option.category}</span>
+                  <div className="flex items-center justify-between flex-1 overflow-hidden gap-2">
+                    <div className="flex flex-col flex-1 overflow-hidden">
+                      <span className="truncate">{option.label}</span>
+                      {option.category && (
+                        <span className="text-xs text-sovia-600 truncate opacity-80">{option.category}</span>
+                      )}
+                    </div>
+                    {option.badge && (
+                      <div className="flex-shrink-0">
+                        {option.badge}
+                      </div>
                     )}
                   </div>
                 </div>

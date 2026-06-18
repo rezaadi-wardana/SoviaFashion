@@ -32,6 +32,8 @@ export async function GET(
         lng: true,
         image: true,
         role: true,
+        job: true,
+        birthDate: true,
       },
     })
 

@@ -23,7 +23,7 @@ interface DashboardStats {
   totalOrders: number
   revenueChange: number
   ordersByDay: { date: string; orders: number; revenue: number }[]
-  topProducts: { name: string; sold: number; revenue: number }[]
+  topProducts: { name: string; sold: number; revenue: number; image?: string | null }[]
   recentOrders: {
     id: string;
     total: number;
@@ -67,28 +67,28 @@ export default function AdminDashboard() {
 
   const statCards = [
     {
-      label: "Total Revenue",
+      label: "Total Pendapatan",
       value: formatPrice(stats.totalRevenue),
       change: stats.revenueChange,
       icon: DollarSign,
       color: "bg-[#F3EFE6]",
     },
     {
-      label: "Active Visitors",
+      label: "Pengunjung",
       value: stats.totalOrders.toString(),
       change: 8,
       icon: Activity,
       color: "bg-[#F3EFE6]",
     },
     {
-      label: "Inventory Status",
+      label: "Total Produk",
       value: stats.totalProducts.toString(),
       change: -3,
       icon: Package,
-      color: "bg-accent-300",
+      color: "bg-sovia-100",
     },
     {
-      label: "Total Customers",
+      label: "Total Pelanggan",
       value: stats.totalUsers.toString(),
       change: 15,
       icon: Users,
@@ -100,17 +100,17 @@ export default function AdminDashboard() {
     <div>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8 md:mb-12">
         <div>
-          <h1 className="text-sovia-900 text-4xl font-serif mb-2">Overview</h1>
+          <h1 className="text-sovia-900 text-4xl font-serif mb-2">Dashboard</h1>
           <p className="text-sovia-700 text-sm">
-            Welcome back to the atelier. Here is your daily summary.
+            Selamat datang di Sovia Fashion Admin Dashboard
           </p>
         </div>
         <Link
           href="/admin/products?new=true"
-          className="px-6 py-3 bg-sovia-600 text-white text-sm font-medium rounded-lg flex items-center gap-2"
+          className="px-6 py-3 bg-sovia-800 text-sovia-50 hover:bg-sovia-900 transition duration-300 text-sm font-medium rounded-lg flex items-center gap-2 active:transform-[scale(0.95)]"
         >
           <Package className="w-4 h-4" />
-          New Product
+          Tambah Koleksi Baru
         </Link>
       </div>
 
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
                 ) : (
                   <ArrowDown className="w-3 h-3 shrink-0" />
                 )}
-                <span className="truncate">{Math.abs(card.change)}% from last month</span>
+                <span className="truncate">{Math.abs(card.change)}% dari bulan lalu</span>
               </p>
             </div>
           </div>
@@ -145,25 +145,27 @@ export default function AdminDashboard() {
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
         {/* Sales Trajectory */}
-        <div className="bg-[#F3EFE6] p-8 rounded-lg shadow-lg">
-          <h2 className="text-sovia-900 text-xl font-serif mb-6">Sales Trajectory</h2>
+        <div className="bg-sovia-50 p-8 rounded-lg shadow-lg">
+          <h2 className="text-sovia-800 text-xl font-serif mb-6">Sales Trajectory</h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={stats.ordersByDay}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5D8D2" />
-                <XAxis dataKey="date" stroke="#645445" fontSize={12} />
-                <YAxis stroke="#645445" fontSize={12} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--sovia-200)" />
+                <XAxis dataKey="date" stroke="var(--sovia-600)" fontSize={12} />
+                <YAxis stroke="var(--sovia-600)" fontSize={12} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#F3EFE6",
-                    border: "1px solid #E5D8D2",
+                    backgroundColor: "var(--card-bg)",
+                    border: "1px solid var(--sovia-200)",
                     borderRadius: "8px",
+                    color: "var(--sovia-900)"
                   }}
+                  itemStyle={{ color: "var(--sovia-800)" }}
                 />
                 <Line
                   type="monotone"
                   dataKey="revenue"
-                  stroke="#B49583"
+                  stroke="var(--sovia-400)"
                   strokeWidth={2}
                   dot={false}
                 />
@@ -173,22 +175,25 @@ export default function AdminDashboard() {
         </div>
 
         {/* Visitor Traffic */}
-        <div className="bg-[#F3EFE6] p-8 rounded-lg shadow-lg">
-          <h2 className="text-sovia-900 text-xl font-serif mb-6">Website Visitors</h2>
+        <div className="bg-sovia-50 p-8 rounded-lg shadow-lg">
+          <h2 className="text-sovia-800 text-xl font-serif mb-6">Website Visitors</h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.visitorsByDay}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#E5D8D2" />
-                <XAxis dataKey="date" stroke="#645445" fontSize={12} />
-                <YAxis stroke="#645445" fontSize={12} />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--sovia-200)" />
+                <XAxis dataKey="date" stroke="var(--sovia-600)" fontSize={12} />
+                <YAxis stroke="var(--sovia-600)" fontSize={12} />
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "#F3EFE6",
-                    border: "1px solid #E5D8D2",
+                    backgroundColor: "var(--card-bg)",
+                    border: "1px solid var(--sovia-200)",
                     borderRadius: "8px",
+                    color: "var(--sovia-900)"
                   }}
+                  cursor={{ fill: 'var(--sovia-100)' }}
+                  itemStyle={{ color: "var(--sovia-900)" }}
                 />
-                <Bar dataKey="visitors" fill="#504738" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="visitors" fill="var(--sovia-600)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -198,20 +203,24 @@ export default function AdminDashboard() {
       {/* Row 2: Top Selling & Recent Orders */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-12">
         {/* Top Selling */}
-        <div className="col-span-1 bg-sovia-100 p-6 md:p-8 rounded-lg">
+        <div className="col-span-1 bg-sovia-100 p-6 md:p-8 rounded-lg shadow-lg">
           <h2 className="text-sovia-900 text-xl font-serif mb-6">Top Selling Collections</h2>
           <div className="space-y-4">
             {stats.topProducts.length > 0 ? (
               stats.topProducts.slice(0, 5).map((product, index) => (
                 <div key={index} className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-sovia-200 rounded flex-shrink-0" />
+                  {product.image ? (
+                    <img src={product.image} alt={product.name} className="w-12 h-12 rounded object-cover flex-shrink-0" />
+                  ) : (
+                    <div className="w-12 h-12 bg-sovia-200 rounded flex-shrink-0" />
+                  )}
                   <div className="flex-1 min-w-0">
                     <p className="text-sovia-900 text-sm font-medium truncate">
                       {product.name}
                     </p>
                     <p className="text-sovia-700 text-xs">{product.sold} units</p>
                   </div>
-                  <p className="text-sovia-600 text-sm font-medium whitespace-nowrap">
+                  <p className="text-sovia-700 text-sm font-medium whitespace-nowrap">
                     {formatPrice(product.revenue)}
                   </p>
                 </div>
@@ -259,14 +268,14 @@ export default function AdminDashboard() {
                       {formatPrice(order.total)}
                     </td>
                     <td className="py-4 px-4">
-                      <span className={`px-3 py-1 text-xs rounded-full ${
-                        order.status === "COMPLETED" ? "bg-green-100 text-green-700" :
-                        order.status === "SHIPPED" ? "bg-purple-100 text-purple-700" :
-                        order.status === "PACKING" ? "bg-blue-100 text-blue-700" :
-                        order.status === "CANCELLED" ? "bg-red-100 text-red-700" :
-                        "bg-yellow-100 text-yellow-700"
+                      <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
+                        order.status === "COMPLETED" ? "bg-emerald-500 text-emerald-50" :
+                        order.status === "SHIPPED" ? "bg-indigo-500 text-indigo-50" :
+                        order.status === "PACKING" ? "bg-sky-500 text-sky-50" :
+                        order.status === "CANCELLED" ? "bg-rose-500 text-rose-50" :
+                        "bg-amber-500 text-amber-50"
                       }`}>
-                        {order.status}
+                        {order.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
                       </span>
                     </td>
                   </tr>

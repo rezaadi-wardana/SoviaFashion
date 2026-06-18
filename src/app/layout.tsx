@@ -1,10 +1,13 @@
 import type { Metadata } from "next"
 import Script from "next/script"
-import { Inter, Noto_Serif } from "next/font/google"
+import { Inter, Noto_Serif, Geist } from "next/font/google"
 import "./globals.css"
 import { Providers } from "@/components/Providers"
 import { Navbar } from "@/components/layout/Navbar"
 import { Footer } from "@/components/layout/Footer"
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const inter = Inter({
   variable: "--font-inter",
@@ -30,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="id" className={`${inter.variable} ${notoSerif.variable}`} suppressHydrationWarning>
+    <html lang="id" className={cn(inter.variable, notoSerif.variable, "font-sans", geist.variable)} suppressHydrationWarning>
       <head>
         {/* Inline script to apply saved dark mode & language before paint — prevents FOUC */}
         <script

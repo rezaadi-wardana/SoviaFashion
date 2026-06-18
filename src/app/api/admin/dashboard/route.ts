@@ -44,10 +44,26 @@ export async function GET() {
       const product = await prisma.product.findUnique({
         where: { id: item.productId },
       })
+      
+      let imageUrl = null
+      if (product?.images) {
+        try {
+          const parsed = JSON.parse(product.images)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            imageUrl = parsed[0]
+          } else if (typeof parsed === 'string') {
+            imageUrl = parsed
+          }
+        } catch {
+          imageUrl = product.images
+        }
+      }
+
       return {
         name: product?.name || "Unknown",
         sold: item._sum.quantity || 0,
         revenue: (item._sum.quantity || 0) * (product?.price || 0),
+        image: imageUrl
       }
     })
   )

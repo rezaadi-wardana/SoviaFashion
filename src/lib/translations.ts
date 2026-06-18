@@ -30,6 +30,10 @@ export const translations = {
     id: "Keranjang",
     en: "Cart",
   },
+  "nav.profile": {
+    id: "Profil",
+    en: "Profile",
+  },
   "nav.darkMode": {
     id: "Mode Gelap",
     en: "Dark Mode",
