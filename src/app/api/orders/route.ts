@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { resolvePrice, resolveBuyPrice } from "@/lib/utils"
 
 // @ts-expect-error midtrans-client does not have type definitions
 import midtransClient from "midtrans-client"
@@ -79,30 +80,48 @@ export async function POST(request: Request) {
   let orderItems: { productId: string; quantity: number; price: number; size: string | null; color: string | null }[]
 
   if (isDirect && items?.length > 0) {
-    orderItems = items.map((item: { productId: string; quantity: number; price: number; size?: string; color?: string }) => ({
-      productId: item.productId,
-      quantity: item.quantity,
-      price: item.price,
-      size: item.size || null,
-      color: item.color || null,
-    }))
+    const productIds = items.map((i: any) => i.productId)
+    const products = await prisma.product.findMany({
+      where: { id: { in: productIds } },
+      include: { variants: true },
+    })
+
+    orderItems = items.map((item: { productId: string; quantity: number; price: number; size?: string; color?: string }) => {
+      const product = products.find(p => p.id === item.productId)
+      const variant = product?.variants?.find((v: any) => v.name === item.color)
+      const buyPrice = resolveBuyPrice(variant, item.size)
+      return {
+        productId: item.productId,
+        quantity: item.quantity,
+        price: item.price,
+        buyPrice,
+        size: item.size || null,
+        color: item.color || null,
+      }
+    })
   } else {
     const cartItems = await prisma.cartItem.findMany({
       where: { userId: session.user.id },
-      include: { product: true },
+      include: { product: { include: { variants: true } } },
     })
 
     if (cartItems.length === 0) {
       return NextResponse.json({ error: "Cart is empty" }, { status: 400 })
     }
 
-    orderItems = cartItems.map((item) => ({
-      productId: item.productId,
-      quantity: item.quantity,
-      price: item.product.price,
-      size: item.size,
-      color: item.color,
-    }))
+    orderItems = cartItems.map((item) => {
+      const variant = item.product.variants?.find((v: any) => v.name === item.color)
+      const finalPrice = resolvePrice(item.product.price, variant, item.size)
+      const buyPrice = resolveBuyPrice(variant, item.size)
+      return {
+        productId: item.productId,
+        quantity: item.quantity,
+        price: finalPrice,
+        buyPrice,
+        size: item.size,
+        color: item.color,
+      }
+    })
   }
 
   const total = subtotal + shippingCost

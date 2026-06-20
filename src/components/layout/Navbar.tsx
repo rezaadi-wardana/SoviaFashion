@@ -207,7 +207,7 @@ export function Navbar() {
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className="px-4 py-2 bg-sovia-800 text-sovia-50 hover:bg-sovia-900 hover:transform-[scale(1.05)] active:transform-[scale(0.95)] transition duration-300 text-sm font-medium rounded-lg flex items-center gap-2"
+                    className="px-4 py-2 hover:bg-sovia-600 text-sovia-50 bg-sovia-700 hover:transform-[scale(1.05)] active:transform-[scale(0.95)] transition duration-300 text-sm font-medium rounded-lg flex items-center gap-2"
                   >
                     {t("nav.admin")}
                   </Link>

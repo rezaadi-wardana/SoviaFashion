@@ -6,7 +6,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
 import { Search, Filter, ShoppingCart, ArrowRight, Plus, Check, Loader2, X } from "lucide-react"
-import { formatPrice } from "@/lib/utils"
+import { formatPrice, resolvePrice, getProductPriceRange } from "@/lib/utils"
 import { toast } from "sonner"
 import { useLanguage } from "@/components/LanguageProvider"
 import { ProductCard } from "@/components/ProductCard"
@@ -55,7 +55,10 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
   const [addedToCart, setAddedToCart] = useState(false)
   const [storeWhatsApp, setStoreWhatsApp] = useState<string>("")
   const productImages = getProductImages(product.images)
-  const variantSizes = selectedVariant?.sizes ? selectedVariant.sizes.split(",").map(s => s.trim()) : []
+  const variantSizes = selectedVariant?.sizes ? selectedVariant.sizes.split(",").map(s => {
+    const [name, stockStr] = s.split(":")
+    return { name: name.trim(), stock: stockStr !== undefined ? parseInt(stockStr) : 0 }
+  }) : []
 
   useEffect(() => {
     async function fetchStoreProfile() {
@@ -125,15 +128,17 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
       return
     }
 
+    const finalPrice = resolvePrice(product.price, selectedVariant, selectedSize)
+
     const directOrderData = {
       productId: product.id,
       productName: product.name,
-      productPrice: product.price,
+      productPrice: finalPrice,
       productImage: selectedVariant?.image || productImages[0] || null,
       quantity,
       size: selectedSize || selectedVariant.sizes || null,
       color: selectedVariant.name,
-      price: product.price,
+      price: finalPrice,
     }
 
     sessionStorage.setItem("directOrder", JSON.stringify(directOrderData))
@@ -148,7 +153,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
 
     const message = `${t("catalog.whatsappMessage")} *${product.name}*${
       selectedVariant ? ` (Varian: ${selectedVariant.name})` : ""
-    } ${t("catalog.withPrice")} ${formatPrice(product.price)}. ${t("catalog.isAvailable")}`
+    } ${t("catalog.withPrice")} ${formatPrice(resolvePrice(product.price, selectedVariant as any, selectedSize))}. ${t("catalog.isAvailable")}`
 
     const url = `https://wa.me/${storeWhatsApp}?text=${encodeURIComponent(message)}`
     window.open(url, "_blank")
@@ -191,7 +196,16 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
               {product.name}
             </h2>
             <p className="text-sovia-900 text-xl font-serif mb-4">
-              {formatPrice(product.price)}
+              {(() => {
+                if (selectedVariant) {
+                  return formatPrice(resolvePrice(product.price, selectedVariant, selectedSize))
+                }
+                const range = getProductPriceRange(product)
+                if (range.hasRange) {
+                  return `${formatPrice(range.min)} - ${formatPrice(range.max)}`
+                }
+                return formatPrice(range.min)
+              })()}
             </p>
             <p className="text-sovia-600 mb-6">
               {product.description}
@@ -235,17 +249,29 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                   {t("catalog.selectSize")}
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  {variantSizes.map((size) => (
+                  {variantSizes.map((sizeObj) => (
                     <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`w-10 h-10 border rounded-lg transition-colors ${
-                        selectedSize === size
+                      key={sizeObj.name}
+                      onClick={() => { setSelectedSize(sizeObj.name); setQuantity(1); }}
+                      disabled={sizeObj.stock === 0}
+                      className={`min-w-[60px] px-3 py-1.5 flex flex-col items-center justify-center border rounded-lg transition-colors ${
+                        selectedSize === sizeObj.name
                           ? "border-sovia-900 bg-sovia-900 text-sovia-50"
-                          : "border-sovia-300 hover:border-sovia-900"
+                          : sizeObj.stock === 0
+                            ? "border-sovia-200 bg-sovia-100 text-sovia-400 cursor-not-allowed"
+                            : "border-sovia-300 hover:border-sovia-900"
                       }`}
                     >
-                      {size}
+                      <span className="font-medium leading-tight">{sizeObj.name}</span>
+                      <span className={`text-[10px] leading-tight mt-0.5 ${
+                        selectedSize === sizeObj.name 
+                          ? "text-sovia-200" 
+                          : sizeObj.stock === 0 
+                            ? "text-sovia-400" 
+                            : "text-sovia-500"
+                      }`}>
+                        {t("catalog.stock")}: {sizeObj.stock}
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -258,23 +284,32 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                   {t("catalog.quantity")}
                 </label>
                 <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-10 border border-sovia-300 rounded-lg hover:bg-sovia-100 transition-colors"
-                  >
-                    -
-                  </button>
-                  <span className="w-12 text-center text-lg font-medium">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(Math.min(selectedVariant.stock, quantity + 1))}
-                    disabled={quantity >= selectedVariant.stock}
-                    className="w-10 h-10 border border-sovia-300 rounded-lg hover:bg-sovia-100 transition-colors disabled:opacity-50"
-                  >
-                    +
-                  </button>
+                  {(() => {
+                    const availableStock = selectedSize 
+                      ? (variantSizes.find(s => s.name === selectedSize)?.stock || 0)
+                      : selectedVariant.stock;
+                    return (
+                      <>
+                        <button
+                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          className="w-10 h-10 border border-sovia-300 rounded-lg hover:bg-sovia-100 transition-colors"
+                        >
+                          -
+                        </button>
+                        <span className="w-12 text-center text-lg font-medium">{quantity}</span>
+                        <button
+                          onClick={() => setQuantity(Math.min(availableStock, quantity + 1))}
+                          disabled={quantity >= availableStock}
+                          className="w-10 h-10 border border-sovia-300 rounded-lg hover:bg-sovia-100 transition-colors disabled:opacity-50"
+                        >
+                          +
+                        </button>
+                      </>
+                    )
+                  })()}
                 </div>
                 <p className="text-sovia-500 text-sm mt-1">
-                  {t("catalog.stock")}: {selectedVariant.stock}
+                  {t("catalog.stock")}: {selectedSize ? (variantSizes.find(s => s.name === selectedSize)?.stock || 0) : selectedVariant.stock}
                 </p>
               </div>
             )}
@@ -388,7 +423,7 @@ function CatalogContent() {
     if (search && !product.name.toLowerCase().includes(search.toLowerCase())) return false
     if (selectedSizeFilter) {
       const hasSize = product.variants.some(v =>
-        v.sizes && v.sizes.split(",").map(s => s.trim().toUpperCase()).includes(selectedSizeFilter.toUpperCase())
+        v.sizes && v.sizes.split(",").map(s => s.split(":")[0].trim().toUpperCase()).includes(selectedSizeFilter.toUpperCase())
       )
       if (!hasSize) return false
     }

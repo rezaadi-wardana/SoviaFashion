@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { Plus, Search, Edit, Trash2 } from "lucide-react"
 import { toast } from "sonner"
+import LoadingOverlay from "@/components/ui/LoadingOverlay"
 
 interface Category {
   id: string
@@ -18,6 +19,7 @@ export default function AdminCategoriesPage() {
   const [search, setSearch] = useState("")
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [showModal, setShowModal] = useState(false)
+  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; categoryId: string | null }>({ isOpen: false, categoryId: null })
 
   useEffect(() => {
     fetchData()
@@ -36,8 +38,6 @@ export default function AdminCategoriesPage() {
   }
 
   async function handleDelete(categoryId: string) {
-    if (!confirm("Are you sure you want to delete this category?")) return
-
     try {
       const res = await fetch(`/api/categories/${categoryId}`, {
         method: "DELETE",
@@ -73,37 +73,40 @@ export default function AdminCategoriesPage() {
       />
     )
   }
+  if (loading) return <LoadingOverlay />
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-sovia-900 text-3xl font-serif mb-2">
-            Category Management
-          </h1>
-          <p className="text-sovia-700 text-sm">
-            Manage product categories for the Sovia collection.
-          </p>
+    <div className="space-y-6 max-w-[1400px] mx-auto animate-in fade-in duration-500">
+      <div className="sticky top-0 z-20 bg-sovia-50/90 backdrop-blur-sm pt-4 pb-4 -mt-4 -mx-4 px-4 mb-6 border-b border-sovia-200/50">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-sovia-900 text-3xl font-serif mb-2">
+              Category Management
+            </h1>
+            <p className="text-sovia-700 text-sm">
+              Manage product categories for the Sovia collection.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="px-6 py-3 bg-sovia-700 hover:bg-sovia-600 text-sovia-50 transition duration-300 text-sm font-medium rounded-lg flex items-center gap-2 active:transform-[scale(0.95)]"
+          >
+            <Plus className="w-4 h-4" />
+            New Category
+          </button>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="px-6 py-3 bg-sovia-600 text-white text-sm font-medium rounded-lg flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          New Category
-        </button>
-      </div>
 
-      <div className="flex gap-4 mb-8">
-        <div className="relative flex-1 max-w-md">
-          <input
-            type="text"
-            placeholder="Search categories..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 bg-sovia-200/30 rounded-lg text-sm"
-          />
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-sovia-700" />
+        <div className="flex gap-4 mt-6">
+          <div className="relative flex-1 max-w-md">
+            <input
+              type="text"
+              placeholder="Search categories..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-sovia-200/30 rounded-lg text-sm"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-sovia-700" />
+          </div>
         </div>
       </div>
 
@@ -127,13 +130,7 @@ export default function AdminCategoriesPage() {
             </tr>
           </thead>
           <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={4} className="py-8 text-center text-sovia-500">
-                  Loading...
-                </td>
-              </tr>
-            ) : filteredCategories.length === 0 ? (
+            {filteredCategories.length === 0 ? (
               <tr>
                 <td colSpan={4} className="py-8 text-center text-sovia-500">
                   No categories found
@@ -172,15 +169,15 @@ export default function AdminCategoriesPage() {
                           setEditingCategory(category)
                           setShowModal(true)
                         }}
-                        className="p-2 hover:bg-sovia-100 rounded"
+                        className="p-2 hover:bg-yellow-800 hover:text-yellow-50 text-sovia-700 rounded transition-all active:scale-95"
                       >
-                        <Edit className="w-4 h-4 text-sovia-600" />
+                        <Edit className="w-4 h-4 " />
                       </button>
                       <button
-                        onClick={() => handleDelete(category.id)}
-                        className="p-2 hover:bg-red-50 rounded"
+                        onClick={() => setConfirmModal({ isOpen: true, categoryId: category.id })}
+                        className="p-2 hover:bg-rose-900 hover:text-rose-50 text-sovia-700 rounded transition-all active:scale-95"
                       >
-                        <Trash2 className="w-4 h-4 text-accent-500" />
+                        <Trash2 className="w-4 h-4 " />
                       </button>
                     </div>
                   </td>
@@ -191,6 +188,40 @@ export default function AdminCategoriesPage() {
         </table>
         </div>
       </div>
+
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200">
+          <div className="bg-sovia-50 rounded-2xl w-full max-w-md overflow-hidden shadow-xl animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold mb-2 text-rose-600">
+                Hapus Kategori
+              </h2>
+              <p className="text-sm text-sovia-500 leading-relaxed">
+                Apakah Anda yakin ingin menghapus kategori ini? Aksi ini tidak dapat dibatalkan.
+              </p>
+            </div>
+            <div className="px-6 py-4 bg-sovia-180 border-t border-sovia-200 flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmModal({ isOpen: false, categoryId: null })}
+                className="px-4 py-2 text-sm font-medium text-sovia-700 hover:bg-sovia-100 bg-sovia-50 rounded-lg transition-colors border border-sovia-200 shadow-sm active:transform-[scale(0.95)]"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  if (confirmModal.categoryId) {
+                    handleDelete(confirmModal.categoryId);
+                  }
+                  setConfirmModal({ isOpen: false, categoryId: null });
+                }}
+                className="px-4 py-2 text-sm font-medium text-sovia-50 bg-rose-600 hover:bg-rose-700 rounded-lg shadow-sm transition-colors active:transform-[scale(0.95)]"
+              >
+                Ya, Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -241,12 +272,24 @@ function CategoryFormModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[#F3EFE6] rounded-lg p-8 max-w-md w-full">
-        <h2 className="text-sovia-900 text-2xl font-serif mb-6">
-          {category ? "Edit Category" : "New Category"}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="relative max-w-md w-full">
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute -top-3 -right-3 w-10 h-10 hover:bg-sovia-600 text-sovia-50 bg-sovia-700 rounded-full flex items-center justify-center shadow-lg z-50 transition-all text-2xl font-light active:transform-[scale(0.95)]"
+        >
+          ×
+        </button>
+
+        <div className="bg-[#F3EFE6] rounded-2xl flex flex-col max-h-[90vh] overflow-hidden relative">
+          <div className="px-6 md:px-8 py-5 border-b border-sovia-200 bg-[#F3EFE6] shrink-0 z-10 shadow-sm relative">
+            <h2 className="text-sovia-900 text-2xl font-serif">
+              {category ? "Edit Category" : "New Category"}
+            </h2>
+          </div>
+          <div className="p-6 md:p-8 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-sovia-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-sovia-400">
+            <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-sovia-700 text-sm block mb-2">Category Name</label>
             <input
@@ -320,24 +363,26 @@ function CategoryFormModal({
               </div>
             )}
           </div>
-          <div className="flex gap-4 pt-4">
+          <div className="flex gap-4 pt-4 mt-8 border-t border-sovia-200">
             <button
               type="button"
               onClick={onClose}
               disabled={isUploading || saving}
-              className="flex-1 py-3 border border-sovia-300 rounded-lg text-sovia-600 disabled:opacity-50"
+              className="flex-1 py-3 border border-sovia-300 rounded-lg text-sovia-600 disabled:opacity-50 hover:bg-sovia-100 transition-all active:transform-[scale(0.95)] font-medium"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={saving || isUploading}
-              className="flex-1 py-3 bg-sovia-600 text-white rounded-lg disabled:opacity-60"
+              className="flex-1 py-3 bg-sovia-700 hover:bg-sovia-600 text-sovia-50 rounded-lg disabled:opacity-60 transition-all active:transform-[scale(0.95)] font-medium"
             >
               {saving ? "Saving..." : isUploading ? "Uploading..." : "Save Category"}
             </button>
           </div>
         </form>
+          </div>
+        </div>
       </div>
     </div>
   )

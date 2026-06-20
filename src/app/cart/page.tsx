@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react"
 import Link from "next/link"
 import Image from "next/image"
 import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react"
-import { formatPrice } from "@/lib/utils"
+import { formatPrice, resolvePrice } from "@/lib/utils"
 import { toast } from "sonner"
 
 function getProductImages(images: string | null): string[] {
@@ -34,6 +34,7 @@ interface CartItem {
       stock: number
       sizes: string | null
       image: string | null
+      price?: number | null
     }[]
   }
 }
@@ -104,7 +105,11 @@ export default function CartPage() {
   }
 
   const subtotal = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
+    (sum, item) => {
+      const variant = item.product.variants?.find((v) => v.name === item.color)
+      const finalPrice = resolvePrice(item.product.price, variant, item.size)
+      return sum + finalPrice * item.quantity
+    },
     0
   )
   const shipping = items.length > 0 ? 25000 : 0
@@ -181,15 +186,15 @@ export default function CartPage() {
                       />
                     </div>
                     <div className="flex-1 sm:hidden">
-                      <h3 className="text-lg font-serif">
+                      <h3 className="text-sovia-900 font-serif">
                         {item.product.name}
                       </h3>
+                      <p className="text-sovia-900 font-medium text-sm">
+                        {formatPrice(resolvePrice(item.product.price, item.product.variants?.find((v) => v.name === item.color), item.size))}
+                      </p>
                       <p className="text-sm">
                         {item.color && `Variant: ${item.color}`}
                         {item.size && ` | Size: ${item.size}`}
-                      </p>
-                      <p className="text-base font-medium mt-2">
-                        {formatPrice(item.product.price)}
                       </p>
                     </div>
                   </div>
@@ -202,7 +207,12 @@ export default function CartPage() {
                       {item.size && ` | Size: ${item.size}`}
                     </p>
                     <p className="text-base font-medium mt-2">
-                      {formatPrice(item.product.price)}
+                      {formatPrice(resolvePrice(item.product.price, item.product.variants?.find((v) => v.name === item.color), item.size))}
+                    </p>
+                  </div>
+                  <div className="text-right ml-4 mt-2 sm:mt-0 flex flex-row sm:flex-col items-center justify-between sm:items-end w-full sm:w-auto">
+                    <p className="text-sovia-900 font-serif sm:mb-4">
+                      {formatPrice(resolvePrice(item.product.price, item.product.variants?.find((v) => v.name === item.color), item.size) * item.quantity)}
                     </p>
                   </div>
                   <div className="flex items-center justify-between sm:justify-end gap-4 mt-2 sm:mt-0 w-full sm:w-auto">

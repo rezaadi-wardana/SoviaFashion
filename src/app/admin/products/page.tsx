@@ -3,9 +3,10 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Plus, Search, Filter, Edit, Trash2, Eye } from "lucide-react"
+import { Plus, Edit, Trash2, Search, ChevronDown, PackageX, Loader2, ImagePlus, X, GripVertical, AlertCircle, Copy, Filter, Eye } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
+import LoadingOverlay from "@/components/ui/LoadingOverlay"
 
 const MAX_UPLOAD_SIZE = 3 * 1024 * 1024; // 3MB max after compression
 
@@ -30,9 +31,9 @@ const compressImage = async (file: File, maxWidth = 1080): Promise<File> => {
         canvas.height = height;
         const ctx = canvas.getContext("2d");
         if (!ctx) return reject(new Error("Gagal membuat canvas untuk kompresi gambar"));
-        
+
         ctx.drawImage(img, 0, 0, width, height);
-        
+
         // Always use WebP - supports transparency AND great compression
         canvas.toBlob(
           (blob) => {
@@ -100,9 +101,16 @@ export default function AdminProductsPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
+  const [selectedCategory, setSelectedCategory] = useState("all")
+  const [currentPage, setCurrentPage] = useState(1)
   const [editingProduct, setEditingProduct] = useState<Product | null>(null)
   const [showModal, setShowModal] = useState(false)
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null)
+  const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; productId: string | null }>({ isOpen: false, productId: null })
+
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [search, selectedCategory])
 
   useEffect(() => {
     fetchData()
@@ -122,8 +130,36 @@ export default function AdminProductsPage() {
         fetch("/api/products"),
         fetch("/api/categories"),
       ])
-      const productsData = await productsRes.json()
-      const categoriesData = await categoriesRes.json()
+
+      let productsData = []
+      let categoriesData = []
+
+      if (productsRes.ok) {
+        const text = await productsRes.text()
+        if (text) {
+          try {
+            productsData = JSON.parse(text)
+          } catch (e) {
+            console.error("Failed to parse products JSON:", e)
+          }
+        }
+      } else {
+        console.error("Products API error:", productsRes.status, await productsRes.text().catch(() => ""))
+      }
+
+      if (categoriesRes.ok) {
+        const text = await categoriesRes.text()
+        if (text) {
+          try {
+            categoriesData = JSON.parse(text)
+          } catch (e) {
+            console.error("Failed to parse categories JSON:", e)
+          }
+        }
+      } else {
+        console.error("Categories API error:", categoriesRes.status, await categoriesRes.text().catch(() => ""))
+      }
+
       setProducts(productsData)
       setCategories(categoriesData)
     } catch (error) {
@@ -134,8 +170,6 @@ export default function AdminProductsPage() {
   }
 
   async function handleDelete(productId: string) {
-    if (!confirm("Are you sure you want to delete this product?")) return
-
     try {
       const res = await fetch(`/api/products/${productId}`, {
         method: "DELETE",
@@ -151,9 +185,17 @@ export default function AdminProductsPage() {
     }
   }
 
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()) ||
-    p.sku?.toLowerCase().includes(search.toLowerCase())
+  const filteredProducts = products.filter((p) => {
+    const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.sku?.toLowerCase().includes(search.toLowerCase())
+    const matchesCategory = selectedCategory === "all" || p.category?.id === selectedCategory
+    return matchesSearch && matchesCategory
+  })
+
+  const itemsPerPage = 10
+  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage) || 1
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
   )
 
   if (viewingProduct) {
@@ -188,187 +230,200 @@ export default function AdminProductsPage() {
     )
   }
 
+  if (loading) return <LoadingOverlay />
+
   return (
     <div>
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-sovia-900 text-3xl font-serif mb-2">
-            Inventory Management
-          </h1>
-          <p className="text-sovia-700 text-sm">
-            Curate and manage the Sovia collection.
-          </p>
+      {/* Sticky Header Wrapper */}
+      <div className="sticky top-0 z-20 bg-sovia-50 backdrop-blur-sm pt-4 pb-4 -mt-4 -mx-4 px-4 mb-6 border-b border-sovia-200/50">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h1 className="text-sovia-900 text-3xl font-serif mb-2">
+              Manajemen Produk
+            </h1>
+            <p className="text-sovia-700 text-sm">
+              Kelola koleksi product dari Sovia Fashion
+            </p>
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="px-6 py-3 hover:bg-sovia-600 text-sovia-50 bg-sovia-700 text-sm font-medium rounded-lg flex items-center gap-2 transition-all active:scale-95"
+          >
+            <Plus className="w-4 h-4" />
+            New Product
+          </button>
         </div>
-        <button
-          onClick={() => setShowModal(true)}
-          className="px-6 py-3 bg-sovia-600 text-white text-sm font-medium rounded-lg flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" />
-          New Product
-        </button>
-      </div>
 
-      {/* Search and Filters */}
-      <div className="flex gap-4 mb-8">
-        <div className="relative flex-1 max-w-md">
-          <input
+        {/* Search and Filters */}
+        <div className="flex gap-4">
+          <div className="relative flex-1 max-w-md">
+            {/* <input
+              type="text"
+              placeholder="Search by name, SKU, or category"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 bg-sovia-50 border border-sovia-200/50 rounded-lg text-sm focus:outline-none focus:border-sovia-400 transition-colors"
+            />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-sovia-700" /> */}
+             <input
             type="text"
-            placeholder="Search by name, SKU, or category"
+            placeholder="Search categories..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-10 pr-4 py-3 bg-sovia-200/30 rounded-lg text-sm"
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-sovia-700" />
+          </div>
+          <CategorySelect
+            categories={categories}
+            value={selectedCategory}
+            onChange={setSelectedCategory}
+          />
         </div>
-        <button className="px-4 py-3 border-b border-sovia-300/40 flex items-center gap-2 text-sovia-600 text-sm font-medium">
-          <Filter className="w-4 h-4" />
-          Filters
-        </button>
       </div>
 
       {/* Products Table */}
       <div className="bg-[#F3EFE6] rounded-lg shadow-lg overflow-hidden">
         <div className="overflow-x-auto w-full">
-        <table className="w-full min-w-[800px]">
-          <thead>
-            <tr className="border-b border-sovia-200/50">
-              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
-                PRODUCT
-              </th>
-              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
-                SKU
-              </th>
-              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
-                CATEGORY
-              </th>
-              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
-                PRICE
-              </th>
-              <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
-                STATUS
-              </th>
-              <th className="text-right py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
-                ACTIONS
-              </th>
-            </tr>
-          </thead>
+          <table className="w-full min-w-[800px]">
+            <thead>
+              <tr className="border-b border-sovia-200/50">
+                <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
+                  PRODUCT
+                </th>
+                <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
+                  SKU
+                </th>
+                <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
+                  CATEGORY
+                </th>
+                <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
+                  PRICE
+                </th>
+                <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
+                  STOCK
+                </th>
+                <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
+                  STATUS
+                </th>
+                <th className="text-right py-4 px-4 text-sovia-700 text-xs font-semibold uppercase whitespace-nowrap">
+                  ACTIONS
+                </th>
+              </tr>
+            </thead>
           <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={6} className="py-8 text-center text-sovia-500">
-                  Loading...
-                </td>
-              </tr>
-            ) : filteredProducts.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="py-8 text-center text-sovia-500">
-                  No products found
-                </td>
-              </tr>
-            ) : (
-              filteredProducts.map((product) => (
-                <tr 
-                  key={product.id} 
-                  className="border-b border-sovia-100 cursor-pointer hover:bg-sovia-50"
-                  onClick={() => setViewingProduct(product)}
-                >
-                  <td className="py-5 px-4">
-                    <div className="flex items-center gap-4">
-                      <Link 
-                        href={`/catalog?product=${product.id}`}
-                        className="w-12 h-16 bg-sovia-200 rounded-sm flex-shrink-0 overflow-hidden hover:opacity-80"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <img
-                          src={
-                            getProductImages(product.images)[0] ||
-                            "https://placehold.co/48x64/F3EFE6/3C3228?text=Product"
-                          }
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </Link>
-                      <div>
-                        <Link 
-                          href={`/catalog?product=${product.id}`}
-                          className="text-sovia-900 text-base font-semibold hover:text-sovia-600"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {product.name}
-                        </Link>
-                        <p className="text-sovia-700 text-xs">
-                          {product.variants?.length || 0} variants
-                        </p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-5 px-4 text-sovia-700 text-sm">
-                    {product.sku || "-"}
-                  </td>
-                  <td className="py-5 px-4">
-                    <span className="px-3 py-1 bg-sovia-400/20 rounded-xl text-xs">
-                      {product.category?.name || "Uncategorized"}
-                    </span>
-                  </td>
-                  <td className="py-5 px-4 text-sovia-900 text-sm font-semibold">
-                    {formatPrice(product.price)}
-                  </td>
-                  <td className="py-5 px-4">
-                    <span
-                      className={`whitespace-nowrap px-3 py-1 rounded-xl text-xs ${
-                        (product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 10
-                          ? "bg-sovia-600 text-sovia-50"
-                          : (product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 0
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-sovia-400 text-sovia-50"
-                      }`}
-                    >
-                      {(product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 10
-                        ? "In Stock"
-                        : (product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 0
-                        ? "Low Stock"
-                        : "Out of Stock"}
-                    </span>
-                  </td>
-                  <td className="py-5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => {
-                          setEditingProduct(product)
-                          setShowModal(true)
-                        }}
-                        className="p-2 hover:bg-sovia-100 rounded"
-                      >
-                        <Edit className="w-4 h-4 text-sovia-600" />
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="p-2 hover:bg-red-50 rounded"
-                      >
-                        <Trash2 className="w-4 h-4 text-accent-500" />
-                      </button>
-                    </div>
+              {paginatedProducts.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="py-8 text-center text-sovia-500">
+                    No products found
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                paginatedProducts.map((product) => (
+                  <tr
+                    key={product.id}
+                    className="border-b border-sovia-100 cursor-pointer hover:bg-sovia-50"
+                    onClick={() => setViewingProduct(product)}
+                  >
+                    <td className="py-5 px-4">
+                      <div className="flex items-center gap-4">
+                        <Link
+                          href={`/catalog?product=${product.id}`}
+                          className="w-12 h-16 bg-sovia-200 rounded-sm flex-shrink-0 overflow-hidden hover:opacity-80"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <img
+                            src={
+                              getProductImages(product.images)[0] ||
+                              "https://placehold.co/48x64/F3EFE6/3C3228?text=Product"
+                            }
+                            alt={product.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </Link>
+                        <div>
+                          <Link
+                            href={`/catalog?product=${product.id}`}
+                            className="text-sovia-900 text-base font-semibold hover:text-sovia-600"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            {product.name}
+                          </Link>
+                          <p className="text-sovia-700 text-xs">
+                            {product.variants?.length || 0} variants
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="py-5 px-4 text-sovia-700 text-sm">
+                      {product.sku || "-"}
+                    </td>
+                    <td className="py-5 px-4">
+                      <span className="px-3 py-1 bg-sovia-400/20 rounded-xl text-xs">
+                        {product.category?.name || "Uncategorized"}
+                      </span>
+                    </td>
+                    <td className="py-5 px-4 text-sovia-900 text-sm font-semibold">
+                      {formatPrice(product.price)}
+                    </td>
+                    <td className="py-5 px-4 text-sovia-700 text-sm">
+                      {product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0}
+                    </td>
+                    <td className="py-5 px-4">
+                      <span
+                        className={`whitespace-nowrap px-3 py-1 rounded-xl text-xs ${(product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 10
+                          ? "bg-sovia-600 text-sovia-50"
+                          : (product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 0
+                            ? "bg-yellow-100 text-yellow-700"
+                            : "bg-sovia-400 text-sovia-50"
+                          }`}
+                      >
+                        {(product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 10
+                          ? "In Stock"
+                          : (product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0) > 0
+                            ? "Low Stock"
+                            : "Out of Stock"}
+                      </span>
+                    </td>
+                    <td className="py-5 px-4 text-right" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex justify-end gap-2">
+                        <button
+                          onClick={() => {
+                            setEditingProduct(product)
+                            setShowModal(true)
+                          }}
+                          className="p-2 hover:bg-yellow-900 hover:text-sovia-50 rounded transition-all active:scale-95"
+                        >
+                          <Edit className="w-4 h-4 dark:text-sovia-700" />
+                        </button>
+                        <button
+                          onClick={() => setConfirmModal({ isOpen: true, productId: product.id })}
+                          className="p-2 hover:bg-rose-900 hover:text-sovia-50 rounded transition-all active:scale-95"
+                        >
+                          <Trash2 className="w-4 h-4 dark:text-sovia-700" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
 
         <div className="px-4 py-4 border-t border-sovia-200/30 flex justify-between items-center">
           <p className="text-sovia-700 text-xs">
-            Showing 1 to {filteredProducts.length} of {products.length} items
+            Showing {filteredProducts.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredProducts.length)} of {filteredProducts.length} items
           </p>
           <div className="flex gap-2">
-            {[1, 2, 3].map((page) => (
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
               <button
                 key={page}
-                className={`w-8 h-8 rounded-xl text-xs ${
-                  page === 1
-                    ? "bg-accent-300/30 text-sovia-600"
-                    : "bg-sovia-200 text-sovia-700"
-                }`}
+                onClick={() => setCurrentPage(page)}
+                className={`w-8 h-8 rounded-xl text-xs transition-all active:scale-95 ${page === currentPage
+                  ? "bg-sovia-700 text-sovia-50 hover:bg-sovia-600"
+                  : "bg-sovia-200 text-sovia-800 hover:bg-sovia-500"
+                  }`}
               >
                 {page}
               </button>
@@ -376,6 +431,40 @@ export default function AdminProductsPage() {
           </div>
         </div>
       </div>
+
+      {confirmModal.isOpen && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200">
+          <div className="bg-sovia-50 rounded-2xl w-full max-w-md overflow-hidden shadow-xl animate-in zoom-in-95 duration-200">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold mb-2 text-rose-600">
+                Hapus Produk
+              </h2>
+              <p className="text-sm text-sovia-500 leading-relaxed">
+                Apakah Anda yakin ingin menghapus produk ini? Semua data varian dan gambar yang terkait juga akan dihapus. Aksi ini tidak dapat dibatalkan.
+              </p>
+            </div>
+            <div className="px-6 py-4 bg-sovia-50 border-t border-sovia-100 flex justify-end gap-3">
+              <button
+                onClick={() => setConfirmModal({ isOpen: false, productId: null })}
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors border border-sovia-200 shadow-sm active:transform-[scale(0.95)] ${"text-sovia-700 hover:bg-sovia-100 bg-sovia-50"}`}
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  if (confirmModal.productId) {
+                    handleDelete(confirmModal.productId);
+                  }
+                  setConfirmModal({ isOpen: false, productId: null });
+                }}
+                className="px-4 py-2 text-sm font-medium text-sovia-50 bg-rose-600 hover:bg-rose-700 rounded-lg shadow-sm transition-colors active:transform-[scale(0.95)]"
+              >
+                Ya, Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -401,8 +490,20 @@ function ProductFormModal({
     categoryId: product?.category?.id || "",
     isFeatured: product?.isFeatured || false,
   })
-  const [variants, setVariants] = useState<{id?: string, name: string, stock: number, image: string, sizes: string, tryOnImage?: string}[]>(
-    product?.variants?.map(v => ({ id: v.id, name: v.name, stock: v.stock, image: v.image || "", sizes: v.sizes || "", tryOnImage: v.tryOnImage || "" })) || [{ name: "", stock: 0, image: "", sizes: "", tryOnImage: "" }]
+  const [variants, setVariants] = useState<{ id?: string, name: string, stock: number, price: number | "", buyPrice: number | "", image: string, sizesList: { name: string, stock: number, price: number | "", buyPrice: number | "" }[], tryOnImage?: string }[]>(
+    product?.variants?.map((v: any) => {
+      let sizesList: { name: string, stock: number, price: number | "", buyPrice: number | "" }[] = []
+      if (v.sizes) {
+        sizesList = v.sizes.split(",").filter(Boolean).map((s: string) => {
+          const [name, stockStr, priceStr, buyPriceStr] = s.split(":")
+          return { name: name.trim(), stock: stockStr !== undefined ? parseInt(stockStr) : 0, price: priceStr !== undefined && priceStr !== "" ? parseFloat(priceStr) : "", buyPrice: buyPriceStr !== undefined && buyPriceStr !== "" ? parseFloat(buyPriceStr) : "" }
+        })
+      }
+      if (sizesList.length === 0) {
+        sizesList = [{ name: "All Size", stock: v.stock || 0, price: v.price || "", buyPrice: v.buyPrice || "" }]
+      }
+      return { id: v.id, name: v.name, stock: v.stock, price: v.price || "", buyPrice: v.buyPrice || "", image: v.image || "", sizesList, tryOnImage: v.tryOnImage || "" }
+    }) || [{ name: "", stock: 0, price: "", buyPrice: "", image: "", sizesList: [{ name: "", stock: 0, price: "", buyPrice: "" }], tryOnImage: "" }]
   )
   const [saving, setSaving] = useState(false)
 
@@ -417,8 +518,30 @@ function ProductFormModal({
       const productData = {
         ...formData,
         images: JSON.stringify(formData.images),
-        variants: variants.filter(v => v.name.trim() !== ""),
+        variants: variants.filter(v => v.name.trim() !== "").map(v => {
+          const validSizes = v.sizesList ? v.sizesList.filter(sz => sz.name.trim() !== "") : [];
+          const hasSizes = validSizes.length > 0;
+          const totalStock = hasSizes ? validSizes.reduce((sum, sz) => sum + sz.stock, 0) : v.stock;
+          const sizesStr = hasSizes ? validSizes.map(sz => `${sz.name.trim()}:${sz.stock}:${sz.price !== "" ? sz.price : ""}:${sz.buyPrice !== "" ? sz.buyPrice : ""}`).join(",") : "";
+          return { ...v, stock: totalStock, sizes: sizesStr, price: v.price !== "" ? (v.price as number) : null, buyPrice: v.buyPrice !== "" ? (v.buyPrice as number) : null };
+        }),
       }
+
+      // Auto-calculate minimum selling price
+      let minSellingPrice = Infinity;
+      productData.variants.forEach((v: any) => {
+        if (v.price !== null) minSellingPrice = Math.min(minSellingPrice, v.price);
+        if (v.sizes) {
+          v.sizes.split(",").forEach((s: string) => {
+            const parts = s.split(":");
+            if (parts.length >= 3 && parts[2] !== "") {
+              minSellingPrice = Math.min(minSellingPrice, parseFloat(parts[2]));
+            }
+          });
+        }
+      });
+      if (minSellingPrice === Infinity) minSellingPrice = 0;
+      productData.price = minSellingPrice;
 
       const res = await fetch(url, {
         method,
@@ -428,15 +551,15 @@ function ProductFormModal({
 
       if (res.ok) {
         const savedProduct = await res.json()
-        
+
         if (product) {
           await fetch(`/api/products/${product.id}/variants`, {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ variantId: "all" }),
-          }).catch(() => {})
-          
-          for (const v of variants.filter(v => v.name.trim() !== "")) {
+          }).catch(() => { })
+
+          for (const v of productData.variants) {
             await fetch(`/api/products/${product.id}/variants`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -444,7 +567,7 @@ function ProductFormModal({
             })
           }
         }
-        
+
         toast.success(product ? "Product updated" : "Product created")
         onSave()
       } else {
@@ -458,379 +581,432 @@ function ProductFormModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[#F3EFE6] rounded-lg p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <h2 className="text-sovia-900 text-2xl font-serif mb-6">
-          {product ? "Edit Product" : "New Product"}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-sovia-700 text-sm block mb-2">Product Name</label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
-              required
-            />
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="relative max-w-2xl w-full">
+        {/* Tombol Close overlap */}
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute -top-3 -right-3 w-10 h-10 hover:bg-sovia-600 text-sovia-50 bg-sovia-700 rounded-full flex items-center justify-center shadow-lg z-50 transition-all text-2xl font-light active:transform-[scale(0.95)]"
+        >
+          ×
+        </button>
+
+        <div className="bg-[#F3EFE6] rounded-2xl flex flex-col max-h-[90vh] overflow-hidden relative">
+          <div className="px-6 md:px-8 py-5 border-b border-sovia-200 bg-[#F3EFE6] shrink-0 z-10 shadow-sm relative">
+            <h2 className="text-sovia-900 text-2xl font-serif">
+              {product ? "Edit Product" : "New Product"}
+            </h2>
           </div>
-          <div>
-            <label className="text-sovia-700 text-sm block mb-2">Description</label>
-            <textarea
-              value={formData.description}
-              onChange={(e) =>
-                setFormData({ ...formData, description: e.target.value })
-              }
-              rows={4}
-              className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
-            />
-          </div>
-          <div>
-            <label className="text-sovia-700 text-sm block mb-2">Price (Rp)</label>
-            <input
-              type="number"
-              value={formData.price || ""}
-              onChange={(e) =>
-                setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })
-              }
-              className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
-              required
-              min="0"
-              step="1000"
-            />
-          </div>
-          <div>
-            <label className="text-sovia-700 text-sm block mb-2">
-              Product Images (max 5)
-            </label>
-            <div className="grid grid-cols-5 gap-2 mb-2">
-              {formData.images.map((img, idx) => (
-                <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-sovia-200">
-                  <img src={img} alt={`Image ${idx + 1}`} className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newImages = formData.images.filter((_, i) => i !== idx)
-                      setFormData({ ...formData, images: newImages })
-                    }}
-                    className="absolute top-0 right-0 w-5 h-5 bg-accent-500 text-white text-xs rounded-bl"
-                  >
-                    ×
-                  </button>
-                  <span className="absolute bottom-0 left-0 bg-sovia-900/70 text-white text-xs px-1">
-                    {idx + 1}
-                  </span>
-                </div>
-              ))}
-            </div>
-            {formData.images.length < 5 && (
+          <div className="p-6 md:p-8 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-sovia-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-sovia-400">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="text-sovia-700 text-sm block mb-2">Product Name</label>
               <input
-                type="file"
-                accept="image/*"
-                onChange={async (e) => {
-                  let file = e.target.files?.[0]
-                  if (file && formData.images.length < 5) {
-                    const loadingToast = toast.loading("Mengunggah gambar...");
-                    try {
-                      file = await compressImage(file, 1080);
-                      const formDataUpload = new FormData()
-                      formDataUpload.append("file", file)
-                      const res = await fetch("/api/upload", {
-                        method: "POST",
-                        body: formDataUpload,
-                      })
-                      const data = await res.json()
-                      if (data.url) {
-                        setFormData({ ...formData, images: [...formData.images, data.url] })
-                        toast.success("Gambar berhasil diunggah", { id: loadingToast });
-                      } else {
-                        throw new Error(data.error || "Upload failed");
-                      }
-                    } catch (error) {
-                      console.error("Upload failed:", error)
-                      toast.error("Gagal mengunggah gambar", { id: loadingToast });
-                    }
-                  }
-                }}
-                className="w-full py-2 px-4 bg-sovia-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-white file:cursor-pointer"
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
+                required
               />
-            )}
-          </div>
-          <div>
-            <label className="text-sovia-700 text-sm block mb-2">SKU (optional)</label>
-            <input
-              type="text"
-              value={formData.sku}
-              onChange={(e) =>
-                setFormData({ ...formData, sku: e.target.value })
-              }
-              className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
-              placeholder="SKU-001"
-            />
-          </div>
-          <div>
-            <label className="text-sovia-700 text-sm block mb-2">Category</label>
-            <select
-              value={formData.categoryId}
-              onChange={(e) =>
-                setFormData({ ...formData, categoryId: e.target.value })
-              }
-              className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
-              required
-            >
-              <option value="">Select category</option>
-              {categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="isFeatured"
-              checked={formData.isFeatured}
-              onChange={(e) =>
-                setFormData({ ...formData, isFeatured: e.target.checked })
-              }
-              className="w-4 h-4"
-            />
-            <label htmlFor="isFeatured" className="text-sovia-700 text-sm">
-              Featured Product
-            </label>
-          </div>
-          
-          <div>
-            <label className="text-sovia-700 text-sm block mb-2 font-semibold">
-              Product Variants (min 1, max 10) *
-            </label>
-            <p className="text-sovia-500 text-xs mb-4">
-              Each variant has its own stock, sizes, and optional image. At least 1 variant is required.
-            </p>
-            <div className="space-y-4 mb-4">
-              {variants.map((v, idx) => (
-                <div key={idx} className="p-4 bg-sovia-50 rounded-lg border border-sovia-200">
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-sm font-medium text-sovia-700">Variant #{idx + 1}</span>
-                    {variants.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => setVariants(variants.filter((_, i) => i !== idx))}
-                        className="p-1 bg-red-100 text-accent-500 rounded hover:bg-red-200 text-xs"
-                      >
-                        Remove
-                      </button>
-                    )}
+            </div>
+            <div>
+              <label className="text-sovia-700 text-sm block mb-2">Description</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
+                rows={4}
+                className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
+              />
+            </div>
+            {/* Removed Global Price Input */}
+            <div>
+              <label className="text-sovia-700 text-sm block mb-2">
+                Product Images (max 5)
+              </label>
+              <div className="grid grid-cols-5 gap-2 mb-2">
+                {formData.images.map((img, idx) => (
+                  <div key={idx} className="relative w-20 h-20 rounded-lg overflow-hidden border border-sovia-200">
+                    <img src={img} alt={`Image ${idx + 1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newImages = formData.images.filter((_, i) => i !== idx)
+                        setFormData({ ...formData, images: newImages })
+                      }}
+                      className="absolute top-0 right-0 w-5 h-5 hover:bg-sovia-600 text-sovia-50 bg-sovia-700 rounded-bl"
+                    >
+                      ×
+                    </button>
+                    <span className="absolute bottom-0 left-0 bg-sovia-900/70 text-white text-xs px-1">
+                      {idx + 1}
+                    </span>
                   </div>
-                  
-                  <div className="space-y-3">
-                    <div>
-                      <label className="text-sovia-600 text-xs block mb-1">Variant Name *</label>
-                      <input
-                        type="text"
-                        placeholder="e.g., Size S, Size M, Color Red, Color Blue"
-                        value={v.name}
-                        onChange={(e) => {
-                          const newVars = [...variants]
-                          newVars[idx] = { ...newVars[idx], name: e.target.value }
-                          setVariants(newVars)
-                        }}
-                        className="w-full py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm"
-                        required
-                      />
+                ))}
+              </div>
+              {formData.images.length < 5 && (
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    let file = e.target.files?.[0]
+                    if (file && formData.images.length < 5) {
+                      const loadingToast = toast.loading("Mengunggah gambar...");
+                      try {
+                        file = await compressImage(file, 1080);
+                        const formDataUpload = new FormData()
+                        formDataUpload.append("file", file)
+                        const res = await fetch("/api/upload", {
+                          method: "POST",
+                          body: formDataUpload,
+                        })
+                        const data = await res.json()
+                        if (data.url) {
+                          setFormData({ ...formData, images: [...formData.images, data.url] })
+                          toast.success("Gambar berhasil diunggah", { id: loadingToast });
+                        } else {
+                          throw new Error(data.error || "Upload failed");
+                        }
+                      } catch (error) {
+                        console.error("Upload failed:", error)
+                        toast.error("Gagal mengunggah gambar", { id: loadingToast });
+                      }
+                    }
+                  }}
+                  className="w-full py-2 px-4 bg-sovia-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-white file:cursor-pointer"
+                />
+              )}
+            </div>
+            <div>
+              <label className="text-sovia-700 text-sm block mb-2">SKU (optional)</label>
+              <input
+                type="text"
+                value={formData.sku}
+                onChange={(e) =>
+                  setFormData({ ...formData, sku: e.target.value })
+                }
+                className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
+                placeholder="SKU-001"
+              />
+            </div>
+            <div>
+              <label className="text-sovia-700 text-sm block mb-2">Category</label>
+              <select
+                value={formData.categoryId}
+                onChange={(e) =>
+                  setFormData({ ...formData, categoryId: e.target.value })
+                }
+                className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
+                required
+              >
+                <option value="">Select category</option>
+                {categories.map((cat) => (
+                  <option key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+
+            <div>
+              <label className="text-sovia-700 text-sm block mb-2 font-semibold">
+                Product Variants (min 1, max 10) *
+              </label>
+              <p className="text-sovia-500 text-xs mb-4">
+                Each variant has its own stock, sizes, and optional image. At least 1 variant is required.
+              </p>
+              <div className="space-y-4 mb-4">
+                {variants.map((v, idx) => (
+                  <div key={idx} className="p-4 bg-sovia-100 rounded-lg border border-sovia-200">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-sm text-sovia-700">Variant #{idx + 1}</span>
+                      {variants.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setVariants(variants.filter((_, i) => i !== idx))}
+                          className="px-2 py-0.5 bg-rose-500 font-medium text-rose-50 rounded-md hover:bg-rose-600 text-sm transition duration-300 active:transform-[scale(0.95)]"
+                        >
+                          Remove
+                        </button>
+                      )}
                     </div>
-                    
-                    <div className="grid grid-cols-2 gap-3">
+
+                    <div className="space-y-3">
                       <div>
-                        <label className="text-sovia-600 text-xs block mb-1">Stock *</label>
+                        <label className="text-sovia-600 text-xs block mb-1">Variant Name *</label>
                         <input
-                          type="number"
-                          placeholder="0"
-                          value={v.stock || ""}
+                          type="text"
+                          placeholder="e.g., Size S, Size M, Color Red, Color Blue"
+                          value={v.name}
                           onChange={(e) => {
                             const newVars = [...variants]
-                            newVars[idx] = { ...newVars[idx], stock: parseInt(e.target.value) || 0 }
+                            newVars[idx] = { ...newVars[idx], name: e.target.value }
                             setVariants(newVars)
                           }}
-                          className="w-full py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm"
-                          min="0"
+                          className="w-full py-2 px-3 rounded-lg text-sm border bg-[#F3EFE6]"
+                          required
                         />
                       </div>
-                      <div>
-                        <label className="text-sovia-600 text-xs block mb-1">Sizes (optional)</label>
-                        <div className="flex gap-2 flex-wrap">
-                          {["S", "M", "L", "XL", "XXL"].map((size) => {
-                            const selectedSizes = v.sizes ? v.sizes.split(",").filter(Boolean) : []
-                            const isChecked = selectedSizes.includes(size)
-                            return (
-                              <label key={size} className="flex items-center gap-1 cursor-pointer">
-                                <input
-                                  type="checkbox"
-                                  checked={isChecked}
-                                  onChange={(e) => {
-                                    const newVars = [...variants]
-                                    let currentSizes = newVars[idx].sizes ? newVars[idx].sizes.split(",").filter(Boolean) : []
-                                    if (e.target.checked) {
-                                      currentSizes = [...currentSizes, size]
-                                    } else {
-                                      currentSizes = currentSizes.filter((s) => s !== size)
-                                    }
-                                    newVars[idx] = { ...newVars[idx], sizes: currentSizes.join(",") }
-                                    setVariants(newVars)
+                      
+                      {/* Variant Prices Removed - Enforced at Size Level */}
+
+                      <div className="grid grid-cols-1 gap-3">
+                        <div>
+                          <div className="flex justify-between items-center mb-1">
+                            <div className="space-y-3">
+                              {/* Desktop Headers */}
+                              <div className="hidden md:flex gap-2 px-1">
+                                <div className="flex-1 text-sovia-600 text-xs">Size Name</div>
+                                <div className="w-24 text-sovia-600 text-xs">Stock</div>
+                                <div className="w-32 text-sovia-600 text-xs">Harga Jual</div>
+                                <div className="w-32 text-sovia-600 text-xs">Harga Beli</div>
+                                {v.sizesList.length > 1 && <div className="w-6"></div>}
+                              </div>
+                              
+                              {v.sizesList.map((sizeObj, sizeIdx) => (
+                                <div key={sizeIdx} className="flex flex-col md:flex-row gap-2 md:items-center bg-[#F3EFE6] p-3 md:p-0 md:bg-transparent rounded-lg">
+                                  <div className="flex-1">
+                                    <span className="md:hidden text-sovia-600 text-xs block mb-1">Size Name</span>
+                                    <input
+                                      type="text"
+                                      placeholder="e.g. S, 42"
+                                      value={sizeObj.name}
+                                      onChange={(e) => {
+                                        const newVars = [...variants];
+                                        newVars[idx].sizesList[sizeIdx].name = e.target.value;
+                                        setVariants(newVars);
+                                      }}
+                                      className="w-full py-1.5 px-3 bg-sovia-100 md:bg-[#F3EFE6] rounded-lg text-sm border md:border-0"
+                                    />
+                                  </div>
+                                  <div className="flex flex-wrap md:flex-nowrap gap-2 items-end">
+                                    <div className="w-20 md:w-24 flex-1 md:flex-none">
+                                      <span className="md:hidden text-sovia-600 text-xs block mb-1">Stock</span>
+                                      <input
+                                        type="number"
+                                        placeholder="0"
+                                        value={sizeObj.stock === 0 ? "" : sizeObj.stock}
+                                        onChange={(e) => {
+                                          const newVars = [...variants];
+                                          newVars[idx].sizesList[sizeIdx].stock = parseInt(e.target.value) || 0;
+                                          setVariants(newVars);
+                                        }}
+                                        className="w-full py-1.5 px-3 bg-sovia-100 md:bg-[#F3EFE6] rounded-lg text-sm border md:border-0"
+                                        min="0"
+                                      />
+                                    </div>
+                                    <div className="w-28 md:w-32 flex-1 md:flex-none">
+                                      <span className="md:hidden text-sovia-600 text-xs block mb-1">Harga Jual</span>
+                                      <input
+                                        type="number"
+                                        placeholder="Rp"
+                                        value={sizeObj.price}
+                                        onChange={(e) => {
+                                          const newVars = [...variants];
+                                          newVars[idx].sizesList[sizeIdx].price = e.target.value === "" ? "" : parseFloat(e.target.value);
+                                          setVariants(newVars);
+                                        }}
+                                        className="w-full py-1.5 px-3 bg-sovia-100 md:bg-[#F3EFE6] rounded-lg text-sm border md:border-0"
+                                      />
+                                    </div>
+                                    <div className="w-28 md:w-32 flex-1 md:flex-none">
+                                      <span className="md:hidden text-sovia-600 text-xs block mb-1">Harga Beli</span>
+                                      <input
+                                        type="number"
+                                        placeholder="Rp"
+                                        value={sizeObj.buyPrice}
+                                        onChange={(e) => {
+                                          const newVars = [...variants];
+                                          newVars[idx].sizesList[sizeIdx].buyPrice = e.target.value === "" ? "" : parseFloat(e.target.value);
+                                          setVariants(newVars);
+                                        }}
+                                        className="w-full py-1.5 px-3 bg-sovia-100 md:bg-[#F3EFE6] rounded-lg text-sm border md:border-0"
+                                      />
+                                    </div>
+                                    {v.sizesList.length > 1 && (
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const newVars = [...variants];
+                                          newVars[idx].sizesList = newVars[idx].sizesList.filter((_, i) => i !== sizeIdx);
+                                          setVariants(newVars);
+                                        }}
+                                        className="text-red-500 hover:text-red-700 font-bold px-2 py-1.5 md:py-0 shrink-0"
+                                      >
+                                        ×
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                              <div className="flex justify-between items-center mt-2">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newVars = [...variants];
+                                    newVars[idx].sizesList = [...newVars[idx].sizesList, { name: "", stock: 0, price: "", buyPrice: "" }];
+                                    setVariants(newVars);
                                   }}
-                                  className="w-4 h-4"
-                                />
-                                <span className="text-sm text-sovia-700">{size}</span>
-                              </label>
-                            )
-                          })}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div>
-                        <label className="text-sovia-600 text-xs block mb-1">Variant Image (optional)</label>
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={async (e) => {
-                              let file = e.target.files?.[0]
-                              if (file) {
-                                const loadingToast = toast.loading("Mengunggah gambar varian...");
-                                try {
-                                  file = await compressImage(file, 1080);
-                                  const formDataUpload = new FormData()
-                                  formDataUpload.append("file", file)
-                                  const res = await fetch("/api/upload", {
-                                    method: "POST",
-                                    body: formDataUpload,
-                                  })
-                                  const data = await res.json()
-                                  if (data.url) {
-                                    const newVars = [...variants]
-                                    newVars[idx] = { ...newVars[idx], image: data.url }
-                                    setVariants(newVars)
-                                    toast.success("Gambar varian berhasil diunggah", { id: loadingToast });
-                                  } else {
-                                    throw new Error(data.error || "Upload failed");
-                                  }
-                                } catch (error) {
-                                  console.error("Upload failed:", error)
-                                  toast.error("Gagal mengunggah gambar varian", { id: loadingToast });
-                                }
-                              }
-                            }}
-                            className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-white max-w-[200px] overflow-hidden text-ellipsis"
-                          />
-                          {v.image && (
-                            <div className="relative w-12 h-12 shrink-0">
-                              <img src={v.image} alt="Variant" className="w-full h-full object-cover rounded" />
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const newVars = [...variants]
-                                  newVars[idx] = { ...newVars[idx], image: "" }
-                                  setVariants(newVars)
-                                }}
-                                className="absolute -top-2 -right-2 w-5 h-5 bg-accent-500 text-white rounded-full text-xs flex items-center justify-center"
-                              >
-                                ×
-                              </button>
+                                  className="text-xs px-2 py-1 bg-sovia-200 font-medium text-sovia-800 rounded-md hover:bg-sovia-300 transition duration-300 active:transform-[scale(0.95)]"
+                                >
+                                  + Add Size
+                                </button>
+                                <span className="text-[10px] text-sovia-500 text-right">
+                                  Total Stock: {v.sizesList.reduce((sum, sz) => sum + sz.stock, 0)}
+                                </span>
+                              </div>
                             </div>
-                          )}
+                          </div>
                         </div>
                       </div>
 
-                      <div>
-                        <label className="text-sovia-600 text-xs block mb-1">Try-On Image (optional)</label>
-                        <p className="text-[10px] text-sovia-500 mb-1 leading-tight">Gambar tanpa background untuk Virtual Try-On. Format: PNG/WebP.</p>
-                        <div className="flex items-center gap-3">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={async (e) => {
-                              let file = e.target.files?.[0]
-                              if (file) {
-                                const loadingToast = toast.loading("Mengunggah gambar try-on...");
-                                try {
-                                  file = await compressImage(file, 720);
-                                  const formDataUpload = new FormData()
-                                  formDataUpload.append("file", file)
-                                  const res = await fetch("/api/upload", {
-                                    method: "POST",
-                                    body: formDataUpload,
-                                  })
-                                  const data = await res.json()
-                                  if (data.url) {
-                                    const newVars = [...variants]
-                                    newVars[idx] = { ...newVars[idx], tryOnImage: data.url }
-                                    setVariants(newVars)
-                                    toast.success("Gambar try-on berhasil diunggah", { id: loadingToast });
-                                  } else {
-                                    throw new Error(data.error || "Upload failed");
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div>
+                          <label className="text-sovia-600 text-xs block mb-1">Variant Image (optional)</label>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={async (e) => {
+                                let file = e.target.files?.[0]
+                                if (file) {
+                                  const loadingToast = toast.loading("Mengunggah gambar varian...");
+                                  try {
+                                    file = await compressImage(file, 1080);
+                                    const formDataUpload = new FormData()
+                                    formDataUpload.append("file", file)
+                                    const res = await fetch("/api/upload", {
+                                      method: "POST",
+                                      body: formDataUpload,
+                                    })
+                                    const data = await res.json()
+                                    if (data.url) {
+                                      const newVars = [...variants]
+                                      newVars[idx] = { ...newVars[idx], image: data.url }
+                                      setVariants(newVars)
+                                      toast.success("Gambar varian berhasil diunggah", { id: loadingToast });
+                                    } else {
+                                      throw new Error(data.error || "Upload failed");
+                                    }
+                                  } catch (error) {
+                                    console.error("Upload failed:", error)
+                                    toast.error("Gagal mengunggah gambar varian", { id: loadingToast });
                                   }
-                                } catch (error) {
-                                  console.error("Upload failed:", error)
-                                  toast.error("Gagal mengunggah gambar try-on", { id: loadingToast });
                                 }
-                              }
-                            }}
-                            className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-white max-w-[200px] overflow-hidden text-ellipsis"
-                          />
-                          {v.tryOnImage && (
-                            <div className="relative w-12 h-12 bg-sovia-100 rounded shrink-0">
-                              <img src={v.tryOnImage} alt="Try On" className="w-full h-full object-contain rounded" />
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  const newVars = [...variants]
-                                  newVars[idx] = { ...newVars[idx], tryOnImage: "" }
-                                  setVariants(newVars)
-                                }}
-                                className="absolute -top-2 -right-2 w-5 h-5 bg-accent-500 text-white rounded-full text-xs flex items-center justify-center"
-                              >
-                                ×
-                              </button>
-                            </div>
-                          )}
+                              }}
+                              className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-sovia-50 max-w-[200px] overflow-hidden text-ellipsis"
+                            />
+                            {v.image && (
+                              <div className="relative w-12 h-12 shrink-0">
+                                <img src={v.image} alt="Variant" className="w-full h-full object-cover rounded" />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newVars = [...variants]
+                                    newVars[idx] = { ...newVars[idx], image: "" }
+                                    setVariants(newVars)
+                                  }}
+                                  className="absolute -top-2 -right-2 w-5 h-5 hover:bg-sovia-600 text-sovia-50 bg-sovia-700 rounded-full text-xs flex items-center justify-center"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sovia-600 text-xs block mb-1">Try-On Image (optional)</label>
+                          <p className="text-[10px] text-sovia-500 mb-1 leading-tight">Gambar tanpa background untuk Virtual Try-On. Format: PNG/WebP.</p>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={async (e) => {
+                                let file = e.target.files?.[0]
+                                if (file) {
+                                  const loadingToast = toast.loading("Mengunggah gambar try-on...");
+                                  try {
+                                    file = await compressImage(file, 720);
+                                    const formDataUpload = new FormData()
+                                    formDataUpload.append("file", file)
+                                    const res = await fetch("/api/upload", {
+                                      method: "POST",
+                                      body: formDataUpload,
+                                    })
+                                    const data = await res.json()
+                                    if (data.url) {
+                                      const newVars = [...variants]
+                                      newVars[idx] = { ...newVars[idx], tryOnImage: data.url }
+                                      setVariants(newVars)
+                                      toast.success("Gambar try-on berhasil diunggah", { id: loadingToast });
+                                    } else {
+                                      throw new Error(data.error || "Upload failed");
+                                    }
+                                  } catch (error) {
+                                    console.error("Upload failed:", error)
+                                    toast.error("Gagal mengunggah gambar try-on", { id: loadingToast });
+                                  }
+                                }
+                              }}
+                              className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-sovia-50 max-w-[200px] overflow-hidden text-ellipsis"
+                            />
+                            {v.tryOnImage && (
+                              <div className="relative w-12 h-12 bg-sovia-100 rounded shrink-0">
+                                <img src={v.tryOnImage} alt="Try On" className="w-full h-full object-contain rounded" />
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const newVars = [...variants]
+                                    newVars[idx] = { ...newVars[idx], tryOnImage: "" }
+                                    setVariants(newVars)
+                                  }}
+                                  className="absolute -top-2 -right-2 w-5 h-5  hover:bg-sovia-600 text-sovia-50 bg-sovia-700 rounded-full text-xs flex items-center justify-center"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              {variants.length < 10 && (
+                <button
+                  type="button"
+                  onClick={() => setVariants([...variants, { name: "", stock: 0, price: "", buyPrice: "", image: "", sizesList: [{ name: "", stock: 0, price: "", buyPrice: "" }], tryOnImage: "" }])}
+                  className="text-sm font-semibold px-2 py-1 hover:bg-sovia-3 00 text-sovia-800 bg-sovia-200 transition-all active:transform-[scale(0.95)]5 font-medium flex items-center gap-1 cursor-pointer px-1 py-2 rounded-lg "
+                >
+                  + Add Variant
+                </button>
+              )}
             </div>
-            {variants.length < 10 && (
+
+            <div className="flex gap-4 pt-4">
               <button
                 type="button"
-                onClick={() => setVariants([...variants, { name: "", stock: 0, image: "", sizes: "", tryOnImage: "" }])}
-                className="text-sm text-sovia-600 hover:text-sovia-900 flex items-center gap-1"
+                onClick={onClose}
+                className="flex-1 py-3 border border-sovia-300 rounded-lg text-sovia-600 hover:bg-sovia-100 transition-all active:transform-[scale(0.95)]5 font-medium"
               >
-                + Add Variant
+                Cancel
               </button>
-            )}
+              <button
+                type="submit"
+                disabled={saving}
+                className="flex-1 py-3 hover:bg-sovia-600 text-sovia-50 bg-sovia-700 rounded-lg disabled:opacity-60 font-bold transition-all active:transform-[scale(0.95)]font-medium"
+              >
+                {saving ? "Saving..." : "Save Product"}
+              </button>
+            </div>
+          </form>
           </div>
-          
-          <div className="flex gap-4 pt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 py-3 border border-sovia-300 rounded-lg text-sovia-600"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={saving}
-              className="flex-1 py-3 bg-sovia-600 text-white rounded-lg disabled:opacity-60"
-            >
-              {saving ? "Saving..." : "Save Product"}
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
   )
@@ -846,76 +1022,188 @@ function ProductDetailModal({
   onEdit: () => void
 }) {
   const productImages = getProductImages(product.images)
-  
+  const [mainImageIdx, setMainImageIdx] = useState(0)
+
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[#F3EFE6] rounded-lg p-8 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-start mb-6">
-          <h2 className="text-sovia-900 text-2xl font-serif">Product Details</h2>
-          <button onClick={onClose} className="text-sovia-400 hover:text-sovia-600 text-2xl">×</button>
-        </div>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div>
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              {productImages.map((img, idx) => (
-                <div key={idx} className="relative aspect-square rounded-lg overflow-hidden bg-sovia-100">
-                  <img src={img} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-cover" />
-                </div>
-              ))}
-            </div>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="relative max-w-3xl w-full">
+        {/* Tombol Close mencolok di pojok kanan atas yang overlap sedikit */}
+        <button
+          onClick={onClose}
+          className="absolute -top-3 -right-3 w-10 h-10 bg-sovia-50 rounded-full flex items-center justify-center hover:bg-sovia-600 text-sovia-50 bg-sovia-700 shadow-lg z-50 transition-all text-2xl font-light active:transform-[scale(0.95)]"
+        >
+          ×
+        </button>
+
+        <div className="bg-sovia-50 rounded-2xl flex flex-col max-h-[90vh] overflow-hidden relative">
+          <div className="px-6 md:px-8 py-5 border-b border-sovia-200 bg-sovia-50 shrink-0 z-10 shadow-sm relative">
+            <h2 className="text-sovia-900 text-2xl font-serif">Product Details</h2>
           </div>
-          
-          <div className="space-y-4">
-            <div>
-              <p className="text-sovia-500 text-sm">Product Name</p>
-              <p className="text-sovia-900 text-lg font-semibold">{product.name}</p>
-            </div>
-            <div>
-              <p className="text-sovia-500 text-sm">Category</p>
-              <p className="text-sovia-900">{product.category?.name || "Uncategorized"}</p>
-            </div>
-            <div>
-              <p className="text-sovia-500 text-sm">Price</p>
-              <p className="text-sovia-900 text-xl font-serif">{formatPrice(product.price)}</p>
-            </div>
-            <div>
-              <p className="text-sovia-500 text-sm">SKU</p>
-              <p className="text-sovia-900">{product.sku || "-"}</p>
-            </div>
-            <div>
-              <p className="text-sovia-500 text-sm">Description</p>
-              <p className="text-sovia-700">{product.description || "-"}</p>
-            </div>
-            <div>
-              <p className="text-sovia-500 text-sm">Total Stock</p>
-              <p className="text-sovia-900">{product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0} units</p>
-            </div>
-            <div>
-              <p className="text-sovia-500 text-sm mb-2">Variants ({product.variants?.length || 0})</p>
-              <div className="space-y-2">
-                {product.variants?.map((v) => (
-                  <div key={v.id} className="flex justify-between items-center p-3 bg-sovia-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      {v.image && <img src={v.image} alt={v.name} className="w-10 h-10 object-cover rounded" />}
-                      <span className="text-sovia-900 font-medium">{v.name}</span>
-                    </div>
-                    <div className="text-right">
-                      <span className={`text-sm ${v.stock > 0 ? "text-sovia-700" : "text-accent-500"}`}>{v.stock} stock</span>
-                      {v.sizes && <p className="text-xs text-sovia-500">Sizes: {v.sizes}</p>}
-                    </div>
+
+          <div className="p-6 md:p-8 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-sovia-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-sovia-300">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <div className="md:sticky md:top-0 md:-mt-2">
+              <div className="flex flex-col gap-3">
+                {productImages.length > 0 && (
+                  <div className="relative aspect-[4/5] w-full rounded-xl overflow-hidden bg-sovia-100 shadow-sm">
+                    <img src={productImages[mainImageIdx]} alt={`${product.name} utama`} className="w-full h-full object-cover" />
                   </div>
-                ))}
+                )}
+
+                {productImages.length > 1 && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {productImages.map((img, idx) => (
+                      <div
+                        key={idx}
+                        className={`relative aspect-square rounded-lg overflow-hidden bg-sovia-100 cursor-pointer transition-all ${idx === mainImageIdx ? 'ring-0.5 ring-sovia-600 ring-offset-1' : 'hover:opacity-80'}`}
+                        onClick={() => setMainImageIdx(idx)}
+                      >
+                        <img src={img} alt={`${product.name} ${idx + 1}`} className="w-full h-full object-cover" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <p className="text-sovia-500 text-sm">Product Name</p>
+                <p className="text-sovia-900 text-lg font-semibold">{product.name}</p>
+              </div>
+              <div>
+                <p className="text-sovia-500 text-sm">Category</p>
+                <p className="text-sovia-900">{product.category?.name || "Uncategorized"}</p>
+              </div>
+              <div>
+                <p className="text-sovia-500 text-sm">Price</p>
+                <p className="text-sovia-900 text-xl font-serif">{formatPrice(product.price)}</p>
+              </div>
+              <div>
+                <p className="text-sovia-500 text-sm">SKU</p>
+                <p className="text-sovia-900">{product.sku || "-"}</p>
+              </div>
+              <div>
+                <p className="text-sovia-500 text-sm">Description</p>
+                <p className="text-sovia-700">{product.description || "-"}</p>
+              </div>
+              <div>
+                <p className="text-sovia-500 text-sm">Total Stock</p>
+                <p className="text-sovia-900">{product.variants?.reduce((sum, v) => sum + v.stock, 0) || 0} units</p>
+              </div>
+              <div>
+                <p className="text-sovia-500 text-sm mb-2">Variants ({product.variants?.length || 0})</p>
+                <div className="border border-sovia-200 rounded-xl overflow-hidden bg-sovia-100 shadow-sm">
+                  {product.variants?.map((v, index) => (
+                    <div key={v.id} className={`p-3 flex items-start gap-3 ${index !== 0 ? 'border-t border-sovia-100' : ''}`}>
+                      {v.image ? (
+                        <img src={v.image} alt={v.name} className="w-12 h-12 object-cover rounded-lg flex-shrink-0 border border-sovia-100" />
+                      ) : (
+                        <div className="w-12 h-12 bg-sovia-50 rounded-lg flex-shrink-0 border border-sovia-100 flex items-center justify-center">
+                          <span className="text-sovia-300 text-xs">-</span>
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0 py-0.5">
+                        <div className="flex justify-between items-start mb-1">
+                          <span className="text-sovia-900 font-semibold text-sm truncate">{v.name}</span>
+                          <span className={`text-xs bg-sovia-200 font-medium whitespace-nowrap bg-sovia-50 px-2 py-0.5 rounded-full border ${v.stock > 0 ? "text-sovia-700 border-sovia-200" : "text-accent-500 border-red-100 bg-red-50"}`}>
+                            {v.stock} stok
+                          </span>
+                        </div>
+                        {v.sizes && (
+                          <div className="flex flex-wrap gap-1 mt-1">
+                            {v.sizes.split(",").map((s, i) => {
+                              const [szName, szStock] = s.split(":");
+                              const stockNum = parseInt(szStock?.trim() || "0");
+                              return (
+                                <span key={i} className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] border ${stockNum === 0 ? "bg-sovia-100 text-sovia-400 border-sovia-200" : "bg-sovia-200 text-sovia-700 border-sovia-200"}`}>
+                                  <span className="font-bold mr-1">{szName.trim()}</span>
+                                  <span>{stockNum}</span>
+                                </span>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        
-        <div className="flex gap-4 mt-8 pt-6 border-t">
-          <button onClick={onClose} className="flex-1 py-3 border border-sovia-300 rounded-lg text-sovia-600">Close</button>
-          <button onClick={onEdit} className="flex-1 py-3 bg-sovia-600 text-white rounded-lg">Edit Product</button>
+
+          <div className="flex gap-4 mt-8 pt-6 border-t border-sovia-200">
+            <button onClick={onClose} className="flex-1 py-3 border border-sovia-300 rounded-lg text-sovia-600 hover:bg-sovia-100 transition-all active:transform-[scale(0.95)] font-medium">Close</button>
+            <button onClick={onEdit} className="flex-1 py-3 hover:bg-sovia-600 text-sovia-50 bg-sovia-700 rounded-lg transition-all active:transform-[scale(0.95)] font-medium">Edit Product</button>
+          </div>
+          </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function CategorySelect({
+  categories,
+  value,
+  onChange,
+}: {
+  categories: any[]
+  value: string
+  onChange: (val: string) => void
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+  const selectedName = value === "all" ? "Semua Kategori" : categories.find((c: any) => c.id === value)?.name || "Semua Kategori"
+
+  useEffect(() => {
+    if (!isOpen) return
+    const close = () => setIsOpen(false)
+    window.addEventListener("click", close)
+    return () => window.removeEventListener("click", close)
+  }, [isOpen])
+
+  return (
+    <div className="relative min-w-[200px]">
+      <button
+        onClick={(e) => {
+          e.stopPropagation()
+          setIsOpen(!isOpen)
+        }}
+        className="flex items-center justify-between w-full pl-10 pr-4 py-3 bg-sovia-200/30 border border-sovia-200/50 rounded-lg text-sm text-sovia-700 focus:outline-none focus:border-sovia-400 transition-shadow cursor-pointer"
+      >
+        <span>{selectedName}</span>
+        <ChevronDown className="w-4 h-4 text-sovia-400" />
+      </button>
+      <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-sovia-600 pointer-events-none" />
+
+      {isOpen && (
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          className="absolute z-50 top-full mt-2 left-0 w-full bg-sovia-50 border border-sovia-200 rounded-lg shadow-lg overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100"
+        >
+          <button
+            onClick={() => {
+              onChange("all")
+              setIsOpen(false)
+            }}
+            className="w-full text-left px-4 py-2 text-sm text-sovia-900 hover:bg-sovia-800 hover:text-sovia-50 transition-colors"
+          >
+            Semua Kategori
+          </button>
+          {categories.map((cat: any) => (
+            <button
+              key={cat.id}
+              onClick={() => {
+                onChange(cat.id)
+                setIsOpen(false)
+              }}
+              className="w-full text-left px-4 py-2 text-sm text-sovia-900 hover:bg-sovia-800 hover:text-sovia-50 transition-colors"
+            >
+              {cat.name}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   )
 }

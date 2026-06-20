@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { formatPrice } from "@/lib/utils"
+import { formatPrice, getProductPriceRange } from "@/lib/utils"
 
 export function getProductImages(images: string | null): string[] {
   if (!images) return []
@@ -39,7 +39,13 @@ export function ProductCard({ product, onClick, href }: ProductCardProps) {
           {product.name}
         </h3>
         <p className="text-sovia-900 font-serif">
-          {formatPrice(product.price)}
+          {(() => {
+            const range = getProductPriceRange(product)
+            if (range.hasRange) {
+              return `${formatPrice(range.min)} - ${formatPrice(range.max)}`
+            }
+            return formatPrice(range.min)
+          })()}
         </p>
       </div>
     </>

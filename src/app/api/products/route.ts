@@ -55,9 +55,11 @@ export async function POST(request: Request) {
 
   if (variants && variants.length > 0) {
     await prisma.productVariant.createMany({
-      data: variants.map((v: { name: string; stock: number; sizes?: string; image?: string; tryOnImage?: string }) => ({
+      data: variants.map((v: { name: string; stock: number; price?: number | null; buyPrice?: number | null; sizes?: string; image?: string; tryOnImage?: string }) => ({
         name: v.name,
         stock: Number(v.stock) || 0,
+        price: v.price !== null && v.price !== undefined ? parseFloat(v.price as any) : null,
+        buyPrice: v.buyPrice !== null && v.buyPrice !== undefined ? parseFloat(v.buyPrice as any) : null,
         sizes: v.sizes || null,
         image: v.image || null,
         tryOnImage: v.tryOnImage || null,

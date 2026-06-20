@@ -27,7 +27,7 @@ export async function POST(
 
   const { id } = await params
   const body = await request.json()
-  const { name, stock, sizes, image, tryOnImage } = body
+  const { name, stock, price, buyPrice, sizes, image, tryOnImage } = body
 
   const existingCount = await prisma.productVariant.count({
     where: { productId: id },
@@ -41,11 +41,13 @@ export async function POST(
     data: {
       name,
       stock: parseInt(stock) || 0,
+      price: price !== null && price !== undefined ? parseFloat(price) : null,
+      buyPrice: buyPrice !== null && buyPrice !== undefined ? parseFloat(buyPrice) : null,
       sizes: sizes || null,
       image: image || null,
       tryOnImage: tryOnImage || null,
       productId: id,
-    },
+    } as any,
   })
 
   return NextResponse.json(variant)
@@ -62,17 +64,19 @@ export async function PUT(
 
   const { id } = await params
   const body = await request.json()
-  const { variantId, name, stock, sizes, image, tryOnImage } = body
+  const { variantId, name, stock, price, buyPrice, sizes, image, tryOnImage } = body
 
   const variant = await prisma.productVariant.update({
     where: { id: variantId },
     data: {
       name,
       stock: parseInt(stock) || 0,
+      price: price !== null && price !== undefined ? parseFloat(price) : null,
+      buyPrice: buyPrice !== null && buyPrice !== undefined ? parseFloat(buyPrice) : null,
       sizes: sizes || null,
       image: image || null,
       tryOnImage: tryOnImage || null,
-    },
+    } as any,
   })
 
   return NextResponse.json(variant)

@@ -48,6 +48,7 @@ export async function PUT(request: Request) {
       lng,
       instagram,
       facebook,
+      tiktok,
     } = body
 
     const profile = await prisma.storeProfile.upsert({
@@ -64,6 +65,7 @@ export async function PUT(request: Request) {
         lng: lng || null,
         instagram,
         facebook,
+        tiktok,
       },
       create: {
         id: STORE_PROFILE_ID,
@@ -78,6 +80,7 @@ export async function PUT(request: Request) {
         lng: lng || null,
         instagram,
         facebook,
+        tiktok,
       },
     })
 

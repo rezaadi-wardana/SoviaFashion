@@ -121,6 +121,8 @@ model ProductVariant {
   id         String   @id @default(cuid())
   name       String
   stock      Int      @default(0)
+  price      Float?
+  buyPrice   Float?
   sizes      String?
   image      String?  @db.Text
   tryOnImage String?  @db.Text
@@ -192,6 +194,7 @@ model OrderItem {
   productId String
   quantity  Int
   price    Float
+  buyPrice Float?
   size     String?
   color    String?
   createdAt DateTime @default(now())
@@ -213,6 +216,7 @@ model StoreProfile {
   lng         Float?
   instagram   String?
   facebook    String?
+  tiktok      String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

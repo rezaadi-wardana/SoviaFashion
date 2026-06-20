@@ -5,6 +5,7 @@ import { Package, Truck, CheckCircle, Clock, ChevronDown, XCircle, MapPin, Searc
 import { formatPrice, formatDate } from "@/lib/utils"
 import { toast } from "sonner"
 import { CustomSelect, SelectOption } from "@/components/ui/CustomSelect"
+import LoadingOverlay from "@/components/ui/LoadingOverlay"
 
 interface Order {
   id: string
@@ -166,7 +167,7 @@ export default function AdminOrdersPage() {
     <div className={`space-y-6 animate-in fade-in duration-500 ${isMobile ? 'pt-4 border-t border-sovia-100' : ''}`}>
       {/* Items List */}
       <div>
-        <h3 className="text-sovia-900 font-semibold mb-3 flex items-center gap-2 text-sm">
+        <h3 className="text-sovia-700 font-semibold mb-3 flex items-center gap-2 text-sm">
           <Package className="w-4 h-4 text-sovia-500" /> Produk yang Dipesan
         </h3>
         <div className="space-y-3">
@@ -208,7 +209,7 @@ export default function AdminOrdersPage() {
 
       {/* Shipping Info */}
       <div>
-        <h3 className="text-sovia-900 font-semibold mb-3 flex items-center gap-2 text-sm ">
+        <h3 className="text-sovia-700 font-semibold mb-3 flex items-center gap-2 text-sm ">
           <Truck className="w-4 h-4 text-sovia-500" /> Detail Pengiriman
         </h3>
         <div className={`border border-sovia-100 p-4 rounded-xl text-sm space-y-2.5 shadow-sm ${isMobile ? 'bg-sovia-100' : 'bg-sovia-50'}`}>
@@ -264,7 +265,7 @@ export default function AdminOrdersPage() {
 
       {/* Tracking Timeline & Status Actions */}
       <div className={`border border-sovia-200 rounded-xl p-5 shadow-sm mt-4 ${isMobile ? 'bg-sovia-100' : 'bg-sovia-50'}`}>
-        <h3 className="text-sovia-900 font-semibold mb-4 text-sm flex items-center gap-2">
+        <h3 className="text-sovia-700 font-semibold mb-4 text-sm flex items-center gap-2">
           <Clock className="w-4 h-4 text-sovia-500" /> Riwayat Status
         </h3>
 
@@ -346,7 +347,7 @@ export default function AdminOrdersPage() {
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); confirmOrder(order.id, true); }}
-              className="flex-1 px-4 py-2 bg-sovia-800 text-sovia-50 rounded-lg text-sm font-semibold hover:bg-sovia-900 transition-colors shadow-md active:transform-[scale(0.95)]"
+              className="flex-1 px-4 py-2 hover:bg-sovia-600 text-sovia-50 bg-sovia-700 transition duration-300 text-sm font-semibold rounded-lg flex items-center gap-2 active:transform-[scale(0.95)]"
             >
               Setujui
             </button>
@@ -360,7 +361,7 @@ export default function AdminOrdersPage() {
             </div>
           </div>
         ) : order.status === "COMPLETED" ? (
-          <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-lg flex items-start gap-3">
+          <div className="bg-emerald-50 border border-emerald-100 p-4 rounded-lg flex items-start gap-3 ">
             <CheckCircle className="w-5 h-5 text-emerald-500 mt-0.5 flex-shrink-0" />
             <div>
               <p className="text-emerald-700 font-semibold text-sm">Pesanan Selesai</p>
@@ -397,7 +398,7 @@ export default function AdminOrdersPage() {
                       });
                     }
                   }}
-                  className="flex-1 px-4 py-2.5 bg-sovia-800 text-sovia-50 rounded-lg text-sm font-semibold hover:bg-sovia-900 transition-all shadow-md active:transform-[scale(0.98)] flex items-center justify-center gap-2"
+                  className="flex-1 px-4 py-2.5 hover:bg-sovia-600 text-sovia-50 bg-sovia-700  rounded-lg text-sm font-semibold transition-all shadow-md active:transform-[scale(0.98)] flex items-center justify-center gap-2"
                 >
                   <span>Update ke {sConfig.label}</span>
                   
@@ -410,10 +411,12 @@ export default function AdminOrdersPage() {
     </div>
   )
 
+  if (loading) return <LoadingOverlay />
+
   return (
     <div className="pb-5 animate-in fade-in duration-500">
       {/* Sticky Header Group: Title + Tabs */}
-      <div className="sticky top-0 z-30 bg-sovia-50 pt-4 pb-4 -mt-6 -mx-4 px-4 md:-mx-6 md:px-6 lg:-mx-6 lg:px-6 border-b border-sovia-200">
+      <div className="lg:sticky top-0 z-30 bg-sovia-50 pt-4 pb-4 -mt-6 -mx-4 px-4 md:-mx-6 md:px-6 lg:-mx-6 lg:px-6 border-b border-sovia-200">
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-sovia-900 text-3xl font-serif mb-2">Kelola Pesanan</h1>
@@ -436,13 +439,13 @@ export default function AdminOrdersPage() {
                   window.scrollTo({ top: 0, behavior: 'smooth' })
                 }}
                 className={`pb-3 text-sm font-medium transition-all relative flex items-center gap-2 whitespace-nowrap outline-none ${isActive
-                    ? "text-sovia-900 border-b-2 border-sovia-900"
-                    : "text-sovia-500 hover:text-sovia-800"
+                    ? "text-sovia-700 border-b-2 border-sovia-700"
+                    : "text-sovia-700 hover:text-sovia-700"
                   }`}
               >
                 {tab.label}
                 {count > 0 && (
-                  <span className={`flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] rounded-full transition-colors font-serif ${isActive ? 'bg-sovia-800 text-sovia-50' : 'bg-sovia-200 text-sovia-700'
+                  <span className={`flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] rounded-full transition-colors font-serif ${isActive ? 'bg-sovia-700 text-sovia-100' : 'bg-sovia-200 text-sovia-800'
                     }`}>
                     {count}
                   </span>
@@ -484,7 +487,7 @@ export default function AdminOrdersPage() {
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Orders List (Left / Main) */}
         <div className={`flex-1 w-full space-y-3 transition-all duration-500 ${selectedOrder ? "lg:max-w-[400px]" : ""}`}>
-          <div className="flex flex-row items-stretch sm:items-center justify-between gap-3 mb-4">
+          <div className="flex flex-row items-stretch sm:items-center justify-between gap-3 my-4">
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-4 w-4 text-sovia-500" />
@@ -494,21 +497,19 @@ export default function AdminOrdersPage() {
                 placeholder="Cari ID pesanan atau nama pelanggan..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 bg-sovia-50 border border-sovia-200 rounded-lg text-sm text-sovia-700 focus:outline-none focus:ring-2 focus:ring-sovia-400 transition-shadow placeholder:text-sovia-400"
+                className="w-full pl-9 pr-4 py-2 bg-sovia-200/30 border border-sovia-200 rounded-lg text-sm text-sovia-700 focus:outline-none focus:ring-2 focus:ring-sovia-400 transition-shadow placeholder:text-sovia-400"
               />
             </div>
 
             <button
               onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
-              className="flex items-center justify-center gap-2 px-3 py-2 bg-sovia-800 border border-sovia-200 rounded-lg text-sm font-medium text-sovia-50 hover:bg-sovia-900 transition-all active:transform-[scale(0.95)]"
+              className="flex items-center justify-center gap-2 px-3 py-2 hover:bg-sovia-600 text-sovia-50 bg-sovia-700 border border-sovia-200 rounded-lg text-sm font-medium transition-all active:transform-[scale(0.95)]"
             >
               <ArrowUpDown className="w-4 h-4 text-sovia-50" />
               {sortOrder === "desc" ? "Terbaru" : "Terdahulu"}
             </button>
           </div>
-          {loading ? (
-            <div className="text-center py-16 text-sovia-500 animate-pulse">Memuat pesanan...</div>
-          ) : filteredOrders.length === 0 ? (
+          {filteredOrders.length === 0 ? (
             <div className="text-center py-16 h-[100%] w-full bg-sovia-50 rounded-2xl border border-sovia-200 animate-in fade-in zoom-in-95 duration-300">
               <Package className="w-12 h-12 text-sovia-300 mx-auto mb-3" />
               <p className="text-sovia-600 font-medium">Tidak ada pesanan</p>
@@ -607,7 +608,7 @@ export default function AdminOrdersPage() {
 
         {/* Order Details Sidebar (Right - Desktop) */}
         {selectedOrder && (
-          <div className="hidden lg:block lg:flex-1 bg-sovia-100 border border-sovia-200 rounded-2xl p-6 shadow-sm sticky top-[180px] animate-in slide-in-from-right-8 fade-in duration-500">
+          <div className="hidden lg:block lg:flex-1 bg-sovia-100 border border-sovia-200 rounded-2xl p-5 shadow-sm sticky top-[180px] animate-in slide-in-from-right-8 fade-in duration-500 mt-4">
             <div className="flex justify-between items-start border-b border-sovia-100 pb-5 mb-5">
               <div>
                 <h2 className="text-xl font-serif text-sovia-900 font-semibold mb-1">Detail Pesanan</h2>
@@ -615,10 +616,10 @@ export default function AdminOrdersPage() {
               </div>
               <button
                 onClick={() => setSelectedOrder(null)}
-                className="p-1.5 hover:bg-sovia-100 rounded-lg text-sovia-500 transition-colors hover:text-sovia-800"
+                className="p-1.5 hover:bg-sovia-100 text-sovia-500 transition-colors hover:text-sovia-800"
                 title="Tutup Detail"
               >
-                <XCircle className="w-6 h-6" />
+                <XCircle className="w-8 h-8" />
               </button>
             </div>
 
@@ -650,7 +651,7 @@ export default function AdminOrdersPage() {
             <div className="px-6 py-4 bg-sovia-50/80 border-t border-sovia-100 flex justify-end gap-3">
               <button
                 onClick={() => setTrackingModalOpen(false)}
-                className="px-4 py-2 text-sm font-medium text-sovia-700 hover:bg-sovia-100 rounded-lg transition-colors border border-sovia-200 bg-sovia-100 shadow-sm"
+                className="px-4 py-2 text-sm font-medium text-sovia-700 hover:bg-sovia-100  bg-sovia-50 rounded-lg transition-colors border border-sovia-200 shadow-sm"
               >
                 Batal
               </button>
@@ -665,7 +666,7 @@ export default function AdminOrdersPage() {
                     setTrackingModalOpen(false);
                   }
                 }}
-                className="px-4 py-2 text-sm font-medium text-sovia-50 bg-sovia-800 hover:bg-sovia-800 rounded-lg shadow-sm transition-colors"
+                className="px-4 py-2 text-sm font-medium hover:bg-sovia-600 text-sovia-50 bg-sovia-700  rounded-lg shadow-sm transition-colors"
               >
                 Simpan & Kirim
               </button>
@@ -688,7 +689,7 @@ export default function AdminOrdersPage() {
             <div className="px-6 py-4 bg-sovia-50/80 border-t border-sovia-100 flex justify-end gap-3">
               <button
                 onClick={() => setConfirmModal({ ...confirmModal, isOpen: false })}
-                className="px-4 py-2 text-sm font-medium text-sovia-700 hover:bg-sovia-100 rounded-lg transition-colors border border-sovia-200 bg-sovia-100 shadow-sm"
+                className="px-4 py-2 text-sm font-medium text-sovia-700 hover:bg-sovia-100 bg-sovia-50 rounded-lg transition-colors border border-sovia-200 shadow-sm"
               >
                 Batal
               </button>
@@ -701,8 +702,8 @@ export default function AdminOrdersPage() {
                   }
                   setConfirmModal({ ...confirmModal, isOpen: false });
                 }}
-                className={`px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm transition-colors ${
-                  confirmModal.action === 'REJECT' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-sovia-800 hover:bg-sovia-900'
+                className={`px-4 py-2 text-sm font-medium text-sovia-50 rounded-lg shadow-sm transition-colors ${
+                  confirmModal.action === 'REJECT' ? 'bg-rose-600 hover:bg-rose-700' : 'hover:bg-sovia-600 text-sovia-50 bg-sovia-700'
                 }`}
               >
                 Ya, Lanjutkan

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import dynamic from "next/dynamic"
 import { Store, Save, MapPin, Phone, Mail, MessageCircle, Loader2 } from "lucide-react"
 import { toast } from "sonner"
+import LoadingOverlay from "@/components/ui/LoadingOverlay"
 
 const MapPicker = dynamic(() => import("@/components/MapPicker"), {
   ssr: false,
@@ -27,6 +28,7 @@ interface StoreProfileData {
   lng: number | null
   instagram: string | null
   facebook: string | null
+  tiktok: string | null
 }
 
 export default function StoreProfilePage() {
@@ -44,6 +46,7 @@ export default function StoreProfilePage() {
     lng: 0,
     instagram: "",
     facebook: "",
+    tiktok: "",
   })
 
   useEffect(() => {
@@ -67,6 +70,7 @@ export default function StoreProfilePage() {
           lng: data.lng || 0,
           instagram: data.instagram || "",
           facebook: data.facebook || "",
+          tiktok: data.tiktok || "",
         })
       }
     } catch {
@@ -89,6 +93,9 @@ export default function StoreProfilePage() {
 
       if (res.ok) {
         toast.success("Profil toko berhasil disimpan!")
+        setTimeout(() => {
+          window.location.reload()
+        }, 1000)
       } else {
         toast.error("Gagal menyimpan profil toko")
       }
@@ -99,46 +106,38 @@ export default function StoreProfilePage() {
     }
   }
 
-  function handleGetLocation() {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setFormData((prev) => ({
-            ...prev,
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          }))
-          toast.success("Lokasi berhasil terdeteksi!")
-        },
-        () => {
-          toast.error("Tidak dapat mengakses lokasi. Aktifkan GPS.")
-        }
-      )
-    }
-  }
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-32">
-        <Loader2 className="w-8 h-8 animate-spin text-sovia-400" />
-      </div>
-    )
-  }
+  if (loading) return <LoadingOverlay />
 
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-sovia-900 text-3xl font-serif mb-2">Profil Toko</h1>
-        <p className="text-sovia-700 text-sm">
-          Kelola informasi toko Anda. Alamat toko digunakan sebagai titik awal pengiriman.
-        </p>
+    <div className="space-y-6 max-w-[1400px] mx-auto animate-in fade-in duration-500">
+      <div className="sticky top-0 z-20 bg-sovia-50/90 backdrop-blur-sm pt-4 pb-4 -mt-4 -mx-4 px-4 mb-6 border-b border-sovia-200/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-sovia-900 text-3xl font-serif mb-2">Profil Toko</h1>
+          <p className="text-sovia-700 text-sm">
+            Kelola informasi toko Anda. Alamat toko digunakan sebagai titik awal pengiriman.
+          </p>
+        </div>
+        <button
+          type="submit"
+          form="profile-form"
+          disabled={saving}
+          className="px-8 py-3 bg-sovia-700 hover:bg-sovia-600 text-sovia-50 rounded-lg font-medium flex items-center gap-2 transition-all active:transform-[scale(0.95)]  shadow-sm disabled:opacity-60"
+        >
+          {saving ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <Save className="w-5 h-5" />
+          )}
+          {saving ? "Menyimpan..." : "Simpan Profil Toko"}
+        </button>
       </div>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <form id="profile-form" onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Store Identity */}
-        <div className="bg-[#F3EFE6] rounded-xl p-8 shadow-sm">
+        <div className="bg-sovia-100/50 rounded-2xl p-8 shadow-sm border border-sovia-200/50 relative overflow-hidden group">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-sovia-100 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-sovia-200 rounded-xl flex items-center justify-center">
               <Store className="w-5 h-5 text-sovia-600" />
             </div>
             <h2 className="text-sovia-900 text-xl font-serif">Identitas Toko</h2>
@@ -178,9 +177,9 @@ export default function StoreProfilePage() {
         </div>
 
         {/* Contact */}
-        <div className="bg-[#F3EFE6] rounded-xl p-8 shadow-sm">
+        <div className="bg-sovia-100/50 rounded-2xl p-8 shadow-sm border border-sovia-200/50 relative overflow-hidden group">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 bg-sovia-100 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-sovia-200 rounded-xl flex items-center justify-center">
               <Phone className="w-5 h-5 text-sovia-600" />
             </div>
             <h2 className="text-sovia-900 text-xl font-serif">Kontak</h2>
@@ -234,13 +233,24 @@ export default function StoreProfilePage() {
                 placeholder="@soviafashion"
               />
             </div>
+            <div>
+              <label className="text-sovia-700 text-sm block mb-2">TikTok</label>
+              <input
+                type="text"
+                value={formData.tiktok}
+                onChange={(e) => setFormData({ ...formData, tiktok: e.target.value })}
+                className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
+                placeholder="@soviafashion"
+              />
+            </div>
           </div>
         </div>
 
         {/* Address */}
-        <div className="bg-[#F3EFE6] rounded-xl p-8 shadow-sm lg:col-span-2">
-          <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-sovia-100 rounded-xl flex items-center justify-center">
+        <div className="bg-sovia-100/50 rounded-2xl p-8 shadow-sm border border-sovia-200/50 relative overflow-hidden group lg:col-span-2">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-sovia-200 rounded-xl flex items-center justify-center">
                 <MapPin className="w-5 h-5 text-sovia-600" />
               </div>
               <div>
@@ -248,6 +258,7 @@ export default function StoreProfilePage() {
                 <p className="text-sovia-500 text-xs">Titik awal pengiriman & perhitungan jarak</p>
               </div>
             </div>
+          </div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="lg:col-span-2">
               <label className="text-sovia-700 text-sm block mb-2">Alamat Lengkap</label>
@@ -303,21 +314,6 @@ export default function StoreProfilePage() {
           </div>
         </div>
 
-        {/* Save Button */}
-        <div className="lg:col-span-2 flex justify-end">
-          <button
-            type="submit"
-            disabled={saving}
-            className="px-8 py-3 bg-sovia-600 text-white rounded-lg font-medium flex items-center gap-2 hover:bg-sovia-700 transition-colors disabled:opacity-60"
-          >
-            {saving ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <Save className="w-5 h-5" />
-            )}
-            {saving ? "Menyimpan..." : "Simpan Profil Toko"}
-          </button>
-        </div>
       </form>
     </div>
   )

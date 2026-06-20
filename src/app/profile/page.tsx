@@ -1004,7 +1004,7 @@ function ProfileContent() {
                     placeholder="Cari ID pesanan..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-9 pr-4 py-2 bg-sovia-100 border border-sovia-600 rounded-lg text-sm text-sovia-700 focus:outline-none focus:ring-1 focus:ring-sovia-400 transition-shadow placeholder:text-sovia-400"
+                    className="w-full pl-9 pr-4 py-2 bg-sovia-200/30 border border-sovia-200 rounded-lg text-sm text-sovia-700 focus:outline-none focus:ring-1 focus:ring-sovia-400 transition-shadow placeholder:text-sovia-400"
                   />
                 </div>
 

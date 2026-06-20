@@ -82,6 +82,7 @@ export default function MapPicker({ lat, lng, onLocationChange, height = "h-80" 
     return () => {
       isMounted = false;
       if (mapInstanceRef.current) {
+        mapInstanceRef.current.off()
         mapInstanceRef.current.remove()
         mapInstanceRef.current = null
         markerRef.current = null
@@ -98,7 +99,7 @@ export default function MapPicker({ lat, lng, onLocationChange, height = "h-80" 
     const currentPos = markerRef.current.getLatLng()
     if (Math.abs(currentPos.lat - lat) > 0.0001 || Math.abs(currentPos.lng - lng) > 0.0001) {
       markerRef.current.setLatLng([lat, lng])
-      mapInstanceRef.current.setView([lat, lng], 15)
+      mapInstanceRef.current.setView([lat, lng], 15, { animate: false })
     }
   }, [lat, lng])
 
@@ -112,7 +113,7 @@ export default function MapPicker({ lat, lng, onLocationChange, height = "h-80" 
         onLocationChange(newLat, newLng)
         if (mapInstanceRef.current && markerRef.current) {
           markerRef.current.setLatLng([newLat, newLng])
-          mapInstanceRef.current.setView([newLat, newLng], 15)
+          mapInstanceRef.current.setView([newLat, newLng], 15, { animate: false })
         }
         setDetecting(false)
       },
@@ -123,7 +124,7 @@ export default function MapPicker({ lat, lng, onLocationChange, height = "h-80" 
   }
 
   return (
-    <div className="relative">
+    <div className="relative z-0">
       <div
         ref={mapContainerRef}
         className={`${height} w-full rounded-xl overflow-hidden border border-sovia-200 z-0`}

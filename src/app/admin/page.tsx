@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import Link from "next/link"
 import { Package, Users, ShoppingCart, TrendingUp, DollarSign, Activity, ArrowUp, ArrowDown } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
+import LoadingOverlay from "@/components/ui/LoadingOverlay"
 import {
   BarChart,
   Bar,
@@ -95,6 +96,7 @@ export default function AdminDashboard() {
       color: "bg-[#F3EFE6]",
     },
   ]
+  if (loading) return <LoadingOverlay />
 
   return (
     <div>
@@ -107,7 +109,7 @@ export default function AdminDashboard() {
         </div>
         <Link
           href="/admin/products?new=true"
-          className="px-6 py-3 bg-sovia-800 text-sovia-50 hover:bg-sovia-900 transition duration-300 text-sm font-medium rounded-lg flex items-center gap-2 active:transform-[scale(0.95)]"
+          className="px-6 py-3 hover:bg-sovia-600 text-sovia-50 bg-sovia-700 transition duration-300 text-sm font-medium rounded-lg flex items-center gap-2 active:transform-[scale(0.95)]"
         >
           <Package className="w-4 h-4" />
           Tambah Koleksi Baru

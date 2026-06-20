@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Script from "next/script"
 import { Check, QrCode, Truck, Package, MapPin, Loader2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react"
-import { formatPrice } from "@/lib/utils"
+import { formatPrice, resolvePrice } from "@/lib/utils"
 import { toast } from "sonner"
 
 function getProductImages(images: string | null): string[] {
@@ -44,6 +44,8 @@ interface CartItem {
       id: string
       name: string
       image: string | null
+      sizes?: string | null
+      price?: number | null
     }[]
   }
 }
@@ -185,12 +187,16 @@ export default function CheckoutPage() {
     setRatesError(null)
 
     try {
-      const itemsPayload = items.map((item) => ({
-        name: item.product.name,
-        price: item.product.price,
-        quantity: item.quantity,
-        weight: 300, // Default 300g per item (fashion items)
-      }))
+      const itemsPayload = items.map((item) => {
+        const variant = item.product.variants?.find((v) => v.name === item.color)
+        const finalPrice = resolvePrice(item.product.price, variant, item.size)
+        return {
+          name: item.product.name,
+          price: finalPrice,
+          quantity: item.quantity,
+          weight: 300,
+        }
+      })
 
       // Fetch regular rates
       const [regularRes, codRes] = await Promise.all([
@@ -327,13 +333,17 @@ export default function CheckoutPage() {
 
     try {
       const orderData = {
-        items: items.map((item) => ({
-          productId: item.product.id,
-          quantity: item.quantity,
-          price: item.product.price,
-          size: item.size,
-          color: item.color,
-        })),
+        items: items.map((item) => {
+          const variant = item.product.variants?.find((v) => v.name === item.color)
+          const finalPrice = resolvePrice(item.product.price, variant, item.size)
+          return {
+            productId: item.product.id,
+            quantity: item.quantity,
+            price: finalPrice,
+            size: item.size,
+            color: item.color,
+          }
+        }),
         subtotal,
         shippingCost: selectedCourier.price,
         shippingMethod,
@@ -395,7 +405,11 @@ export default function CheckoutPage() {
   }
 
   const subtotal = items.reduce(
-    (sum, item) => sum + item.product.price * item.quantity,
+    (sum, item) => {
+      const variant = item.product.variants?.find((v) => v.name === item.color)
+      const finalPrice = resolvePrice(item.product.price, variant, item.size)
+      return sum + finalPrice * item.quantity
+    },
     0
   )
   const shippingCost = selectedCourier?.price || 0
@@ -701,7 +715,7 @@ export default function CheckoutPage() {
                           Qty: {item.quantity}
                         </span>
                         <span className="text-sovia-900 font-medium">
-                          {formatPrice(item.product.price * item.quantity)}
+                          {formatPrice(resolvePrice(item.product.price, item.product.variants?.find(v => v.name === item.color), item.size) * item.quantity)}
                         </span>
                       </div>
                     </div>
