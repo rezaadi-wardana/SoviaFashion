@@ -3,14 +3,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { resolvePrice, resolveBuyPrice } from "@/lib/utils"
 
-// @ts-expect-error midtrans-client does not have type definitions
-import midtransClient from "midtrans-client"
 
-const snap = new midtransClient.Snap({
-  isProduction: process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true",
-  serverKey: process.env.MIDTRANS_SERVER_KEY || "",
-  clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || "",
-})
 
 export async function GET() {
   const session = await auth()
@@ -73,6 +66,7 @@ export async function POST(request: Request) {
     courierCode,
     courierService,
     isDirect,
+    paymentProofUrl,
   } = body
 
   // Untuk direct order, gunakan items dari request body
@@ -143,7 +137,8 @@ export async function POST(request: Request) {
       courierName: courierName || null,
       courierCode: courierCode || null,
       courierService: courierService || null,
-      status: paymentMethod === "COD" ? "PACKING" : "PENDING_PAYMENT",
+      paymentProofUrl: paymentProofUrl || null,
+      status: paymentMethod === "COD" ? "PACKING" : (paymentProofUrl ? "WAITING_CONFIRMATION" : "PENDING_PAYMENT"),
       items: {
         create: orderItems,
       },
@@ -182,29 +177,5 @@ export async function POST(request: Request) {
     })
   }
 
-  // Handle Midtrans Snap Token
-  let midtransToken = null;
-
-  if (paymentMethod !== "COD") {
-    const parameter = {
-      transaction_details: {
-        order_id: order.id,
-        gross_amount: total,
-      },
-      customer_details: {
-        first_name: recipientName,
-        phone: phone,
-      },
-    };
-
-    try {
-      const transaction = await snap.createTransaction(parameter);
-      midtransToken = transaction.token;
-    } catch (e) {
-      console.error("Error creating Midtrans transaction:", e);
-      return NextResponse.json({ error: "Failed to create payment transaction" }, { status: 500 });
-    }
-  }
-
-  return NextResponse.json({ ...order, midtransToken })
+  return NextResponse.json({ ...order })
 }

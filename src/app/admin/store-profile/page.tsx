@@ -2,9 +2,10 @@
 
 import { useState, useEffect } from "react"
 import dynamic from "next/dynamic"
-import { Store, Save, MapPin, Phone, Mail, MessageCircle, Loader2 } from "lucide-react"
+import { Store, Save, MapPin, Phone, Mail, MessageCircle, Loader2, Upload, ImageIcon } from "lucide-react"
 import { toast } from "sonner"
 import LoadingOverlay from "@/components/ui/LoadingOverlay"
+import Image from "next/image"
 
 const MapPicker = dynamic(() => import("@/components/MapPicker"), {
   ssr: false,
@@ -29,11 +30,17 @@ interface StoreProfileData {
   instagram: string | null
   facebook: string | null
   tiktok: string | null
+  bankAccount: string | null
+  bankImage: string | null
+  eWallet: string | null
+  eWalletImage: string | null
 }
 
 export default function StoreProfilePage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [uploadingBank, setUploadingBank] = useState(false)
+  const [uploadingEWallet, setUploadingEWallet] = useState(false)
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -47,6 +54,10 @@ export default function StoreProfilePage() {
     instagram: "",
     facebook: "",
     tiktok: "",
+    bankAccount: "",
+    bankImage: "",
+    eWallet: "",
+    eWalletImage: "",
   })
 
   useEffect(() => {
@@ -71,6 +82,10 @@ export default function StoreProfilePage() {
           instagram: data.instagram || "",
           facebook: data.facebook || "",
           tiktok: data.tiktok || "",
+          bankAccount: data.bankAccount || "",
+          bankImage: data.bankImage || "",
+          eWallet: data.eWallet || "",
+          eWalletImage: data.eWalletImage || "",
         })
       }
     } catch {
@@ -92,20 +107,49 @@ export default function StoreProfilePage() {
       })
 
       if (res.ok) {
-        toast.success("Profil toko berhasil disimpan!")
-        setTimeout(() => {
-          window.location.reload()
-        }, 1000)
+        toast.success("Store profile updated successfully")
       } else {
-        toast.error("Gagal menyimpan profil toko")
+        toast.error("Failed to update store profile")
       }
     } catch {
-      toast.error("Terjadi kesalahan")
+      toast.error("Failed to update store profile")
     } finally {
       setSaving(false)
     }
   }
 
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>, field: "bankImage" | "eWalletImage") {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (field === "bankImage") setUploadingBank(true)
+    else setUploadingEWallet(true)
+
+    const uploadData = new FormData()
+    uploadData.append("file", file)
+
+    const toastId = toast.loading("Mengunggah gambar...")
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: uploadData,
+      })
+
+      if (res.ok) {
+        const { url } = await res.json()
+        setFormData(prev => ({ ...prev, [field]: url }))
+        toast.success("Gambar berhasil diunggah", { id: toastId })
+      } else {
+        toast.error("Gagal mengunggah gambar", { id: toastId })
+      }
+    } catch {
+      toast.error("Gagal mengunggah gambar", { id: toastId })
+    } finally {
+      if (field === "bankImage") setUploadingBank(false)
+      else setUploadingEWallet(false)
+    }
+  }
 
   if (loading) return <LoadingOverlay />
 
@@ -242,6 +286,108 @@ export default function StoreProfilePage() {
                 className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400"
                 placeholder="@soviafashion"
               />
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Configuration */}
+        <div className="bg-sovia-100/50 rounded-2xl p-8 shadow-sm border border-sovia-200/50 relative overflow-hidden group lg:col-span-2">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-sovia-200 rounded-xl flex items-center justify-center">
+              <Store className="w-5 h-5 text-sovia-600" />
+            </div>
+            <h2 className="text-sovia-900 text-xl font-serif">Pembayaran (Transfer Manual)</h2>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div>
+              <label className="text-sovia-700 text-sm block mb-2">Rekening Bank</label>
+              <textarea
+                value={formData.bankAccount}
+                onChange={(e) => setFormData({ ...formData, bankAccount: e.target.value })}
+                rows={3}
+                className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400 resize-none mb-3"
+                placeholder="BCA 1234567890 a.n. Sovia"
+              />
+              <label className="text-sovia-700 text-sm block mb-2">QR Code / Logo Bank</label>
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-sovia-300 border-dashed rounded-lg cursor-pointer bg-sovia-50 hover:bg-sovia-100 transition-colors relative overflow-hidden group">
+                {uploadingBank ? (
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Loader2 className="w-6 h-6 animate-spin text-sovia-400 mb-2" />
+                    <p className="text-sm text-sovia-600 font-medium">Mengunggah...</p>
+                  </div>
+                ) : formData.bankImage ? (
+                  <div className="flex flex-col items-center justify-center p-2 w-full h-full relative">
+                    <Image 
+                      src={formData.bankImage} 
+                      alt="Bank QR/Logo" 
+                      fill
+                      className="absolute inset-0 object-contain opacity-60 group-hover:opacity-30 transition-opacity" 
+                    />
+                    <div className="relative z-10 flex flex-col items-center">
+                      <div className="bg-sovia-900 text-sovia-50 p-2 rounded-full mb-1 shadow-md">
+                        <ImageIcon className="w-4 h-4" />
+                      </div>
+                      <p className="text-xs text-sovia-700 font-medium bg-sovia-100/90 border border-sovia-200 px-3 py-1 rounded-full shadow-sm group-hover:bg-sovia-100 transition-colors">Ubah Gambar</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Upload className="w-6 h-6 text-sovia-400 mb-2 group-hover:-translate-y-1 transition-transform" />
+                    <p className="text-sm text-sovia-600 font-medium">Pilih Gambar</p>
+                  </div>
+                )}
+                <input 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/png, image/jpeg, image/webp" 
+                  onChange={(e) => handleImageUpload(e, "bankImage")}
+                />
+              </label>
+            </div>
+            <div>
+              <label className="text-sovia-700 text-sm block mb-2">E-Wallet (Dana / OVO / GoPay)</label>
+              <textarea
+                value={formData.eWallet}
+                onChange={(e) => setFormData({ ...formData, eWallet: e.target.value })}
+                rows={3}
+                className="w-full py-3 px-4 bg-sovia-50 border border-sovia-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-sovia-400 resize-none mb-3"
+                placeholder="Gopay 081234567890 a.n. Sovia"
+              />
+              <label className="text-sovia-700 text-sm block mb-2">QR Code / Logo E-Wallet</label>
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-sovia-300 border-dashed rounded-lg cursor-pointer bg-sovia-50 hover:bg-sovia-100 transition-colors relative overflow-hidden group">
+                {uploadingEWallet ? (
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Loader2 className="w-6 h-6 animate-spin text-sovia-400 mb-2" />
+                    <p className="text-sm text-sovia-600 font-medium">Mengunggah...</p>
+                  </div>
+                ) : formData.eWalletImage ? (
+                  <div className="flex flex-col items-center justify-center p-2 w-full h-full relative">
+                    <Image 
+                      src={formData.eWalletImage} 
+                      alt="E-Wallet QR/Logo" 
+                      fill
+                      className="absolute inset-0 object-contain opacity-60 group-hover:opacity-30 transition-opacity" 
+                    />
+                    <div className="relative z-10 flex flex-col items-center">
+                      <div className="bg-sovia-900 text-sovia-50 p-2 rounded-full mb-1 shadow-md">
+                        <ImageIcon className="w-4 h-4" />
+                      </div>
+                      <p className="text-xs text-sovia-700 font-medium bg-sovia-50/90 border border-sovia-200 px-3 py-1 rounded-full shadow-sm group-hover:bg-sovia-100 transition-colors">Ubah Gambar</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Upload className="w-6 h-6 text-sovia-400 mb-2 group-hover:-translate-y-1 transition-transform" />
+                    <p className="text-sm text-sovia-600 font-medium">Pilih Gambar</p>
+                  </div>
+                )}
+                <input 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/png, image/jpeg, image/webp" 
+                  onChange={(e) => handleImageUpload(e, "eWalletImage")}
+                />
+              </label>
             </div>
           </div>
         </div>

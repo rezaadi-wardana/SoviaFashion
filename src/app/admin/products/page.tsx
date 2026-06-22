@@ -107,6 +107,9 @@ export default function AdminProductsPage() {
   const [showModal, setShowModal] = useState(false)
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null)
   const [confirmModal, setConfirmModal] = useState<{ isOpen: boolean; productId: string | null }>({ isOpen: false, productId: null })
+  const [uploadingMainImages, setUploadingMainImages] = useState(false)
+  const [uploadingVariantId, setUploadingVariantId] = useState<number | null>(null)
+  const [uploadingTryOnId, setUploadingTryOnId] = useState<number | null>(null)
 
   useEffect(() => {
     setCurrentPage(1)
@@ -640,43 +643,52 @@ function ProductFormModal({
                     >
                       ×
                     </button>
-                    <span className="absolute bottom-0 left-0 bg-sovia-900/70 text-white text-xs px-1">
+                    <span className="absolute bottom-0 left-0 bg-sovia-900/70 text-sovia-50 text-xs px-1">
                       {idx + 1}
                     </span>
                   </div>
                 ))}
               </div>
               {formData.images.length < 5 && (
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={async (e) => {
-                    let file = e.target.files?.[0]
-                    if (file && formData.images.length < 5) {
-                      const loadingToast = toast.loading("Mengunggah gambar...");
-                      try {
-                        file = await compressImage(file, 1080);
-                        const formDataUpload = new FormData()
-                        formDataUpload.append("file", file)
-                        const res = await fetch("/api/upload", {
-                          method: "POST",
-                          body: formDataUpload,
-                        })
-                        const data = await res.json()
-                        if (data.url) {
-                          setFormData({ ...formData, images: [...formData.images, data.url] })
-                          toast.success("Gambar berhasil diunggah", { id: loadingToast });
-                        } else {
-                          throw new Error(data.error || "Upload failed");
+                uploadingMainImages ? (
+                  <div className="w-full py-2 px-4 bg-sovia-100 rounded-lg flex items-center justify-center gap-2 text-sovia-600 text-sm">
+                    <Loader2 className="w-5 h-5 animate-spin" /> Mengunggah...
+                  </div>
+                ) : (
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      let file = e.target.files?.[0]
+                      if (file && formData.images.length < 5) {
+                        setUploadingMainImages(true);
+                        const loadingToast = toast.loading("Mengunggah gambar...");
+                        try {
+                          file = await compressImage(file, 1080);
+                          const formDataUpload = new FormData()
+                          formDataUpload.append("file", file)
+                          const res = await fetch("/api/upload", {
+                            method: "POST",
+                            body: formDataUpload,
+                          })
+                          const data = await res.json()
+                          if (data.url) {
+                            setFormData({ ...formData, images: [...formData.images, data.url] })
+                            toast.success("Gambar berhasil diunggah", { id: loadingToast });
+                          } else {
+                            throw new Error(data.error || "Upload failed");
+                          }
+                        } catch (error) {
+                          console.error("Upload failed:", error)
+                          toast.error("Gagal mengunggah gambar", { id: loadingToast });
+                        } finally {
+                          setUploadingMainImages(false);
                         }
-                      } catch (error) {
-                        console.error("Upload failed:", error)
-                        toast.error("Gagal mengunggah gambar", { id: loadingToast });
                       }
-                    }
-                  }}
-                  className="w-full py-2 px-4 bg-sovia-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-white file:cursor-pointer"
-                />
+                    }}
+                    className="w-full py-2 px-4 bg-sovia-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-sovia-50 file:cursor-pointer"
+                  />
+                )
               )}
             </div>
             <div>
@@ -867,38 +879,47 @@ function ProductFormModal({
                         <div>
                           <label className="text-sovia-600 text-xs block mb-1">Variant Image (optional)</label>
                           <div className="flex items-center gap-3">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={async (e) => {
-                                let file = e.target.files?.[0]
-                                if (file) {
-                                  const loadingToast = toast.loading("Mengunggah gambar varian...");
-                                  try {
-                                    file = await compressImage(file, 1080);
-                                    const formDataUpload = new FormData()
-                                    formDataUpload.append("file", file)
-                                    const res = await fetch("/api/upload", {
-                                      method: "POST",
-                                      body: formDataUpload,
-                                    })
-                                    const data = await res.json()
-                                    if (data.url) {
-                                      const newVars = [...variants]
-                                      newVars[idx] = { ...newVars[idx], image: data.url }
-                                      setVariants(newVars)
-                                      toast.success("Gambar varian berhasil diunggah", { id: loadingToast });
-                                    } else {
-                                      throw new Error(data.error || "Upload failed");
+                            {uploadingVariantId === idx ? (
+                              <div className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm flex items-center justify-center gap-2 text-sovia-600 max-w-[200px]">
+                                <Loader2 className="w-4 h-4 animate-spin" /> Mengunggah...
+                              </div>
+                            ) : (
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={async (e) => {
+                                  let file = e.target.files?.[0]
+                                  if (file) {
+                                    setUploadingVariantId(idx);
+                                    const loadingToast = toast.loading("Mengunggah gambar varian...");
+                                    try {
+                                      file = await compressImage(file, 1080);
+                                      const formDataUpload = new FormData()
+                                      formDataUpload.append("file", file)
+                                      const res = await fetch("/api/upload", {
+                                        method: "POST",
+                                        body: formDataUpload,
+                                      })
+                                      const data = await res.json()
+                                      if (data.url) {
+                                        const newVars = [...variants]
+                                        newVars[idx] = { ...newVars[idx], image: data.url }
+                                        setVariants(newVars)
+                                        toast.success("Gambar varian berhasil diunggah", { id: loadingToast });
+                                      } else {
+                                        throw new Error(data.error || "Upload failed");
+                                      }
+                                    } catch (error) {
+                                      console.error("Upload failed:", error)
+                                      toast.error("Gagal mengunggah gambar varian", { id: loadingToast });
+                                    } finally {
+                                      setUploadingVariantId(null);
                                     }
-                                  } catch (error) {
-                                    console.error("Upload failed:", error)
-                                    toast.error("Gagal mengunggah gambar varian", { id: loadingToast });
                                   }
-                                }
-                              }}
-                              className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-sovia-50 max-w-[200px] overflow-hidden text-ellipsis"
-                            />
+                                }}
+                                className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-sovia-50 max-w-[200px] overflow-hidden text-ellipsis"
+                              />
+                            )}
                             {v.image && (
                               <div className="relative w-12 h-12 shrink-0">
                                 <img src={v.image} alt="Variant" className="w-full h-full object-cover rounded" />
@@ -922,38 +943,47 @@ function ProductFormModal({
                           <label className="text-sovia-600 text-xs block mb-1">Try-On Image (optional)</label>
                           <p className="text-[10px] text-sovia-500 mb-1 leading-tight">Gambar tanpa background untuk Virtual Try-On. Format: PNG/WebP.</p>
                           <div className="flex items-center gap-3">
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={async (e) => {
-                                let file = e.target.files?.[0]
-                                if (file) {
-                                  const loadingToast = toast.loading("Mengunggah gambar try-on...");
-                                  try {
-                                    file = await compressImage(file, 720);
-                                    const formDataUpload = new FormData()
-                                    formDataUpload.append("file", file)
-                                    const res = await fetch("/api/upload", {
-                                      method: "POST",
-                                      body: formDataUpload,
-                                    })
-                                    const data = await res.json()
-                                    if (data.url) {
-                                      const newVars = [...variants]
-                                      newVars[idx] = { ...newVars[idx], tryOnImage: data.url }
-                                      setVariants(newVars)
-                                      toast.success("Gambar try-on berhasil diunggah", { id: loadingToast });
-                                    } else {
-                                      throw new Error(data.error || "Upload failed");
+                            {uploadingTryOnId === idx ? (
+                              <div className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm flex items-center justify-center gap-2 text-sovia-600 max-w-[200px]">
+                                <Loader2 className="w-4 h-4 animate-spin" /> Mengunggah...
+                              </div>
+                            ) : (
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={async (e) => {
+                                  let file = e.target.files?.[0]
+                                  if (file) {
+                                    setUploadingTryOnId(idx);
+                                    const loadingToast = toast.loading("Mengunggah gambar try-on...");
+                                    try {
+                                      file = await compressImage(file, 720);
+                                      const formDataUpload = new FormData()
+                                      formDataUpload.append("file", file)
+                                      const res = await fetch("/api/upload", {
+                                        method: "POST",
+                                        body: formDataUpload,
+                                      })
+                                      const data = await res.json()
+                                      if (data.url) {
+                                        const newVars = [...variants]
+                                        newVars[idx] = { ...newVars[idx], tryOnImage: data.url }
+                                        setVariants(newVars)
+                                        toast.success("Gambar try-on berhasil diunggah", { id: loadingToast });
+                                      } else {
+                                        throw new Error(data.error || "Upload failed");
+                                      }
+                                    } catch (error) {
+                                      console.error("Upload failed:", error)
+                                      toast.error("Gagal mengunggah gambar try-on", { id: loadingToast });
+                                    } finally {
+                                      setUploadingTryOnId(null);
                                     }
-                                  } catch (error) {
-                                    console.error("Upload failed:", error)
-                                    toast.error("Gagal mengunggah gambar try-on", { id: loadingToast });
                                   }
-                                }
-                              }}
-                              className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-sovia-50 max-w-[200px] overflow-hidden text-ellipsis"
-                            />
+                                }}
+                                className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-sovia-50 max-w-[200px] overflow-hidden text-ellipsis"
+                              />
+                            )}
                             {v.tryOnImage && (
                               <div className="relative w-12 h-12 bg-sovia-100 rounded shrink-0">
                                 <img src={v.tryOnImage} alt="Try On" className="w-full h-full object-contain rounded" />

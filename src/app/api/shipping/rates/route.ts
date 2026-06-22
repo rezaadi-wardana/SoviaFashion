@@ -120,6 +120,22 @@ export async function POST(req: NextRequest) {
         type: courier.type || 'regular',
       }));
 
+    // Fallback jika tidak ada kurir yang terdeteksi
+    if (formattedRates.length === 0) {
+      formattedRates.push({
+        courierName: "Kurir Standar",
+        courierCode: "standard",
+        serviceName: "Reguler",
+        serviceCode: "REG",
+        description: "Pengiriman standar",
+        duration: "2-3 hari",
+        price: 15000,
+        shipmentDurationRange: "2-3",
+        shipmentDurationUnit: "hari",
+        type: "regular",
+      });
+    }
+
     return NextResponse.json({
       success: true,
       origin: {

@@ -72,7 +72,7 @@ export function CustomSelect({ options, value, onChange, placeholder = "Select..
                 )}
                 <div className="flex items-center gap-3 w-full">
                   {option.image && (
-                    <div className="w-8 h-10 rounded overflow-hidden flex-shrink-0 bg-white border border-sovia-200">
+                    <div className="w-8 h-10 rounded overflow-hidden flex-shrink-0 bg-sovia-50 border border-sovia-200">
                       <img src={option.image} alt={option.label} className="w-full h-full object-cover" />
                     </div>
                   )}

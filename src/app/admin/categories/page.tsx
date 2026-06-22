@@ -341,7 +341,7 @@ function CategoryFormModal({
                   }
                 }
               }}
-              className="w-full py-2 px-4 bg-sovia-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-white file:cursor-pointer disabled:opacity-50"
+              className="w-full py-2 px-4 bg-sovia-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-sovia-50 file:cursor-pointer disabled:opacity-50"
             />
             {isUploading && (
               <p className="text-sovia-600 text-sm mt-2 animate-pulse">Uploading image, please wait...</p>
@@ -356,7 +356,7 @@ function CategoryFormModal({
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, image: "" })}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-accent-500 text-white rounded-full text-xs"
+                  className="absolute -top-2 -right-2 w-6 h-6 bg-accent-500 text-sovia-50  rounded-full text-xs"
                 >
                   ×
                 </button>

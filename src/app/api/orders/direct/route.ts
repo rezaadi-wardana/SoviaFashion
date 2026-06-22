@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       shippingCost,
       total,
       shippingMethod: "EXPEDITION",
-      paymentMethod: "QRIS",
+      paymentMethod: "MANUAL_TRANSFER",
       recipientName: name,
       phone,
       address,

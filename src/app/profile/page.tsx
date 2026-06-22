@@ -52,6 +52,7 @@ interface OrderItem {
   trackingNumber: string | null;
   createdAt: string;
   updatedAt: string;
+  paymentProofUrl: string | null;
   items: {
     id: string;
     quantity: number;
@@ -74,6 +75,11 @@ const statusConfig: Record<
     label: "Belum Bayar",
     icon: Clock,
     color: "bg-yellow-600 text-yellow-50",
+  },
+  WAITING_CONFIRMATION: {
+    label: "Menunggu Konfirmasi",
+    icon: Clock,
+    color: "bg-orange-600 text-orange-50",
   },
   PACKING: {
     label: "Sedang Diproses",
@@ -122,11 +128,12 @@ const MapPicker = dynamic(() => import("@/components/MapPicker"), {
 
 import { Suspense } from "react";
 
-const statusOrder = ["PENDING_PAYMENT", "PACKING", "SHIPPED", "COMPLETED"];
+const statusOrder = ["PENDING_PAYMENT", "WAITING_CONFIRMATION", "PACKING", "SHIPPED", "COMPLETED"];
 
 const tabs = [
   { id: "ALL", label: "Semua" },
   { id: "PENDING_PAYMENT", label: "Belum Bayar" },
+  { id: "WAITING_CONFIRMATION", label: "Menunggu Konfirmasi" },
   { id: "PACKING", label: "Diproses" },
   { id: "SHIPPED", label: "Dikirim" },
   { id: "COMPLETED", label: "Selesai" },
@@ -249,10 +256,13 @@ function ProfileContent() {
   const [activeTab, setActiveTab] = useState<"profile" | "orders">(defaultTab);
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [storeProfile, setStoreProfile] = useState<{bankAccount: string | null, bankImage: string | null, eWallet: string | null, eWalletImage: string | null} | null>(null);
   const [orderFilter, setOrderFilter] = useState("ALL");
   const [selectedOrder, setSelectedOrder] = useState<OrderItem | null>(null);
+  const [uploadingProofId, setUploadingProofId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
+  const [currentPage, setCurrentPage] = useState(1);
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;
     action: "UPDATE_STATUS" | "REJECT" | null;
@@ -302,6 +312,43 @@ function ProfileContent() {
     handleCompleteOrder(orderId);
   }
 
+  async function handleUploadProof(orderId: string, e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const uploadData = new FormData();
+    uploadData.append("file", file);
+
+    setUploadingProofId(orderId);
+    try {
+      const toastId = toast.loading("Mengunggah bukti pembayaran...");
+      const res = await fetch("/api/upload/payment-proof", {
+        method: "POST",
+        body: uploadData,
+      });
+
+      if (!res.ok) throw new Error("Upload failed");
+      const { url } = await res.json();
+
+      const updateRes = await fetch(`/api/orders/${orderId}/payment-proof`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentProofUrl: url }),
+      });
+
+      if (updateRes.ok) {
+        toast.success("Bukti pembayaran berhasil diunggah!", { id: toastId });
+        fetchOrders(); // Refresh orders
+      } else {
+        toast.error("Gagal menyimpan bukti pembayaran", { id: toastId });
+      }
+    } catch (error) {
+      toast.error("Terjadi kesalahan saat mengunggah", { id: "upload-proof" });
+    } finally {
+      setUploadingProofId(null);
+    }
+  }
+
   // Filter and sort orders
   const filteredOrders = orders
     .filter((o) => {
@@ -321,9 +368,38 @@ function ProfileContent() {
       return sortOrder === "desc" ? timeB - timeA : timeA - timeB;
     });
 
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage) || 1;
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, orderFilter, sortOrder]);
+
   useEffect(() => {
     fetchOrders();
+    fetchStoreProfile();
   }, []);
+
+  async function fetchStoreProfile() {
+    try {
+      const res = await fetch("/api/admin/store-profile");
+      if (res.ok) {
+        const data = await res.json();
+        setStoreProfile({
+          bankAccount: data.bankAccount,
+          bankImage: data.bankImage,
+          eWallet: data.eWallet,
+          eWalletImage: data.eWalletImage,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching store profile:", error);
+    }
+  }
 
   async function fetchOrders() {
     setLoadingOrders(true);
@@ -339,6 +415,30 @@ function ProfileContent() {
       setLoadingOrders(false);
     }
   }
+
+  useEffect(() => {
+    if (orders.length > 0 && defaultExpanded && !selectedOrder) {
+      const targetOrder = orders.find((o) => o.id === defaultExpanded);
+      if (targetOrder) {
+        setSelectedOrder(targetOrder);
+        setOrderFilter(targetOrder.status);
+        
+        setTimeout(() => {
+          document.getElementById("pesanan-saya-section")?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+      }
+    }
+  }, [orders, defaultExpanded]);
+
+  // Sync selectedOrder with updated orders data
+  useEffect(() => {
+    if (selectedOrder) {
+      const updated = orders.find(o => o.id === selectedOrder.id);
+      if (updated && JSON.stringify(updated) !== JSON.stringify(selectedOrder)) {
+        setSelectedOrder(updated);
+      }
+    }
+  }, [orders, selectedOrder]);
 
   useEffect(() => {
     const userId = session?.user?.id;
@@ -528,11 +628,12 @@ function ProfileContent() {
                     alt={item.product.name}
                     width={56}
                     height={64}
-                    className="w-full h-full object-cover"
+                    className="object-cover w-auto h-auto"
                   />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sovia-900 text-sm font-semibold truncate leading-tight">{item.product.name}</p>
+                  <p className="text-sovia-600 font-medium text-xs mt-0.5">{formatPrice(item.price)}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <span className={`text-sovia-700 text-xs px-2 py-1 rounded font-medium border border-sovia-100 ${isMobile ? 'bg-sovia-50' : 'bg-sovia-200'}`}>Qty: {item.quantity}</span>
                     {item.size && <span className={`text-sovia-700 text-xs px-2 py-1 rounded font-medium border border-sovia-100 ${isMobile ? 'bg-sovia-50' : 'bg-sovia-200'}`}>Size: {item.size}</span>}
@@ -541,6 +642,22 @@ function ProfileContent() {
               </div>
             )
           })}
+        </div>
+        
+        {/* Payment Details Section */}
+        <div className={`mt-4 border-t border-sovia-200 pt-3 space-y-1 ${isMobile ? 'px-2' : ''}`}>
+          <div className="flex justify-between text-sm text-sovia-600">
+            <span>Subtotal Produk</span>
+            <span>{formatPrice(order.subtotal || 0)}</span>
+          </div>
+          <div className="flex justify-between text-sm text-sovia-600">
+            <span>Ongkos Kirim</span>
+            <span>{formatPrice(order.shippingCost || 0)}</span>
+          </div>
+          <div className="flex justify-between text-base font-semibold text-sovia-900 mt-2 border-t border-sovia-100 pt-2">
+            <span>Total Belanja</span>
+            <span>{formatPrice(order.total || 0)}</span>
+          </div>
         </div>
       </div>
 
@@ -636,6 +753,19 @@ function ProfileContent() {
           )}
         </div>
 
+        {/* Payment Proof in Status History */}
+        {order.paymentProofUrl && (
+          <div className="mb-6 bg-sovia-100 p-4 rounded-xl border border-sovia-200 shadow-sm">
+            <h4 className="text-sm font-semibold text-sovia-800 mb-3 flex items-center gap-2">
+              Bukti Pembayaran
+            </h4>
+            <a href={order.paymentProofUrl} target="_blank" rel="noreferrer" className="block w-full max-w-[200px] rounded-lg overflow-hidden border border-sovia-200 hover:opacity-90 transition-opacity">
+              <img src={order.paymentProofUrl} alt="Bukti Pembayaran" className="w-full h-auto object-cover" />
+            </a>
+            <p className="text-xs text-sovia-500 mt-2">Klik gambar untuk melihat ukuran penuh</p>
+          </div>
+        )}
+
         <hr className="border-sovia-200 my-6" />
 
         <h3 className="text-sovia-900 font-semibold mb-4 text-sm flex items-center gap-2">
@@ -674,6 +804,57 @@ function ProfileContent() {
               <p className="text-rose-700 font-semibold text-sm">Pesanan Dibatalkan</p>
               <p className="text-rose-600 text-xs mt-1">Pesanan ini telah dibatalkan.</p>
             </div>
+          </div>
+        ) : order.status === "PENDING_PAYMENT" && order.paymentMethod === "MANUAL_TRANSFER" ? (
+          <div className="bg-sovia-50 border border-sovia-100 p-4 rounded-lg">
+            <p className="text-sovia-900 font-medium text-sm mb-4 text-center">Silakan Lakukan Pembayaran & Unggah Bukti</p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left mb-6">
+              <div className="bg-sovia-100 border border-sovia-200 p-3 rounded-lg flex flex-col h-full">
+                <p className="text-sovia-500 text-[10px] font-medium mb-1 uppercase tracking-wider">Rekening Bank</p>
+                <p className="text-sovia-900 text-sm font-medium whitespace-pre-wrap flex-grow">{storeProfile?.bankAccount || "Belum diatur"}</p>
+                {storeProfile?.bankImage && (
+                  <div className="mt-3 relative w-full h-24 bg-sovia-50 rounded border border-sovia-100 overflow-hidden">
+                    <img src={storeProfile.bankImage} alt="Bank QR/Logo" className="absolute inset-0 w-full h-full object-contain p-1" />
+                  </div>
+                )}
+              </div>
+              <div className="bg-sovia-100 border border-sovia-200 p-3 rounded-lg flex flex-col h-full">
+                <p className="text-sovia-500 text-[10px] font-medium mb-1 uppercase tracking-wider">E-Wallet</p>
+                <p className="text-sovia-900 text-sm font-medium whitespace-pre-wrap flex-grow">{storeProfile?.eWallet || "Belum diatur"}</p>
+                {storeProfile?.eWalletImage && (
+                  <div className="mt-3 relative w-full h-24 bg-sovia-50 rounded border border-sovia-100 overflow-hidden">
+                    <img src={storeProfile.eWalletImage} alt="E-Wallet QR/Logo" className="absolute inset-0 w-full h-full object-contain p-1" />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <p className="text-sovia-600 text-xs text-center mb-4">Anda belum mengunggah bukti transfer. Unggah sekarang agar pesanan dapat diproses.</p>
+            
+            <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-sovia-300 border-dashed rounded-lg cursor-pointer bg-sovia-50 hover:bg-sovia-50 transition-all hover:border-sovia-500 group relative overflow-hidden">
+              {uploadingProofId === order.id ? (
+                <div className="flex flex-col items-center justify-center pt-4 pb-4">
+                  <Loader2 className="w-6 h-6 text-sovia-400 mb-2 animate-spin" />
+                  <div className="text-sovia-500 text-xs font-medium">Mengunggah...</div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center pt-4 pb-4">
+                  <Upload className="w-6 h-6 text-sovia-400 mb-2 group-hover:-translate-y-1 transition-transform" />
+                  <div className="bg-sovia-900 text-sovia-50 px-4 py-2 rounded-lg mb-2 text-xs font-medium hover:bg-sovia-800 transition-colors shadow-sm">
+                    Pilih Foto Bukti Transfer
+                  </div>
+                  <p className="text-[10px] text-sovia-500">Maks. 5MB (PNG/JPG)</p>
+                </div>
+              )}
+              <input 
+                type="file" 
+                className="hidden" 
+                accept="image/*"
+                onChange={(e) => handleUploadProof(order.id, e)}
+                disabled={uploadingProofId === order.id}
+              />
+            </label>
           </div>
         ) : (
           <div className="bg-sovia-50 border border-sovia-100 p-4 rounded-lg">
@@ -764,11 +945,11 @@ function ProfileContent() {
                           )}
                           {uploading && (
                             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                              <Loader2 className="w-5 h-5 text-white animate-spin" />
+                              <Loader2 className="w-5 h-5 text-sovia-50 animate-spin" />
                             </div>
                           )}
                         </div>
-                        <label className="absolute bottom-0 right-0 p-1.5 bg-sovia-900 text-white rounded-full cursor-pointer hover:bg-sovia-800 shadow-sm transition-transform hover:scale-105">
+                        <label className="absolute bottom-0 right-0 p-1.5 bg-sovia-900 text-sovia-50 rounded-full cursor-pointer hover:bg-sovia-800 shadow-sm transition-transform hover:scale-105">
                           <Edit className="w-3 h-3" />
                           <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} disabled={uploading} />
                         </label>
@@ -1010,7 +1191,7 @@ function ProfileContent() {
 
                 <button
                   onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
-                  className="flex items-center justify-center gap-2 px-3 py-2 bg-sovia-800 border border-sovia-200 rounded-lg text-sm font-medium text-sovia-50 hover:bg-sovia-900 transition-all active:transform-[scale(0.95)]"
+                  className="flex items-center justify-center gap-2 px-3 py-2 bg-sovia-700 border border-sovia-200 rounded-lg text-sm font-medium text-sovia-50 hover:bg-sovia-900 transition-all active:transform-[scale(0.95)]"
                 >
                   <ArrowUpDown className="w-4 h-4 text-sovia-50" />
                   {sortOrder === "desc" ? "Terbaru" : "Terdahulu"}
@@ -1019,14 +1200,15 @@ function ProfileContent() {
 
               {loadingOrders ? (
                 <div className="text-center py-16 text-sovia-500 animate-pulse">Memuat pesanan...</div>
-              ) : filteredOrders.length === 0 ? (
+              ) : paginatedOrders.length === 0 ? (
                 <div className="text-center py-16 h-[100%] w-full bg-sovia-100 rounded-2xl border border-sovia-200 animate-in fade-in zoom-in-95 duration-300">
                   <Package className="w-12 h-12 text-sovia-300 mx-auto mb-3" />
                   <p className="text-sovia-600 font-medium">Tidak ada pesanan</p>
                   <p className="text-sovia-400 text-sm mt-1">Belum ada riwayat pesanan dengan status ini.</p>
                 </div>
               ) : (
-                filteredOrders.map((order, index) => {
+                <>
+                  {paginatedOrders.map((order, index) => {
                   const statusInfo = statusConfig[order.status] || statusConfig.PENDING_PAYMENT
                   const isSelected = selectedOrder?.id === order.id
 
@@ -1108,7 +1290,34 @@ function ProfileContent() {
                       </div>
                     </div>
                   )
-                })
+                })}
+                
+                {/* Pagination Controls */}
+                {filteredOrders.length > 0 && (
+                  <div className="px-4 py-4 border-t border-sovia-200/30 flex justify-between items-center mt-4 bg-sovia-50 rounded-xl shadow-sm">
+                    <p className="text-sovia-700 text-xs hidden sm:block">
+                      Menampilkan {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredOrders.length)} dari {filteredOrders.length} pesanan
+                    </p>
+                    <div className="flex gap-2 w-full sm:w-auto justify-center sm:justify-end">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <button
+                          key={page}
+                          onClick={() => {
+                            setCurrentPage(page);
+                            document.getElementById("pesanan-saya-section")?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                          }}
+                          className={`w-8 h-8 rounded-xl text-xs transition-all active:scale-95 ${page === currentPage
+                            ? "bg-sovia-700 text-sovia-50 hover:bg-sovia-600"
+                            : "bg-sovia-200 text-sovia-800 hover:bg-sovia-500"
+                            }`}
+                        >
+                          {page}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                </>
               )}
             </div>
 
@@ -1165,7 +1374,7 @@ function ProfileContent() {
                   }
                   setConfirmModal({ ...confirmModal, isOpen: false });
                 }}
-                className={`px-4 py-2 text-sm font-medium text-white rounded-lg shadow-sm transition-colors ${confirmModal.action === 'REJECT' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-sovia-800 hover:bg-sovia-900'
+                className={`px-4 py-2 text-sm font-medium text-sovia-50 rounded-lg shadow-sm transition-colors ${confirmModal.action === 'REJECT' ? 'bg-rose-600 hover:bg-rose-700' : 'bg-sovia-800 hover:bg-sovia-900'
                   }`}
               >
                 Ya, Lanjutkan

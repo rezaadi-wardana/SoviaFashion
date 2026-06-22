@@ -28,18 +28,26 @@ export function Navbar() {
   ]
 
   useEffect(() => {
-    if (session?.user) {
-      fetch("/api/cart")
-        .then(res => res.ok ? res.json() : [])
-        .then(data => {
-          if (Array.isArray(data)) {
-            setCartCount(data.length)
-          }
-        })
-        .catch(() => {})
-    } else {
-      setCartCount(0)
-    }
+    const fetchCartCount = () => {
+      if (session?.user) {
+        fetch("/api/cart")
+          .then(res => res.ok ? res.json() : [])
+          .then(data => {
+            if (Array.isArray(data)) {
+              setCartCount(data.length)
+            }
+          })
+          .catch(() => {})
+      } else {
+        setCartCount(0)
+      }
+    };
+
+    fetchCartCount();
+
+    // Listen for cart updates across the application
+    window.addEventListener("cartUpdated", fetchCartCount);
+    return () => window.removeEventListener("cartUpdated", fetchCartCount);
   }, [session])
 
   // Close language dropdown when clicking outside
@@ -344,7 +352,7 @@ export function Navbar() {
                 signIn("google")
                 setMobileMenuOpen(false)
               }}
-              className="flex items-center justify-center gap-2 text-sm font-medium bg-sovia-600 text-white py-3 px-4 rounded-lg hover:bg-sovia-700 transition-colors"
+              className="flex items-center justify-center gap-2 text-sm font-medium bg-sovia-600 text-sovia-50 py-3 px-4 rounded-lg hover:bg-sovia-700 transition-colors"
             >
               <LogIn className="w-4 h-4" />
               {t("nav.signIn")}

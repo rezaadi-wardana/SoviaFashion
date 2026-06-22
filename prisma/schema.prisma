@@ -14,6 +14,7 @@ enum Role {
 
 enum OrderStatus {
   PENDING_PAYMENT
+  WAITING_CONFIRMATION
   PACKING
   SHIPPED
   COMPLETED
@@ -26,7 +27,7 @@ enum ShippingMethod {
 }
 
 enum PaymentMethod {
-  QRIS
+  MANUAL_TRANSFER
   COD
 }
 
@@ -180,6 +181,7 @@ model Order {
   courierCode    String?
   courierService String?
   trackingNumber String?
+  paymentProofUrl String?      @db.Text
   createdAt     DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   isConfirmed  Boolean       @default(false)
@@ -214,6 +216,10 @@ model StoreProfile {
   address     String?  @db.Text
   lat         Float?
   lng         Float?
+  bankAccount String?  @db.Text
+  bankImage   String?  @db.Text
+  eWallet     String?  @db.Text
+  eWalletImage String? @db.Text
   instagram   String?
   facebook    String?
   tiktok      String?

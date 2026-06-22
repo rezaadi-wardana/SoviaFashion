@@ -360,7 +360,7 @@ function HeroSliderTranslated({ slides }: { slides: Hero[] }) {
             {t("home.shopTheCollection")}
           </Link>
         </div>
-        <div className="w-96 relative hidden lg:block">
+        <div className="w-96 h-full relative hidden lg:block">
           {heroSlides.map((slide, index) => (
             <div
               key={slide.id}
@@ -370,13 +370,12 @@ function HeroSliderTranslated({ slides }: { slides: Hero[] }) {
                 transform: index === currentIndex ? "scale(1)" : "scale(0.95)",
               }}
             >
-              <div className="bg-[#F3EFE6] rounded-lg shadow-xl overflow-hidden">
+              <div className="bg-[#F3EFE6] rounded-lg shadow-xl overflow-hidden relative w-full h-full">
                 <Image
                   src={slide.image}
                   alt={slide.title}
-                  width={448}
-                  height={597}
-                  className="w-full h-[597px] object-cover"
+                  fill
+                  className="object-cover"
                   priority={index === 0}
                 />
               </div>

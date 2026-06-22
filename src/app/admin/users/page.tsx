@@ -136,7 +136,7 @@ export default function AdminUsersPage() {
                       alt={user.name || "User"}
                       width={64}
                       height={64}
-                      className="w-full h-full object-cover"
+                      className="object-cover w-auto h-auto"
                     />
                   ) : (
                     <UsersIcon className="w-full h-full p-3 text-sovia-400" />

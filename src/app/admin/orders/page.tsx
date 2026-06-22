@@ -11,6 +11,8 @@ interface Order {
   id: string
   status: string
   total: number
+  subtotal: number
+  shippingCost: number
   shippingMethod: string
   courierName: string | null
   courierService: string | null
@@ -23,11 +25,13 @@ interface Order {
   user: { name: string; email: string }
   isConfirmed: boolean
   trackingNumber: string | null
+  paymentProofUrl: string | null
   lat: number | null
   lng: number | null
   items: {
     id: string
     quantity: number
+    price: number
     size: string | null
     product: { name: string; images: string | null }
   }[]
@@ -35,13 +39,14 @@ interface Order {
 
 const statusConfig: Record<string, { label: string; icon: any; color: string }> = {
   PENDING_PAYMENT: { label: "Menunggu Pembayaran", icon: Clock, color: "bg-amber-500 text-amber-50" },
+  WAITING_CONFIRMATION: { label: "Menunggu Konfirmasi", icon: Clock, color: "bg-orange-500 text-orange-50" },
   PACKING: { label: "Dalam Pengemasan", icon: Package, color: "bg-sky-500 text-sky-50" },
   SHIPPED: { label: "Dikirim", icon: Truck, color: "bg-indigo-500 text-indigo-50" },
   COMPLETED: { label: "Selesai", icon: CheckCircle, color: "bg-emerald-500 text-emerald-50" },
   CANCELLED: { label: "Dibatalkan", icon: XCircle, color: "bg-rose-500 text-rose-50" },
 }
 
-const statusOrder = ["PENDING_PAYMENT", "PACKING", "SHIPPED", "COMPLETED"]
+const statusOrder = ["PENDING_PAYMENT", "WAITING_CONFIRMATION", "PACKING", "SHIPPED", "COMPLETED"]
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
@@ -49,6 +54,7 @@ export default function AdminOrdersPage() {
   const [activeTab, setActiveTab] = useState("ALL")
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc")
   const [searchQuery, setSearchQuery] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [trackingModalOpen, setTrackingModalOpen] = useState(false)
   const [trackingOrderId, setTrackingOrderId] = useState<string | null>(null)
@@ -132,7 +138,7 @@ export default function AdminOrdersPage() {
       const res = await fetch(`/api/admin/orders/${orderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isConfirmed: confirmed, status: confirmed ? undefined : "CANCELLED" }),
+        body: JSON.stringify({ isConfirmed: confirmed, status: confirmed ? "PACKING" : "CANCELLED" }),
       })
 
       if (res.ok) {
@@ -162,6 +168,17 @@ export default function AdminOrdersPage() {
       const dateB = new Date(b.createdAt).getTime()
       return sortOrder === "desc" ? dateB - dateA : dateA - dateB
     })
+
+  const itemsPerPage = 10;
+  const totalPages = Math.ceil(filteredOrders.length / itemsPerPage) || 1;
+  const paginatedOrders = filteredOrders.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, activeTab, sortOrder]);
 
   const renderOrderDetails = (order: Order, isMobile: boolean) => (
     <div className={`space-y-6 animate-in fade-in duration-500 ${isMobile ? 'pt-4 border-t border-sovia-100' : ''}`}>
@@ -196,6 +213,7 @@ export default function AdminOrdersPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sovia-900 text-sm font-semibold truncate leading-tight">{item.product.name}</p>
+                  <p className="text-sovia-600 font-medium text-xs mt-0.5">{formatPrice(item.price)}</p>
                   <div className="flex items-center gap-2 mt-2">
                     <span className={`text-sovia-700 text-xs px-2 py-1 rounded font-medium border border-sovia-100 ${isMobile ? 'bg-sovia-50' : 'bg-sovia-200'}`}>Qty: {item.quantity}</span>
                     {item.size && <span className={`text-sovia-700 text-xs px-2 py-1 rounded font-medium border border-sovia-100 ${isMobile ? 'bg-sovia-50' : 'bg-sovia-200'}`}>Size: {item.size}</span>}
@@ -204,6 +222,22 @@ export default function AdminOrdersPage() {
               </div>
             )
           })}
+        </div>
+        
+        {/* Payment Details Section */}
+        <div className={`mt-4 border-t border-sovia-200 pt-3 space-y-1 ${isMobile ? 'px-2' : ''}`}>
+          <div className="flex justify-between text-sm text-sovia-600">
+            <span>Subtotal Produk</span>
+            <span>{formatPrice(order.subtotal || 0)}</span>
+          </div>
+          <div className="flex justify-between text-sm text-sovia-600">
+            <span>Ongkos Kirim</span>
+            <span>{formatPrice(order.shippingCost || 0)}</span>
+          </div>
+          <div className="flex justify-between text-base font-semibold text-sovia-900 mt-2 border-t border-sovia-100 pt-2">
+            <span>Total Belanja</span>
+            <span>{formatPrice(order.total || 0)}</span>
+          </div>
         </div>
       </div>
 
@@ -276,6 +310,19 @@ export default function AdminOrdersPage() {
           </span>
         </div>
 
+        {/* Payment Proof in Status History */}
+        {order.paymentProofUrl && (
+          <div className="mb-6 bg-sovia-100 p-4 rounded-xl border border-sovia-200 shadow-sm">
+            <h4 className="text-sm font-semibold text-sovia-800 mb-3 flex items-center gap-2">
+              Bukti Pembayaran
+            </h4>
+            <a href={order.paymentProofUrl} target="_blank" rel="noreferrer" className="block w-full max-w-[200px] rounded-lg overflow-hidden border border-sovia-200 hover:opacity-90 transition-opacity">
+              <img src={order.paymentProofUrl} alt="Bukti Pembayaran" className="w-full h-auto object-cover" />
+            </a>
+            <p className="text-xs text-sovia-500 mt-2">Klik gambar untuk melihat ukuran penuh</p>
+          </div>
+        )}
+
         <div className="relative border-l-2 border-sovia-200 ml-3 space-y-6 mb-8">
           {order.status === "CANCELLED" ? (
             <div className="relative pl-6">
@@ -327,7 +374,7 @@ export default function AdminOrdersPage() {
           <CheckCircle className="w-4 h-4 text-sovia-500" /> Aksi & Update Status
         </h3>
 
-        {(order.status === "PACKING" || order.status === "PENDING_PAYMENT") && !order.isConfirmed ? (
+        {(order.status === "PACKING" || order.status === "PENDING_PAYMENT" || order.status === "WAITING_CONFIRMATION") && !order.isConfirmed ? (
           <div className="flex flex-row gap-3">
             <button
               onClick={(e) => { 
@@ -346,10 +393,19 @@ export default function AdminOrdersPage() {
               Tolak
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); confirmOrder(order.id, true); }}
-              className="flex-1 px-4 py-2 hover:bg-sovia-600 text-sovia-50 bg-sovia-700 transition duration-300 text-sm font-semibold rounded-lg flex items-center gap-2 active:transform-[scale(0.95)]"
+              onClick={(e) => { 
+                e.stopPropagation(); 
+                if (order.status !== "PENDING_PAYMENT") confirmOrder(order.id, true); 
+              }}
+              disabled={order.status === "PENDING_PAYMENT"}
+              className={`flex-1 px-4 py-2 transition duration-300 text-sm font-semibold rounded-lg flex justify-center items-center gap-2 active:transform-[scale(0.95)] ${
+                order.status === "PENDING_PAYMENT"
+                  ? "bg-sovia-200 text-sovia-400 cursor-not-allowed"
+                  : "bg-sovia-700 hover:bg-sovia-600 text-sovia-50 shadow-sm"
+              }`}
+              title={order.status === "PENDING_PAYMENT" ? "Menunggu pembeli mengunggah bukti pembayaran" : "Setujui pesanan ini"}
             >
-              Setujui
+              {order.status === "PENDING_PAYMENT" ? "Menunggu Bukti" : "Setujui"}
             </button>
           </div>
         ) : order.status === "CANCELLED" ? (
@@ -509,14 +565,15 @@ export default function AdminOrdersPage() {
               {sortOrder === "desc" ? "Terbaru" : "Terdahulu"}
             </button>
           </div>
-          {filteredOrders.length === 0 ? (
+          {paginatedOrders.length === 0 ? (
             <div className="text-center py-16 h-[100%] w-full bg-sovia-50 rounded-2xl border border-sovia-200 animate-in fade-in zoom-in-95 duration-300">
               <Package className="w-12 h-12 text-sovia-300 mx-auto mb-3" />
               <p className="text-sovia-600 font-medium">Tidak ada pesanan</p>
               <p className="text-sovia-400 text-sm mt-1">Pesanan yang sesuai kriteria akan muncul di sini.</p>
             </div>
           ) : (
-            filteredOrders.map((order, index) => {
+            <>
+              {paginatedOrders.map((order, index) => {
               const statusInfo = statusConfig[order.status] || statusConfig.PENDING_PAYMENT
               const isSelected = selectedOrder?.id === order.id
 
@@ -602,7 +659,31 @@ export default function AdminOrdersPage() {
                   </div>
                 </div>
               )
-            })
+            })}
+            
+            {/* Pagination Controls */}
+            {filteredOrders.length > 0 && (
+              <div className="px-4 py-4 border-t border-sovia-200/30 flex justify-between items-center mt-4 bg-sovia-50 rounded-xl shadow-sm">
+                <p className="text-sovia-700 text-xs hidden sm:block">
+                  Menampilkan {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredOrders.length)} dari {filteredOrders.length} pesanan
+                </p>
+                <div className="flex gap-2 w-full sm:w-auto justify-center sm:justify-end">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-8 h-8 rounded-xl text-xs transition-all active:scale-95 ${page === currentPage
+                        ? "bg-sovia-700 text-sovia-50 hover:bg-sovia-600"
+                        : "bg-sovia-200 text-sovia-800 hover:bg-sovia-500"
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            </>
           )}
         </div>
 

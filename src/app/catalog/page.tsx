@@ -102,6 +102,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
       })
 
       if (cartRes.ok) {
+        window.dispatchEvent(new Event("cartUpdated"))
         // Keep loading spinner for 1.5 seconds
         await new Promise(resolve => setTimeout(resolve, 1500))
         setLoading(false)

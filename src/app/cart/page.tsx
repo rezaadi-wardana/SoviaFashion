@@ -82,6 +82,7 @@ export default function CartPage() {
       })
 
       if (res.ok) {
+        window.dispatchEvent(new Event("cartUpdated"))
         fetchCartItems()
       }
     } catch (error) {
@@ -96,6 +97,7 @@ export default function CartPage() {
       })
 
       if (res.ok) {
+        window.dispatchEvent(new Event("cartUpdated"))
         fetchCartItems()
         toast.success("Item removed from cart")
       }
@@ -133,7 +135,7 @@ export default function CartPage() {
           </p>
           <Link
             href="/auth/signin"
-            className="px-6 py-3 bg-sovia-600 text-white rounded-lg"
+            className="px-6 py-3 bg-sovia-600 text-sovia-50 rounded-lg"
           >
             Sign In
           </Link>
@@ -182,7 +184,7 @@ export default function CartPage() {
                         alt={item.product.name}
                         width={80}
                         height={96}
-                        className="w-full h-full object-cover"
+                        className="object-cover w-auto h-auto"
                       />
                     </div>
                     <div className="flex-1 sm:hidden">
@@ -270,7 +272,7 @@ export default function CartPage() {
                 </div>
                 <Link
                   href="/checkout"
-                  className="flex items-center justify-center w-full py-4 bg-gradient-to-r from-sovia-600 to-accent-300 text-white text-center rounded-lg font-medium"
+                  className="flex items-center justify-center w-full py-4 bg-gradient-to-r from-sovia-600 to-accent-300 text-sovia-50 text-center rounded-lg font-medium"
                 >
                   Proceed to Checkout
                 </Link>

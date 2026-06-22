@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
 import Script from "next/script"
-import { Check, QrCode, Truck, Package, MapPin, Loader2, AlertCircle, ChevronDown, ChevronUp } from "lucide-react"
+import { Check, Truck, Package, MapPin, Loader2, AlertCircle, ChevronDown, ChevronUp, Upload, Image as ImageIcon, CheckCircle } from "lucide-react"
 import { formatPrice, resolvePrice } from "@/lib/utils"
 import { toast } from "sonner"
 
@@ -97,6 +97,9 @@ export default function CheckoutPage() {
   })
   const [shippingMethod, setShippingMethod] = useState<"EXPEDITION" | "COD">("EXPEDITION")
   const [submitting, setSubmitting] = useState(false)
+  const [storeProfile, setStoreProfile] = useState<{bankAccount: string | null, bankImage: string | null, eWallet: string | null, eWalletImage: string | null} | null>(null)
+  const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null)
+  const [createdOrderId, setCreatedOrderId] = useState<string | null>(null)
 
   // Shipping rates state
   const [shippingRates, setShippingRates] = useState<ShippingRate[]>([])
@@ -128,12 +131,23 @@ export default function CheckoutPage() {
       }
 
       const userRes = await fetch(`/api/users/${userId}`)
+      const storeRes = await fetch(`/api/admin/store-profile`)
 
       if (!userRes.ok) {
         throw new Error("Failed to fetch data")
       }
 
       const userDataResult = await userRes.json()
+      
+      if (storeRes.ok) {
+        const storeData = await storeRes.json()
+        setStoreProfile({
+          bankAccount: storeData.bankAccount,
+          bankImage: storeData.bankImage,
+          eWallet: storeData.eWallet,
+          eWalletImage: storeData.eWalletImage,
+        })
+      }
 
       setUserData({
         name: userDataResult.name || session?.user?.name || "",
@@ -222,27 +236,16 @@ export default function CheckoutPage() {
         }),
       ])
 
+      if (!regularRes.ok || !codRes.ok) {
+        throw new Error("Gagal mengambil tarif pengiriman (API tidak merespon JSON)");
+      }
+
       const regularData = await regularRes.json()
       const codData = await codRes.json()
 
       if (regularData.success) {
         setShippingRates(regularData.rates || [])
-        // Auto-select cheapest regular courier
-        if (regularData.rates?.length > 0) {
-          const cheapest = regularData.rates.reduce(
-            (min: ShippingRate, rate: ShippingRate) =>
-              rate.price < min.price ? rate : min,
-            regularData.rates[0]
-          )
-          setSelectedCourier({
-            courierName: cheapest.courierName,
-            courierCode: cheapest.courierCode,
-            serviceName: cheapest.serviceName,
-            serviceCode: cheapest.serviceCode,
-            price: cheapest.price,
-            duration: cheapest.duration,
-          })
-        }
+        setSelectedCourier(null)
       } else {
         setRatesError(regularData.error || "Gagal mengambil tarif pengiriman")
       }
@@ -264,36 +267,10 @@ export default function CheckoutPage() {
     }
   }, [fetchShippingRates])
 
-  // When switching to COD, auto-select cheapest COD courier
+  // When switching shipping method, reset courier selection
   useEffect(() => {
-    if (shippingMethod === "COD" && codRates.length > 0) {
-      const cheapest = codRates.reduce(
-        (min, rate) => (rate.price < min.price ? rate : min),
-        codRates[0]
-      )
-      setSelectedCourier({
-        courierName: cheapest.courierName,
-        courierCode: cheapest.courierCode,
-        serviceName: cheapest.serviceName,
-        serviceCode: cheapest.serviceCode,
-        price: cheapest.price,
-        duration: cheapest.duration,
-      })
-    } else if (shippingMethod === "EXPEDITION" && shippingRates.length > 0) {
-      const cheapest = shippingRates.reduce(
-        (min, rate) => (rate.price < min.price ? rate : min),
-        shippingRates[0]
-      )
-      setSelectedCourier({
-        courierName: cheapest.courierName,
-        courierCode: cheapest.courierCode,
-        serviceName: cheapest.serviceName,
-        serviceCode: cheapest.serviceCode,
-        price: cheapest.price,
-        duration: cheapest.duration,
-      })
-    }
-  }, [shippingMethod, codRates, shippingRates])
+    setSelectedCourier(null)
+  }, [shippingMethod])
 
   function handleSelectCourier(rate: ShippingRate) {
     setSelectedCourier({
@@ -306,7 +283,7 @@ export default function CheckoutPage() {
     })
   }
 
-  async function handleSubmit() {
+  const handleCreateOrder = async () => {
     if (!userData.name || !userData.phone || !userData.address) {
       toast.error("Lengkapi data profil pengiriman terlebih dahulu")
       router.push("/profile")
@@ -323,12 +300,12 @@ export default function CheckoutPage() {
       toast.error("Keranjang belanja kosong")
       return
     }
-
     if (!selectedCourier) {
       toast.error("Pilih kurir pengiriman terlebih dahulu")
       return
     }
 
+    if (!session?.user || !selectedCourier) return
     setSubmitting(true)
 
     try {
@@ -347,7 +324,7 @@ export default function CheckoutPage() {
         subtotal,
         shippingCost: selectedCourier.price,
         shippingMethod,
-        paymentMethod: shippingMethod === "COD" ? "COD" : "QRIS",
+        paymentMethod: shippingMethod === "COD" ? "COD" : "MANUAL_TRANSFER",
         recipientName: userData.name,
         phone: userData.phone,
         address: userData.address,
@@ -358,6 +335,7 @@ export default function CheckoutPage() {
         courierCode: selectedCourier.courierCode,
         courierService: `${selectedCourier.serviceName} (${selectedCourier.serviceCode})`,
         isDirect: !!directOrder,
+        paymentProofUrl: null as string | null,
       }
 
       const res = await fetch("/api/orders", {
@@ -369,29 +347,20 @@ export default function CheckoutPage() {
       if (res.ok) {
         const order = await res.json()
         
-        if (order.midtransToken) {
-          // @ts-expect-error window.snap is injected by midtrans script
-          window.snap.pay(order.midtransToken, {
-            onSuccess: function() {
-              toast.success("Pembayaran berhasil!")
-              router.push(`/profile?tab=orders&order=${order.id}`)
-            },
-            onPending: function() {
-              toast.success("Menunggu pembayaran Anda!")
-              router.push(`/profile?tab=orders&order=${order.id}`)
-            },
-            onError: function() {
-              toast.error("Pembayaran gagal")
-              router.push(`/profile?tab=orders&order=${order.id}`)
-            },
-            onClose: function() {
-              toast.error("Anda menutup pop-up sebelum menyelesaikan pembayaran")
-              router.push(`/profile?tab=orders&order=${order.id}`)
-            }
-          })
-        } else {
+        if (shippingMethod === "COD") {
           toast.success("Pesanan berhasil dibuat!")
           router.push(`/profile?tab=orders&order=${order.id}`)
+        } else {
+          setCreatedOrderId(order.id)
+          toast.success("Pesanan dibuat. Silakan lakukan pembayaran.")
+          
+          // Scroll to payment section
+          setTimeout(() => {
+            const paymentElement = document.getElementById("payment-section")
+            if (paymentElement) {
+              paymentElement.scrollIntoView({ behavior: "smooth", block: "center" })
+            }
+          }, 100)
         }
       } else {
         toast.error("Gagal membuat pesanan")
@@ -399,6 +368,54 @@ export default function CheckoutPage() {
     } catch (error) {
       console.error("Error placing order:", error)
       toast.error("Terjadi kesalahan")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  const handleConfirmPayment = async () => {
+    if (!createdOrderId) return
+    
+    if (!paymentProofFile) {
+      toast.error("Silakan unggah bukti pembayaran terlebih dahulu")
+      return
+    }
+
+    setSubmitting(true)
+    const toastId = toast.loading("Mengunggah bukti pembayaran...")
+
+    try {
+      const formData = new FormData()
+      formData.append("file", paymentProofFile)
+      
+      const uploadRes = await fetch("/api/upload/payment-proof", {
+        method: "POST",
+        body: formData,
+      })
+      
+      if (!uploadRes.ok) {
+        toast.error("Gagal mengunggah bukti pembayaran", { id: toastId })
+        setSubmitting(false)
+        return
+      }
+
+      const uploadData = await uploadRes.json()
+      
+      const updateRes = await fetch(`/api/orders/${createdOrderId}/payment-proof`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ paymentProofUrl: uploadData.url }),
+      })
+
+      if (updateRes.ok) {
+        toast.success("Pembayaran berhasil dikonfirmasi!", { id: toastId })
+        router.push(`/profile?tab=orders&order=${createdOrderId}`)
+      } else {
+        toast.error("Gagal mengonfirmasi pembayaran", { id: toastId })
+      }
+    } catch (error) {
+      console.error("Error confirming payment:", error)
+      toast.error("Terjadi kesalahan saat mengonfirmasi pembayaran", { id: toastId })
     } finally {
       setSubmitting(false)
     }
@@ -433,13 +450,6 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen pt-32 pb-24">
-      <Script 
-        src={process.env.NEXT_PUBLIC_MIDTRANS_IS_PRODUCTION === "true" 
-          ? "https://app.midtrans.com/snap/snap.js" 
-          : "https://app.sandbox.midtrans.com/snap/snap.js"}
-        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
-        strategy="lazyOnload"
-      />
       <div className="max-w-[1280px] mx-auto px-8">
         <h1 className="text-sovia-900 text-4xl font-serif mb-8">Checkout</h1>
 
@@ -450,16 +460,18 @@ export default function CheckoutPage() {
               <div className="flex justify-between items-center pb-2 border-b border-sovia-200 mb-4">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 bg-sovia-600 rounded-xl flex items-center justify-center">
-                    <Check className="w-4 h-4 text-white" />
+                    <Check className="w-4 h-4 text-sovia-50" />
                   </div>
                   <h2 className="text-sovia-600 text-xl font-serif">Detail Pengiriman</h2>
                 </div>
-                <button
-                  onClick={() => router.push("/profile")}
-                  className="text-sovia-600 text-sm font-medium hover:underline"
-                >
-                  Edit
-                </button>
+                {!createdOrderId && (
+                  <button
+                    onClick={() => router.push("/profile")}
+                    className="text-sovia-600 text-sm font-medium hover:underline"
+                  >
+                    Edit
+                  </button>
+                )}
               </div>
               <div className="bg-[#F3EFE6] rounded-lg p-6 space-y-4">
                 <div>
@@ -485,12 +497,14 @@ export default function CheckoutPage() {
                     <AlertCircle className="w-4 h-4" />
                     <span className="text-sm">
                       Lokasi pengiriman belum ditentukan.{" "}
-                      <button
-                        onClick={() => router.push("/profile")}
-                        className="underline font-medium"
-                      >
-                        Atur sekarang
-                      </button>
+                      {!createdOrderId && (
+                        <button
+                          onClick={() => router.push("/profile")}
+                          className="underline font-medium"
+                        >
+                          Atur sekarang
+                        </button>
+                      )}
                     </span>
                   </div>
                 )}
@@ -512,25 +526,27 @@ export default function CheckoutPage() {
               <div className="grid grid-cols-2 gap-3 mb-4">
                 <button
                   onClick={() => setShippingMethod("EXPEDITION")}
+                  disabled={!!createdOrderId}
                   className={`p-4 rounded-lg outline outline-1 transition-all ${shippingMethod === "EXPEDITION"
                       ? "outline-sovia-600 bg-sovia-100 outline-2"
                       : "outline-sovia-300 bg-[#F3EFE6] hover:bg-sovia-50"
-                    }`}
+                    } ${createdOrderId ? "opacity-70 cursor-not-allowed" : ""}`}
                 >
                   <div className="flex items-center gap-3">
                     <Package className={`w-5 h-5 ${shippingMethod === "EXPEDITION" ? "text-sovia-700" : "text-sovia-400"}`} />
                     <div className="text-left">
                       <p className="text-sovia-900 font-medium text-sm">Ekspedisi</p>
-                      <p className="text-sovia-500 text-xs">Transfer via QRIS</p>
+                      <p className="text-sovia-500 text-xs">Transfer Bank / E-Wallet</p>
                     </div>
                   </div>
                 </button>
                 <button
                   onClick={() => setShippingMethod("COD")}
+                  disabled={!!createdOrderId}
                   className={`p-4 rounded-lg outline outline-1 transition-all ${shippingMethod === "COD"
                       ? "outline-sovia-600 bg-sovia-100 outline-2"
                       : "outline-sovia-300 bg-[#F3EFE6] hover:bg-sovia-50"
-                    }`}
+                    } ${createdOrderId ? "opacity-70 cursor-not-allowed" : ""}`}
                 >
                   <div className="flex items-center gap-3">
                     <Truck className={`w-5 h-5 ${shippingMethod === "COD" ? "text-sovia-700" : "text-sovia-400"}`} />
@@ -576,11 +592,12 @@ export default function CheckoutPage() {
                       <button
                         key={`${rate.courierCode}-${rate.serviceCode}-${index}`}
                         onClick={() => handleSelectCourier(rate)}
+                        disabled={!!createdOrderId}
                         className={`w-full p-4 rounded-lg outline outline-1 transition-all text-left ${selectedCourier?.courierCode === rate.courierCode &&
                             selectedCourier?.serviceCode === rate.serviceCode
                             ? "outline-sovia-700 bg-sovia-100 outline-2"
                             : "outline-sovia-200 bg-[#F3EFE6] hover:bg-sovia-50"
-                          }`}
+                          } ${createdOrderId ? "opacity-70 cursor-not-allowed" : ""}`}
                       >
                         <div className="flex justify-between items-start">
                           <div className="flex-1">
@@ -610,7 +627,7 @@ export default function CheckoutPage() {
                       </button>
                     ))}
 
-                    {currentRates.length > 4 && (
+                    {currentRates.length > 4 && !createdOrderId && (
                       <button
                         onClick={() => setShowAllCouriers(!showAllCouriers)}
                         className="w-full py-3 text-sovia-600 text-sm font-medium flex items-center justify-center gap-1 hover:text-sovia-900 transition-colors"
@@ -631,17 +648,18 @@ export default function CheckoutPage() {
               </div>
             </div>
 
-            {/* Payment Method */}
-            <div>
-              <div className="flex justify-between items-center pb-2 border-b border-sovia-200 mb-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-xl border border-sovia-500 flex items-center justify-center">
-                    <div className="w-3 h-3 bg-sovia-500" />
+            {/* Payment Method - Only shown after order is created */}
+            {createdOrderId && (
+              <div id="payment-section" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="flex justify-between items-center pb-2 border-b border-sovia-200 mb-4">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl border border-sovia-500 flex items-center justify-center bg-sovia-500 text-sovia-50">
+                      <CheckCircle className="w-5 h-5" />
+                    </div>
+                    <h2 className="text-sovia-900 text-xl font-serif">Pembayaran</h2>
                   </div>
-                  <h2 className="text-sovia-900 text-xl font-serif">Pembayaran</h2>
                 </div>
-              </div>
-              <div className="bg-[#F3EFE6] rounded-lg p-8 text-center">
+                <div className="bg-[#F3EFE6] rounded-lg p-8 text-center">
                 {shippingMethod === "COD" ? (
                   <div>
                     <p className="text-sovia-700 text-base mb-4">
@@ -656,21 +674,76 @@ export default function CheckoutPage() {
                     </p>
                   </div>
                 ) : (
-                  <div>
-                    <p className="text-sovia-700 text-base mb-4">
-                      Pembayaran aman melalui Payment Gateway (Transfer Bank, GoPay, OVO, dll)
+                  <div className="space-y-6">
+                    <p className="text-sovia-700 text-base">
+                      Silakan transfer ke salah satu rekening atau E-Wallet berikut:
                     </p>
-                    <div className="w-full max-w-sm mx-auto dark:bg-sovia-600 dark:text-sovia-50 bg-white border border-sovia-200 rounded-lg p-6 flex flex-col items-center justify-center mb-4 shadow-sm">
-                      <div className="flex items-center justify-center mb-4 h-8">
-                        <span className="text-2xl font-extrabold tracking-tight text-[#001f3f]  dark:text-sovia-50">
-                          mid<span className="text-[#0081c7]">trans</span>
-                        </span>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
+                      <div className="bg-sovia-50 border border-sovia-200 p-4 rounded-lg flex flex-col h-full">
+                        <p className="text-sovia-500 text-xs font-medium mb-2 uppercase tracking-wider">Rekening Bank</p>
+                        <p className="text-sovia-900 font-medium whitespace-pre-wrap flex-grow">{storeProfile?.bankAccount || "Belum diatur"}</p>
+                        {storeProfile?.bankImage && (
+                          <div className="mt-4 relative w-full h-32 bg-sovia-50 rounded border border-sovia-100 overflow-hidden">
+                            <img src={storeProfile.bankImage} alt="Bank QR/Logo" className="absolute inset-0 w-full h-full object-contain p-2" />
+                          </div>
+                        )}
                       </div>
-                      <p className="text-sovia-500 text-sm  dark:text-sovia-50">
-                        Anda akan diarahkan ke pop-up pembayaran Midtrans setelah klik konfirmasi pesanan.
-                      </p>
+                      <div className="bg-sovia-50 border border-sovia-200 p-4 rounded-lg flex flex-col h-full">
+                        <p className="text-sovia-500 text-xs font-medium mb-2 uppercase tracking-wider">E-Wallet</p>
+                        <p className="text-sovia-900 font-medium whitespace-pre-wrap flex-grow">{storeProfile?.eWallet || "Belum diatur"}</p>
+                        {storeProfile?.eWalletImage && (
+                          <div className="mt-4 relative w-full h-32 bg-sovia-50 rounded border border-sovia-100 overflow-hidden">
+                            <img src={storeProfile.eWalletImage} alt="E-Wallet QR/Logo" className="absolute inset-0 w-full h-full object-contain p-2" />
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <p className="text-sm">
+                    
+                    <div className="bg-sovia-50 border border-sovia-200 p-6 rounded-lg text-left mt-4">
+                      <p className="text-sm text-sovia-900 font-medium mb-3">Upload Bukti Transfer</p>
+                      <p className="text-xs text-sovia-600 mb-4">Silakan unggah foto bukti transfer Anda di bawah ini agar pesanan dapat diproses.</p>
+                      
+                      <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-sovia-300 border-dashed rounded-lg cursor-pointer bg-sovia-100 hover:bg-sovia-50 transition-colors relative overflow-hidden group">
+                        {paymentProofFile ? (
+                          <div className="flex flex-col items-center justify-center p-2 w-full h-full relative">
+                            {/* Preview Image */}
+                            <img 
+                              src={URL.createObjectURL(paymentProofFile)} 
+                              alt="Preview" 
+                              className="absolute inset-0 w-full h-full object-contain opacity-40 group-hover:opacity-20 transition-opacity" 
+                            />
+                            <div className="relative z-10 flex flex-col items-center">
+                              <div className="bg-sovia-900 text-sovia-50 p-2 rounded-full mb-2 shadow-md">
+                                <ImageIcon className="w-5 h-5" />
+                              </div>
+                              <p className="text-sm text-sovia-900 font-semibold truncate max-w-[200px] bg-sovia-200/80 px-2 py-0.5 rounded">{paymentProofFile.name}</p>
+                              <p className="text-xs text-sovia-700 mt-2 font-medium bg-sovia-100 border border-sovia-200 px-3 py-1 rounded-full shadow-sm group-hover:bg-sovia-100 transition-colors">Klik untuk mengganti foto</p>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <Upload className="w-8 h-8 text-sovia-400 mb-3 group-hover:-translate-y-1 transition-transform" />
+                            <div className="bg-sovia-900 text-sovia-50 px-5 py-2 rounded-lg mb-3 text-sm font-medium hover:bg-sovia-800 transition-colors shadow-md">
+                              Pilih Foto Bukti Transfer
+                            </div>
+                            <p className="text-xs text-sovia-500">PNG, JPG atau WEBP (Maks. 5MB)</p>
+                          </div>
+                        )}
+                        <input 
+                          type="file" 
+                          className="hidden" 
+                          accept="image/*"
+                          onChange={(e) => {
+                            if (e.target.files && e.target.files[0]) {
+                              setPaymentProofFile(e.target.files[0])
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+
+                    <p className="text-sm mt-4">
                       Total pembayaran:{" "}
                       <span className="font-semibold">{formatPrice(total)}</span>
                     </p>
@@ -678,6 +751,7 @@ export default function CheckoutPage() {
                 )}
               </div>
             </div>
+            )}
           </div>
 
           {/* Order Summary */}
@@ -699,7 +773,7 @@ export default function CheckoutPage() {
                         alt={item.product.name}
                         width={80}
                         height={96}
-                        className="w-full h-full object-cover"
+                        className="object-cover w-auto h-auto"
                       />
                     </div>
                     <div className="flex-1">
@@ -757,17 +831,32 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              <button
-                onClick={handleSubmit}
-                disabled={submitting || items.length === 0 || !selectedCourier || loadingRates}
-                className="w-full py-4 bg-gradient-to-r from-sovia-600 to-accent-300 text-white rounded-lg font-medium mt-6 disabled:opacity-60 transition-opacity"
-              >
-                {submitting ? "Memproses..." : "Konfirmasi Pesanan"}
-              </button>
+              {!createdOrderId ? (
+                <button
+                  onClick={handleCreateOrder}
+                  disabled={submitting || items.length === 0 || !selectedCourier || loadingRates || !userData.address || !userData.phone || !userData.name}
+                  className="w-full py-4 bg-gradient-to-r from-sovia-600 to-accent-300 text-white rounded-lg font-medium mt-6 disabled:opacity-60 transition-opacity"
+                >
+                  {submitting ? "Memproses..." : "Checkout"}
+                </button>
+              ) : (
+                <button
+                  onClick={handleConfirmPayment}
+                  disabled={submitting || !paymentProofFile}
+                  className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 text-white rounded-lg font-medium mt-6 disabled:opacity-60 transition-opacity"
+                >
+                  {submitting ? "Memproses..." : "Konfirmasi Pembayaran"}
+                </button>
+              )}
 
-              {!selectedCourier && !loadingRates && items.length > 0 && (
+              {!selectedCourier && !loadingRates && items.length > 0 && !createdOrderId && (
                 <p className="text-amber-600 text-xs text-center mt-3">
                   Pilih kurir pengiriman untuk melanjutkan
+                </p>
+              )}
+              {createdOrderId && !paymentProofFile && (
+                <p className="text-amber-600 text-xs text-center mt-3 animate-pulse">
+                  Menunggu Anda mengunggah bukti pembayaran
                 </p>
               )}
             </div>
