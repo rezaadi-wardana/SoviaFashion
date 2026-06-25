@@ -27,6 +27,7 @@ import {
   Search,
   ArrowUpDown,
   XCircle,
+  Lock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { formatPrice, formatDate, toTitleCase } from "@/lib/utils";
@@ -164,6 +165,9 @@ function ProfileContent() {
   });
 
   const [isEditingAddress, setIsEditingAddress] = useState(true);
+  const [isEditingPassword, setIsEditingPassword] = useState(false);
+  const [passwordData, setPasswordData] = useState({ currentPassword: "", newPassword: "" });
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   const [addressDetails, setAddressDetails] = useState({
     street: "",
@@ -528,6 +532,30 @@ function ProfileContent() {
       toast.error("Terjadi kesalahan saat mengunggah");
     } finally {
       setUploading(false);
+    }
+  }
+
+  async function handlePasswordSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setPasswordLoading(true);
+    try {
+      const res = await fetch("/api/users/password", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(passwordData)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Password berhasil diubah!");
+        setIsEditingPassword(false);
+        setPasswordData({ currentPassword: "", newPassword: "" });
+      } else {
+        toast.error(data.error || "Gagal mengubah password");
+      }
+    } catch {
+      toast.error("Terjadi kesalahan jaringan");
+    } finally {
+      setPasswordLoading(false);
     }
   }
 
@@ -1079,6 +1107,70 @@ function ProfileContent() {
                     <div className="flex justify-end pt-2">
                       <button type="submit" disabled={loading} className="px-5 py-2 bg-sovia-900 text-sovia-50 text-xs font-medium rounded-lg flex items-center gap-1.5 hover:bg-sovia-800 disabled:opacity-70 transition-colors">
                         {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />} Simpan Alamat
+                      </button>
+                    </div>
+                  </form>
+                )}
+              </div>
+            </div>
+
+            {/* Card Keamanan Akun */}
+            <div className="bg-sovia-50 rounded-xl shadow-sm border border-sovia-200 overflow-hidden relative flex flex-col lg:col-span-3">
+              <div className="border-b border-sovia-100 bg-sovia-200 p-4 flex justify-between items-center">
+                <h3 className="text-md font-semibold text-sovia-900 flex items-center gap-2">
+                  Keamanan Akun
+                </h3>
+                <button
+                  onClick={() => {
+                    setIsEditingPassword(!isEditingPassword);
+                    setPasswordData({ currentPassword: "", newPassword: "" });
+                  }}
+                  className="text-sovia-600 hover:text-sovia-900 p-1.5 rounded-lg transition-colors flex items-center gap-1.5 text-xs font-medium"
+                >
+                  {isEditingPassword ? "Batal" : <><Edit className="w-3.5 h-3.5" /> Atur Password</>}
+                </button>
+              </div>
+
+              <div className="p-5 md:p-6">
+                {!isEditingPassword ? (
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-sovia-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Lock className="w-5 h-5 text-sovia-400" />
+                    </div>
+                    <div>
+                      <p className="text-sovia-900 font-medium text-sm">Password</p>
+                      <p className="text-sovia-500 text-xs mt-1 leading-relaxed max-w-xl">
+                        Atur password Anda untuk dapat login tanpa Google di kemudian hari. Jika Anda sudah memiliki password, Anda dapat merubahnya di sini.
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <form onSubmit={handlePasswordSubmit} className="space-y-4 max-w-sm animate-in fade-in duration-200">
+                    <div>
+                      <label className="text-sovia-700 text-xs font-medium block mb-1">Password Saat Ini (Opsional)</label>
+                      <input 
+                        type="password" 
+                        value={passwordData.currentPassword} 
+                        onChange={(e) => setPasswordData(p => ({ ...p, currentPassword: e.target.value }))}
+                        className="w-full py-2 px-3 bg-sovia-50 border border-sovia-200 rounded text-sovia-900 focus:outline-none focus:ring-1 focus:ring-sovia-500 text-sm"
+                        placeholder="Kosongkan jika belum pernah mengatur"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sovia-700 text-xs font-medium block mb-1">Password Baru <span className="text-red-500">*</span></label>
+                      <input 
+                        type="password" 
+                        required 
+                        minLength={6}
+                        value={passwordData.newPassword} 
+                        onChange={(e) => setPasswordData(p => ({ ...p, newPassword: e.target.value }))}
+                        className="w-full py-2 px-3 bg-sovia-50 border border-sovia-200 rounded text-sovia-900 focus:outline-none focus:ring-1 focus:ring-sovia-500 text-sm"
+                        placeholder="Minimal 6 karakter"
+                      />
+                    </div>
+                    <div className="flex justify-end pt-2">
+                      <button type="submit" disabled={passwordLoading} className="px-5 py-2 bg-sovia-900 text-sovia-50 text-xs font-medium rounded-lg flex items-center gap-1.5 hover:bg-sovia-800 disabled:opacity-70 transition-colors">
+                        {passwordLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />} Simpan Password
                       </button>
                     </div>
                   </form>

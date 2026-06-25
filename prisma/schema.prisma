@@ -36,6 +36,7 @@ model User {
   name      String?
   email     String   @unique
   emailVerified DateTime?
+  password  String?
   image     String?
   role      Role     @default(USER)
   phone     String?
@@ -110,6 +111,7 @@ model Product {
   isFeatured  Boolean  @default(false)
   categoryId  String?
   category    Category? @relation(fields: [categoryId], references: [id])
+  video       String?   @db.Text
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 

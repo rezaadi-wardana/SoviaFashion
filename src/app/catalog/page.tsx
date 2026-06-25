@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useSearchParams, useRouter } from "next/navigation"
 import Image from "next/image"
 import { useSession } from "next-auth/react"
-import { Search, Filter, ShoppingCart, ArrowRight, Plus, Check, Loader2, X } from "lucide-react"
+import { Search, Filter, ShoppingCart, ArrowRight, Plus, Check, Loader2, X, Sparkles, Volume2, VolumeX } from "lucide-react"
 import { formatPrice, resolvePrice, getProductPriceRange } from "@/lib/utils"
 import { toast } from "sonner"
 import { useLanguage } from "@/components/LanguageProvider"
@@ -17,8 +17,9 @@ interface Product {
   description: string | null
   price: number
   images: string | null
+  video?: string | null
   category: { id: string; name: string } | null
-  variants: { id: string; name: string; stock: number; image: string | null; sizes: string | null }[]
+  variants: { id: string; name: string; stock: number; image: string | null; sizes: string | null; tryOnImage?: string | null }[]
 }
 
 interface Category {
@@ -48,7 +49,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
   const { data: session } = useSession()
   const router = useRouter()
   const { t } = useLanguage()
-  const [selectedVariant, setSelectedVariant] = useState<{ id: string; name: string; stock: number; image: string | null; sizes: string | null } | null>(null)
+  const [selectedVariant, setSelectedVariant] = useState<{ id: string; name: string; stock: number; image: string | null; sizes: string | null; tryOnImage?: string | null } | null>(null)
   const [selectedSize, setSelectedSize] = useState<string>("")
   const [quantity, setQuantity] = useState<number>(1)
   const [loading, setLoading] = useState(false)
@@ -59,6 +60,24 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
     const [name, stockStr] = s.split(":")
     return { name: name.trim(), stock: stockStr !== undefined ? parseInt(stockStr) : 0 }
   }) : []
+
+  const thumbnails: { type: 'video' | 'image', url: string }[] = []
+  if (product.video) {
+    thumbnails.push({ type: 'video', url: product.video })
+  }
+  productImages.forEach(img => {
+    if (img) thumbnails.push({ type: 'image', url: img })
+  })
+  product.variants?.forEach(v => {
+    if (v.image && !thumbnails.find(t => t.url === v.image)) {
+      thumbnails.push({ type: 'image', url: v.image })
+    }
+  })
+
+  const [activeMedia, setActiveMedia] = useState<{ type: 'video' | 'image', url: string } | null>(
+    thumbnails.length > 0 ? thumbnails[0] : null
+  )
+  const [isMuted, setIsMuted] = useState(true)
 
   useEffect(() => {
     async function fetchStoreProfile() {
@@ -171,24 +190,80 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 bg-white/50 backdrop-blur rounded-full text-sovia-900 hover:bg-white/80 transition-colors z-20"
+          className="absolute top-4 right-4 p-2 bg-sovia-50/50 backdrop-blur rounded-full text-sovia-900 hover:bg-sovia-50/80 transition-colors z-20"
         >
           <X className="w-5 h-5" />
         </button>
         <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="relative aspect-[3/4]">
-            <Image
-              src={
-                selectedVariant?.image ||
-                productImages[0] ||
-                "/placeholder.jpg"
-              }
-              alt={product.name}
-              fill
-              className="object-cover"
-            />
+          <div className="p-6 md:p-8 flex flex-col gap-4 bg-sovia-100/50">
+            <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-sovia-200">
+              {activeMedia?.type === 'video' ? (
+                <>
+                  <video
+                    src={activeMedia.url}
+                    autoPlay
+                    loop
+                    muted={isMuted}
+                    playsInline
+                    className="object-cover w-full h-full"
+                  />
+                  <button
+                    onClick={() => setIsMuted(!isMuted)}
+                    className="absolute top-4 right-4 p-2 bg-black/40 hover:bg-black/60 text-white rounded-full transition-colors z-10 backdrop-blur-sm"
+                  >
+                    {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+                  </button>
+                </>
+              ) : (
+                <Image
+                  src={
+                    activeMedia?.url || "/placeholder.jpg"
+                  }
+                  alt={product.name}
+                  fill
+                  className="object-cover"
+                />
+              )}
+              {selectedVariant?.tryOnImage && (
+                <button
+                  onClick={() => router.push(`/virtual-tryon?variantId=${selectedVariant.id}`)}
+                  className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-sovia-50/90 backdrop-blur-md text-sovia-900 font-semibold px-4 py-2 rounded-full shadow-lg hover:scale-105 transition-transform text-sm flex items-center gap-2 z-10"
+                >
+                  <Sparkles className="w-4 h-4 text-accent-500" />
+                  Coba Virtual
+                </button>
+              )}
+            </div>
+
+            {/* Thumbnails */}
+            {thumbnails.length > 1 && (
+              <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                {thumbnails.map((media, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveMedia(media)}
+                    className={`relative w-16 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
+                      activeMedia?.url === media.url ? "border-sovia-900" : "border-transparent opacity-70 hover:opacity-100"
+                    }`}
+                  >
+                    {media.type === 'video' ? (
+                      <>
+                        <video src={media.url} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                          <div className="w-6 h-6 bg-white/80 rounded-full flex items-center justify-center pl-0.5">
+                            <div className="w-0 h-0 border-t-4 border-t-transparent border-l-[6px] border-l-sovia-900 border-b-4 border-b-transparent"></div>
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <Image src={media.url} alt={`Thumbnail ${idx}`} fill className="object-cover" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="p-8 flex flex-col">
+          <div className="p-6 md:p-8 flex flex-col">
             {/* Close button moved to container level */}
             <p className="text-sovia-500 text-sm mb-2">
               {product.category?.name}
@@ -224,6 +299,9 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                     onClick={() => {
                       setSelectedVariant(variant)
                       setSelectedSize("")
+                      if (variant.image) {
+                        setActiveMedia({ type: 'image', url: variant.image })
+                      }
                     }}
                     className={`p-3 border rounded-lg text-left transition-colors ${
                       selectedVariant?.id === variant.id
@@ -316,41 +394,48 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
             )}
 
             <div className="mt-auto space-y-3">
-              <div className="flex gap-4">
-                <button
-                  onClick={handleAddToCart}
-                  disabled={!selectedVariant || selectedVariant.stock === 0 || !selectedSize || loading || addedToCart}
-                  className={`flex-1 py-3 rounded-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
-                    addedToCart
-                      ? "bg-green-600 border border-green-600 text-sovia-50"
-                      : "bg-sovia-50 border border-sovia-900 text-sovia-900 hover:bg-sovia-100 disabled:opacity-50"
-                  }`}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      {t("catalog.adding")}
-                    </>
-                  ) : addedToCart ? (
-                    <>
-                      <Check className="w-5 h-5" />
-                      {t("catalog.added")}
-                    </>
-                  ) : (
-                    <>
-                      <ShoppingCart className="w-5 h-5" />
-                      {t("catalog.addCart")}
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={handleBuyNow}
-                  disabled={!selectedVariant || selectedVariant.stock === 0 || !selectedSize || loading}
-                  className="flex-1 bg-sovia-900 text-sovia-50 py-3 rounded-lg hover:bg-sovia-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  <ArrowRight className="w-5 h-5" />
-                  {t("catalog.buyNow")}
-                </button>
+              <div className="relative group">
+                <div className="flex gap-4">
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={!selectedVariant || selectedVariant.stock === 0 || !selectedSize || loading || addedToCart}
+                    className={`flex-1 py-3 rounded-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
+                      addedToCart
+                        ? "bg-green-600 border border-green-600 text-sovia-50"
+                        : "bg-sovia-50 border border-sovia-900 text-sovia-900 hover:bg-sovia-100 disabled:opacity-50"
+                    }`}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        {t("catalog.adding")}
+                      </>
+                    ) : addedToCart ? (
+                      <>
+                        <Check className="w-5 h-5" />
+                        {t("catalog.added")}
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="w-5 h-5" />
+                        {t("catalog.addCart")}
+                      </>
+                    )}
+                  </button>
+                  <button
+                    onClick={handleBuyNow}
+                    disabled={!selectedVariant || selectedVariant.stock === 0 || !selectedSize || loading}
+                    className="flex-1 bg-sovia-900 text-sovia-50 py-3 rounded-lg hover:bg-sovia-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <ArrowRight className="w-5 h-5" />
+                    {t("catalog.buyNow")}
+                  </button>
+                </div>
+                {(!selectedVariant || !selectedSize) && (
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-max px-3 py-1.5 bg-gray-800 text-white text-xs font-medium rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
+                    Pilih dahulu varian dan ukuran produk
+                  </div>
+                )}
               </div>
               {/* WhatsApp Chat Button */}
               <button

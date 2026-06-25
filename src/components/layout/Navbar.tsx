@@ -13,6 +13,7 @@ export function Navbar() {
   const { data: session, status } = useSession()
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [cartCount, setCartCount] = useState(0)
   const { theme, toggleTheme } = useTheme()
   const { locale, setLocale, t } = useLanguage()
@@ -37,7 +38,7 @@ export function Navbar() {
               setCartCount(data.length)
             }
           })
-          .catch(() => {})
+          .catch(() => { })
       } else {
         setCartCount(0)
       }
@@ -62,10 +63,11 @@ export function Navbar() {
   }, [])
 
   return (
-    <nav className={cn("top-0 left-0 right-0 z-50 border-b border-sovia-200/20", pathname.startsWith("/admin") ? "absolute bg-sovia-50" : "fixed bg-sovia-50/70 backdrop-blur-[6px]")}>
-      <div className={cn("mx-auto px-4 sm:px-8 py-4 flex items-center justify-between", pathname.startsWith("/admin") ? "w-full" : "max-w-[1280px]")}>
-        <Link 
-          href="/" 
+    <>
+      <nav className={cn("top-0 left-0 right-0 z-50 border-b border-sovia-200/20", pathname.startsWith("/admin") ? "absolute bg-sovia-50" : "fixed bg-sovia-50/70 backdrop-blur-[6px]")}>
+        <div className={cn("mx-auto px-4 sm:px-8 py-4 flex items-center justify-between", pathname.startsWith("/admin") ? "w-full" : "max-w-[1280px]")}>
+        <Link
+          href="/"
           className={cn(
             "text-sovia-800 text-2xl font-serif font-semibold flex items-center gap-2 transition-all duration-200 active:transform-[scale(0.95)]",
             pathname.startsWith("/admin") ? "opacity-0 pointer-events-none invisible" : "opacity-100 visible"
@@ -85,7 +87,7 @@ export function Navbar() {
                   ? "text-sovia-800 border-b-3 border-accent-300 font-bold"
                   : ""
               )}
-              
+
             >
               {link.label}
             </Link>
@@ -221,7 +223,7 @@ export function Navbar() {
                   </Link>
                 )}
                 <button
-                  onClick={() => signOut()}
+                  onClick={() => setShowLogoutModal(true)}
                   className="p-2 text-sovia-800 hover:bg-sovia-100 hover:transform-[scale(1.05)] active:transform-[scale(0.95)] transition-all duration-300 rounded-lg transition-colors"
                   title={t("nav.signOut")}
                 >
@@ -230,12 +232,12 @@ export function Navbar() {
               </div>
             </div>
           ) : (
-            <button
-              onClick={() => signIn("google")}
-              className="hidden md:block px-6 py-2 bg-sovia-600 text-white text-sm font-medium rounded-lg hover:bg-sovia-700 transition-colors"
+            <Link
+              href="/auth/signin"
+              className="hidden md:flex items-center justify-center px-6 py-2 bg-sovia-600 text-white text-sm font-medium rounded-lg hover:bg-sovia-700 transition-colors"
             >
               {t("nav.signIn")}
-            </button>
+            </Link>
           )}
 
           <button
@@ -337,7 +339,7 @@ export function Navbar() {
               )}
               <button
                 onClick={() => {
-                  signOut()
+                  setShowLogoutModal(true)
                   setMobileMenuOpen(false)
                 }}
                 className="flex items-center gap-3 text-left text-sm font-black text-red-900 dark:text-red-400 py-3 px-3 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
@@ -347,19 +349,51 @@ export function Navbar() {
               </button>
             </>
           ) : (
-            <button
-              onClick={() => {
-                signIn("google")
-                setMobileMenuOpen(false)
-              }}
+            <Link
+              href="/auth/signin"
+              onClick={() => setMobileMenuOpen(false)}
               className="flex items-center justify-center gap-2 text-sm font-medium bg-sovia-600 text-sovia-50 py-3 px-4 rounded-lg hover:bg-sovia-700 transition-colors"
             >
               <LogIn className="w-4 h-4" />
               {t("nav.signIn")}
-            </button>
+            </Link>
           )}
         </div>
       )}
-    </nav>
+      </nav>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-sovia-50 rounded-xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 border border-sovia-100">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold mb-2 text-rose-600 flex items-center gap-2">
+                <LogOut className="w-5 h-5" /> Konfirmasi Keluar
+              </h2>
+              <p className="text-sm text-sovia-500 leading-relaxed">
+                Apakah Anda yakin ingin keluar dari akun Anda?
+              </p>
+            </div>
+            <div className="px-6 py-4 bg-sovia-50/80 border-t border-sovia-100 flex justify-end gap-3">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="px-4 py-2 text-sm font-medium text-sovia-700 hover:bg-sovia-100 rounded-lg transition-colors border border-sovia-200 bg-sovia-100 shadow-sm"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  setShowLogoutModal(false)
+                  signOut({ callbackUrl: '/' })
+                }}
+                className="px-4 py-2 text-sm font-medium text-sovia-50 rounded-lg shadow-sm transition-colors bg-rose-600 hover:bg-rose-700"
+              >
+                Yakin Keluar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }

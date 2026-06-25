@@ -3,7 +3,7 @@
 import { signIn, useSession } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState, Suspense } from "react"
-import { Loader2 } from "lucide-react"
+import { Loader2, Mail, Lock, User as UserIcon, Phone } from "lucide-react"
 
 function GoogleIcon() {
   return (
@@ -34,6 +34,16 @@ function SignInContent() {
   const searchParams = useSearchParams()
   const callbackUrl = searchParams.get("callbackUrl") || "/catalog"
   const [loading, setLoading] = useState(false)
+  const [isLogin, setIsLogin] = useState(true)
+  const [formLoading, setFormLoading] = useState(false)
+  const [errorMsg, setErrorMsg] = useState("")
+  
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: ""
+  })
 
   useEffect(() => {
     if (status === "authenticated") {
@@ -50,6 +60,68 @@ function SignInContent() {
     }
   }
 
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setErrorMsg("")
+    setFormLoading(true)
+
+    try {
+      if (isLogin) {
+        // Login Flow
+        const res = await signIn("credentials", {
+          redirect: false,
+          email: formData.email,
+          password: formData.password,
+          callbackUrl
+        })
+
+        if (res?.error) {
+          setErrorMsg("Email atau password salah")
+          setFormLoading(false)
+        } else {
+          router.push(callbackUrl)
+        }
+      } else {
+        // Register Flow
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        })
+
+        const data = await res.json()
+
+        if (!res.ok) {
+          setErrorMsg(data.error || "Terjadi kesalahan saat mendaftar")
+          setFormLoading(false)
+        } else {
+          // Auto login after register
+          const loginRes = await signIn("credentials", {
+            redirect: false,
+            email: formData.email,
+            password: formData.password,
+            callbackUrl
+          })
+          
+          if (loginRes?.error) {
+            setIsLogin(true)
+            setErrorMsg("Pendaftaran berhasil, silakan login")
+            setFormLoading(false)
+          } else {
+            router.push(callbackUrl)
+          }
+        }
+      }
+    } catch (err) {
+      setErrorMsg("Terjadi kesalahan jaringan")
+      setFormLoading(false)
+    }
+  }
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
+  }
+
   if (status === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-sovia-50">
@@ -59,15 +131,15 @@ function SignInContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sovia-100 via-sovia-50 to-accent-100 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sovia-100 via-sovia-50 to-accent-100 px-4 py-12">
       <div className="w-full max-w-md">
         {/* Card */}
-        <div className="bg-[#F3EFE6] rounded-2xl shadow-xl p-10 relative overflow-hidden">
+        <div className="bg-[#F3EFE6] rounded-2xl shadow-xl p-8 sm:p-10 relative overflow-hidden">
           {/* Decorative element */}
           <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-sovia-600 via-accent-300 to-sovia-400" />
 
           {/* Logo */}
-          <div className="text-center mb-10">
+          <div className="text-center mb-8">
             <h1 className="text-sovia-600 text-4xl font-serif tracking-[4px] mb-2">
               Sovia
             </h1>
@@ -75,35 +147,146 @@ function SignInContent() {
               Fashion Collection
             </p>
           </div>
+          
+          {/* Tabs */}
+          <div className="flex bg-sovia-200/50 rounded-xl p-1 mb-8">
+            <button
+              onClick={() => { setIsLogin(true); setErrorMsg(""); }}
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${isLogin ? "bg-sovia-100 text-sovia-900 shadow-sm" : "text-sovia-500 hover:text-sovia-700"}`}
+            >
+              Masuk
+            </button>
+            <button
+              onClick={() => { setIsLogin(false); setErrorMsg(""); }}
+              className={`flex-1 py-2 text-sm font-semibold rounded-lg transition-all duration-200 ${!isLogin ? "bg-sovia-100 text-sovia-900 shadow-sm" : "text-sovia-500 hover:text-sovia-700"}`}
+            >
+              Daftar
+            </button>
+          </div>
 
-          {/* Welcome Text */}
-          <div className="text-center mb-8">
-            <h2 className="text-sovia-900 text-xl font-serif mb-2">
-              Selamat Datang
-            </h2>
-            <p className="text-sovia-500 text-sm leading-relaxed">
-              Masuk dengan akun Google Anda untuk mulai berbelanja koleksi fashion terbaik
-            </p>
+          {errorMsg && (
+            <div className="mb-6 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm text-center">
+              {errorMsg}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+            {!isLogin && (
+              <>
+                <div>
+                  <label className="block text-sovia-700 text-xs font-medium mb-1.5">Nama Lengkap</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <UserIcon className="h-4 w-4 text-sovia-400" />
+                    </div>
+                    <input
+                      type="text"
+                      name="name"
+                      required
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-4 py-2.5 bg-sovia-100 border border-sovia-200 rounded-xl text-sm focus:outline-none focus:border-sovia-500 focus:ring-1 focus:ring-sovia-500 transition-colors"
+                      placeholder="Masukkan nama lengkap"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sovia-700 text-xs font-medium mb-1.5">Nomor HP</label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Phone className="h-4 w-4 text-sovia-400" />
+                    </div>
+                    <input
+                      type="tel"
+                      name="phone"
+                      required
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      className="w-full pl-10 pr-4 py-2.5 bg-sovia-100 border border-sovia-200 rounded-xl text-sm focus:outline-none focus:border-sovia-500 focus:ring-1 focus:ring-sovia-500 transition-colors"
+                      placeholder="Contoh: 081234567890"
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
+            <div>
+              <label className="block text-sovia-700 text-xs font-medium mb-1.5">Email</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Mail className="h-4 w-4 text-sovia-400" />
+                </div>
+                <input
+                  type="email"
+                  name="email"
+                  required
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="w-full pl-10 pr-4 py-2.5 bg-sovia-100 border border-sovia-200 rounded-xl text-sm focus:outline-none focus:border-sovia-500 focus:ring-1 focus:ring-sovia-500 transition-colors"
+                  placeholder="Masukkan email Anda"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sovia-700 text-xs font-medium mb-1.5">Password</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Lock className="h-4 w-4 text-sovia-400" />
+                </div>
+                <input
+                  type="password"
+                  name="password"
+                  required
+                  minLength={6}
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className="w-full pl-10 pr-4 py-2.5 bg-sovia-100 border border-sovia-200 rounded-xl text-sm focus:outline-none focus:border-sovia-500 focus:ring-1 focus:ring-sovia-500 transition-colors"
+                  placeholder="Minimal 6 karakter"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={formLoading}
+              className="w-full flex items-center justify-center py-3 bg-sovia-600 text-sovia-100 font-semibold rounded-xl hover:bg-sovia-700 transition-all duration-200 shadow-sm mt-6 disabled:opacity-70"
+            >
+              {formLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                isLogin ? "Masuk" : "Daftar Akun"
+              )}
+            </button>
+          </form>
+
+          <div className="relative flex items-center justify-center mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-sovia-200"></div>
+            </div>
+            <div className="relative bg-[#F3EFE6] px-4 text-xs text-sovia-500 font-medium">
+              ATAU
+            </div>
           </div>
 
           {/* Google Sign In Button */}
           <button
             onClick={handleGoogleSignIn}
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-3 px-6 py-4 bg-[#F3EFE6] border-2 border-sovia-200 rounded-xl text-sovia-700 font-medium hover:bg-sovia-50 hover:border-sovia-300 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed shadow-sm hover:shadow-md"
+            disabled={loading || formLoading}
+            className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-sovia-100 border border-sovia-200 rounded-xl text-sovia-700 font-medium hover:bg-sovia-50 transition-all duration-200 shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {loading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
               <GoogleIcon />
             )}
-            {loading ? "Menghubungkan..." : "Masuk dengan Google"}
+            Lanjutkan dengan Google
           </button>
 
           {/* Divider */}
-          <div className="mt-8 pt-6 border-t border-sovia-100">
+          <div className="mt-8 pt-6 border-t border-sovia-200">
             <p className="text-sovia-400 text-xs text-center leading-relaxed">
-              Dengan masuk, Anda menyetujui syarat dan ketentuan yang berlaku di Sovia Fashion
+              Dengan {isLogin ? 'masuk' : 'mendaftar'}, Anda menyetujui syarat dan ketentuan yang berlaku di Sovia Fashion
             </p>
           </div>
         </div>

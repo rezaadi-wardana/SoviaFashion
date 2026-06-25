@@ -49,6 +49,7 @@ export default function AdminLayout({
   const { data: session, status } = useSession()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
   const { theme, toggleTheme } = useTheme()
   const { locale, setLocale } = useLanguage()
 
@@ -189,7 +190,7 @@ export default function AdminLayout({
             {!isCollapsed && <span>{theme === "light" ? "Dark" : "Light"}</span>}
           </button>
           <button
-            onClick={() => signOut()}
+            onClick={() => setShowLogoutModal(true)}
             title={isCollapsed ? "Logout" : undefined}
             className={cn(
               "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sovia-800 hover:bg-sovia-200/50 transition-colors w-full active:transform-[scale(0.95)]",
@@ -209,6 +210,39 @@ export default function AdminLayout({
       )}>
         {children}
       </main>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutModal && (
+        <div className="fixed inset-0 z-[9999] bg-black/40 backdrop-blur-[2px] flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-sovia-50 rounded-xl shadow-xl w-full max-w-sm overflow-hidden animate-in zoom-in-95 duration-200 border border-sovia-100">
+            <div className="p-6">
+              <h2 className="text-xl font-semibold mb-2 text-rose-600 flex items-center gap-2">
+                <LogOut className="w-5 h-5" /> Konfirmasi Keluar
+              </h2>
+              <p className="text-sm text-sovia-500 leading-relaxed">
+                Apakah Anda yakin ingin keluar dari akun Anda?
+              </p>
+            </div>
+            <div className="px-6 py-4 bg-sovia-50/80 border-t border-sovia-100 flex justify-end gap-3">
+              <button
+                onClick={() => setShowLogoutModal(false)}
+                className="px-4 py-2 text-sm font-medium text-sovia-700 hover:bg-sovia-100 rounded-lg transition-colors border border-sovia-200 bg-sovia-100 shadow-sm"
+              >
+                Batal
+              </button>
+              <button
+                onClick={() => {
+                  setShowLogoutModal(false)
+                  signOut({ callbackUrl: '/' })
+                }}
+                className="px-4 py-2 text-sm font-medium text-sovia-50 rounded-lg shadow-sm transition-colors bg-rose-600 hover:bg-rose-700"
+              >
+                Yakin Keluar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

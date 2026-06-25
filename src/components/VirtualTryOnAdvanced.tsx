@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useSession, signIn } from 'next-auth/react';
+import { useSearchParams } from 'next/navigation';
 import { Sparkles, UploadCloud, CheckCircle2, AlertCircle, RefreshCw, Download, Image as ImageIcon } from 'lucide-react';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 
@@ -14,6 +15,9 @@ interface Product {
 
 export default function VirtualTryOnAdvanced({ products = [] }: { products?: Product[] }) {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
+  const preselectedVariantId = searchParams?.get('variantId');
+  
   const [humanFile, setHumanFile] = useState<File | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [humanPreview, setHumanPreview] = useState<string | null>(null);
@@ -22,6 +26,13 @@ export default function VirtualTryOnAdvanced({ products = [] }: { products?: Pro
   const [predictionId, setPredictionId] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('');
   const [category, setCategory] = useState<string>('upper_body');
+
+  useEffect(() => {
+    if (preselectedVariantId && products.length > 0 && !selectedProduct) {
+      const p = products.find(prod => prod.id === preselectedVariantId);
+      if (p) setSelectedProduct(p);
+    }
+  }, [preselectedVariantId, products]);
 
   useEffect(() => {
     if (selectedProduct) {

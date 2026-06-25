@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import VirtualTryOnClient from '@/components/VirtualTryOnClient';
 import VirtualTryOnAdvanced from '@/components/VirtualTryOnAdvanced';
+import { Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,7 +46,9 @@ export default async function VirtualTryOnPage() {
           <h2 className="text-3xl font-serif text-sovia-800">Virtual Try-On</h2>
           <p className="text-sovia-500 mt-2">Gunakan fitur coba virtual kami  berbasis AI untuk mencoba pakaian dengan realistis, dan pencahayaan yang disesuaikan secara otomatis.</p>
         </div>
-        <VirtualTryOnAdvanced products={products} />
+        <Suspense fallback={<div className="flex justify-center p-12"><div className="w-8 h-8 border-4 border-sovia-600 border-t-transparent rounded-full animate-spin"></div></div>}>
+          <VirtualTryOnAdvanced products={products} />
+        </Suspense>
       </section>
     </div>
   );

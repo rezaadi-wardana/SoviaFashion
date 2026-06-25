@@ -88,6 +88,7 @@ interface Product {
   sku: string
   category: { id: string; name: string } | null
   isFeatured: boolean
+  video?: string | null
   variants: { id: string; name: string; stock: number; image: string | null; sizes: string | null; tryOnImage?: string | null }[]
 }
 
@@ -286,7 +287,7 @@ export default function AdminProductsPage() {
       </div>
 
       {/* Products Table */}
-      <div className="bg-[#F3EFE6] rounded-lg shadow-lg overflow-hidden">
+      <div className="bg-sovia-50 rounded-lg shadow-lg overflow-hidden">
         <div className="overflow-x-auto w-full">
           <table className="w-full min-w-[800px]">
             <thead>
@@ -492,6 +493,7 @@ function ProductFormModal({
     sku: product?.sku || "",
     categoryId: product?.category?.id || "",
     isFeatured: product?.isFeatured || false,
+    video: product?.video || "",
   })
   const [variants, setVariants] = useState<{ id?: string, name: string, stock: number, price: number | "", buyPrice: number | "", image: string, sizesList: { name: string, stock: number, price: number | "", buyPrice: number | "" }[], tryOnImage?: string }[]>(
     product?.variants?.map((v: any) => {
@@ -510,6 +512,7 @@ function ProductFormModal({
   )
   const [saving, setSaving] = useState(false)
   const [uploadingMainImages, setUploadingMainImages] = useState(false)
+  const [uploadingVideo, setUploadingVideo] = useState(false)
   const [uploadingVariantId, setUploadingVariantId] = useState<number | null>(null)
   const [uploadingTryOnId, setUploadingTryOnId] = useState<number | null>(null)
 
@@ -598,8 +601,8 @@ function ProductFormModal({
           ×
         </button>
 
-        <div className="bg-[#F3EFE6] rounded-2xl flex flex-col max-h-[90vh] overflow-hidden relative">
-          <div className="px-6 md:px-8 py-5 border-b border-sovia-200 bg-[#F3EFE6] shrink-0 z-10 shadow-sm relative">
+        <div className="bg-sovia-50 rounded-2xl flex flex-col max-h-[90vh] overflow-hidden relative">
+          <div className="px-6 md:px-8 py-5 border-b border-sovia-200 bg-sovia-50 shrink-0 z-10 shadow-sm relative">
             <h2 className="text-sovia-900 text-2xl font-serif">
               {product ? "Edit Product" : "New Product"}
             </h2>
@@ -695,6 +698,64 @@ function ProductFormModal({
               )}
             </div>
             <div>
+              <label className="text-sovia-700 text-sm block mb-2">
+                Product Video (Optional)
+              </label>
+              {formData.video ? (
+                <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-sovia-200 mb-2">
+                  <video src={formData.video} controls className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, video: "" })}
+                    className="absolute top-2 right-2 w-6 h-6 hover:bg-rose-600 text-rose-50 bg-rose-500 rounded flex items-center justify-center z-10 shadow-sm"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : uploadingVideo ? (
+                <div className="w-full py-2 px-4 bg-sovia-100 rounded-lg flex items-center justify-center gap-2 text-sovia-600 text-sm">
+                  <Loader2 className="w-5 h-5 animate-spin" /> Mengunggah video...
+                </div>
+              ) : (
+                <input
+                  type="file"
+                  accept="video/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0]
+                    if (!file) return
+                    if (file.size > 15 * 1024 * 1024) {
+                      toast.error("Ukuran video maksimal 15MB")
+                      return
+                    }
+                    setUploadingVideo(true)
+                    const loadingToast = toast.loading("Mengunggah video...")
+                    try {
+                      const formDataUpload = new FormData()
+                      formDataUpload.append("file", file)
+                      const res = await fetch("/api/upload", {
+                        method: "POST",
+                        body: formDataUpload,
+                      })
+                      const data = await res.json()
+                      if (data.url) {
+                        setFormData({ ...formData, video: data.url })
+                        toast.success("Video berhasil diunggah", { id: loadingToast })
+                      } else {
+                        throw new Error(data.error || "Upload failed")
+                      }
+                    } catch (error) {
+                      console.error("Video upload failed:", error)
+                      toast.error("Gagal mengunggah video", { id: loadingToast })
+                    } finally {
+                      setUploadingVideo(false)
+                    }
+                  }}
+                  className="w-full py-2 px-4 bg-sovia-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-sovia-50 file:cursor-pointer"
+                />
+              )}
+              <p className="text-xs text-sovia-500 mt-1">Maks. 15MB. Gunakan resolusi 480p atau 720p (terkompres) untuk loading lebih cepat.</p>
+            </div>
+            <div>
               <label className="text-sovia-700 text-sm block mb-2">SKU (optional)</label>
               <input
                 type="text"
@@ -761,7 +822,7 @@ function ProductFormModal({
                             newVars[idx] = { ...newVars[idx], name: e.target.value }
                             setVariants(newVars)
                           }}
-                          className="w-full py-2 px-3 rounded-lg text-sm border bg-[#F3EFE6]"
+                          className="w-full py-2 px-3 rounded-lg text-sm border bg-sovia-50"
                           required
                         />
                       </div>
@@ -782,7 +843,7 @@ function ProductFormModal({
                               </div>
                               
                               {v.sizesList.map((sizeObj, sizeIdx) => (
-                                <div key={sizeIdx} className="flex flex-col md:flex-row gap-2 md:items-center bg-[#F3EFE6] p-3 md:p-0 md:bg-transparent rounded-lg">
+                                <div key={sizeIdx} className="flex flex-col md:flex-row gap-2 md:items-center bg-sovia-50 p-3 md:p-0 md:bg-transparent rounded-lg">
                                   <div className="flex-1">
                                     <span className="md:hidden text-sovia-600 text-xs block mb-1">Size Name</span>
                                     <input
@@ -794,7 +855,7 @@ function ProductFormModal({
                                         newVars[idx].sizesList[sizeIdx].name = e.target.value;
                                         setVariants(newVars);
                                       }}
-                                      className="w-full py-1.5 px-3 bg-sovia-100 md:bg-[#F3EFE6] rounded-lg text-sm border md:border-0"
+                                      className="w-full py-1.5 px-3 bg-sovia-50 md:bg-sovia-50 rounded-lg text-sm border md:border-0"
                                     />
                                   </div>
                                   <div className="flex flex-wrap md:flex-nowrap gap-2 items-end">
@@ -809,7 +870,7 @@ function ProductFormModal({
                                           newVars[idx].sizesList[sizeIdx].stock = parseInt(e.target.value) || 0;
                                           setVariants(newVars);
                                         }}
-                                        className="w-full py-1.5 px-3 bg-sovia-100 md:bg-[#F3EFE6] rounded-lg text-sm border md:border-0"
+                                        className="w-full py-1.5 px-3 bg-sovia-50 md:bg-sovia-50 rounded-lg text-sm border md:border-0"
                                         min="0"
                                       />
                                     </div>
@@ -824,7 +885,7 @@ function ProductFormModal({
                                           newVars[idx].sizesList[sizeIdx].price = e.target.value === "" ? "" : parseFloat(e.target.value);
                                           setVariants(newVars);
                                         }}
-                                        className="w-full py-1.5 px-3 bg-sovia-100 md:bg-[#F3EFE6] rounded-lg text-sm border md:border-0"
+                                        className="w-full py-1.5 px-3 bg-sovia-100 md:bg-sovia-50 rounded-lg text-sm border md:border-0"
                                       />
                                     </div>
                                     <div className="w-28 md:w-32 flex-1 md:flex-none">
@@ -838,7 +899,7 @@ function ProductFormModal({
                                           newVars[idx].sizesList[sizeIdx].buyPrice = e.target.value === "" ? "" : parseFloat(e.target.value);
                                           setVariants(newVars);
                                         }}
-                                        className="w-full py-1.5 px-3 bg-sovia-100 md:bg-[#F3EFE6] rounded-lg text-sm border md:border-0"
+                                        className="w-full py-1.5 px-3 bg-sovia-100 md:bg-sovia-50 rounded-lg text-sm border md:border-0"
                                       />
                                     </div>
                                     {v.sizesList.length > 1 && (
@@ -883,7 +944,7 @@ function ProductFormModal({
                           <label className="text-sovia-600 text-xs block mb-1">Variant Image (optional)</label>
                           <div className="flex items-center gap-3">
                             {uploadingVariantId === idx ? (
-                              <div className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm flex items-center justify-center gap-2 text-sovia-600 max-w-[200px]">
+                              <div className="flex-1 py-2 px-3 bg-sovia-50 rounded-lg text-sm flex items-center justify-center gap-2 text-sovia-600 max-w-[200px]">
                                 <Loader2 className="w-4 h-4 animate-spin" /> Mengunggah...
                               </div>
                             ) : (
@@ -920,7 +981,7 @@ function ProductFormModal({
                                     }
                                   }
                                 }}
-                                className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-sovia-50 max-w-[200px] overflow-hidden text-ellipsis"
+                                className="flex-1 py-2 px-3 bg-sovia-50 rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-sovia-50 max-w-[200px] overflow-hidden text-ellipsis"
                               />
                             )}
                             {v.image && (
@@ -947,7 +1008,7 @@ function ProductFormModal({
                           <p className="text-[10px] text-sovia-500 mb-1 leading-tight">Gambar tanpa background untuk Virtual Try-On. Format: PNG/WebP.</p>
                           <div className="flex items-center gap-3">
                             {uploadingTryOnId === idx ? (
-                              <div className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm flex items-center justify-center gap-2 text-sovia-600 max-w-[200px]">
+                              <div className="flex-1 py-2 px-3 bg-sovia-50 rounded-lg text-sm flex items-center justify-center gap-2 text-sovia-600 max-w-[200px]">
                                 <Loader2 className="w-4 h-4 animate-spin" /> Mengunggah...
                               </div>
                             ) : (
@@ -984,7 +1045,7 @@ function ProductFormModal({
                                     }
                                   }
                                 }}
-                                className="flex-1 py-2 px-3 bg-[#F3EFE6] rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-sovia-50 max-w-[200px] overflow-hidden text-ellipsis"
+                                className="flex-1 py-2 px-3 bg-sovia-50 rounded-lg text-sm file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-sovia-50 max-w-[200px] overflow-hidden text-ellipsis"
                               />
                             )}
                             {v.tryOnImage && (
