@@ -509,6 +509,9 @@ function ProductFormModal({
     }) || [{ name: "", stock: 0, price: "", buyPrice: "", image: "", sizesList: [{ name: "", stock: 0, price: "", buyPrice: "" }], tryOnImage: "" }]
   )
   const [saving, setSaving] = useState(false)
+  const [uploadingMainImages, setUploadingMainImages] = useState(false)
+  const [uploadingVariantId, setUploadingVariantId] = useState<number | null>(null)
+  const [uploadingTryOnId, setUploadingTryOnId] = useState<number | null>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
