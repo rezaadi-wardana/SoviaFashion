@@ -173,9 +173,8 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
       return
     }
 
-    const message = `${t("catalog.whatsappMessage")} *${product.name}*${
-      selectedVariant ? ` (Varian: ${selectedVariant.name})` : ""
-    } ${t("catalog.withPrice")} ${formatPrice(resolvePrice(product.price, selectedVariant as any, selectedSize))}. ${t("catalog.isAvailable")}`
+    const message = `${t("catalog.whatsappMessage")} *${product.name}*${selectedVariant ? ` (Varian: ${selectedVariant.name})` : ""
+      } ${t("catalog.withPrice")} ${formatPrice(resolvePrice(product.price, selectedVariant as any, selectedSize))}. ${t("catalog.isAvailable")}`
 
     const url = `https://wa.me/${storeWhatsApp}?text=${encodeURIComponent(message)}`
     window.open(url, "_blank")
@@ -198,7 +197,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
         </button>
         <div className="grid grid-cols-1 md:grid-cols-2">
           <div className="p-6 md:p-8 flex flex-col gap-4 bg-sovia-100/50">
-            <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-sovia-200">
+            <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-sovia-100">
               {/* Element untuk menampilkan media (video dan foto) */}
               {activeMedia?.type === 'video' ? (
                 <>
@@ -225,7 +224,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                   }
                   alt={product.name}
                   fill
-                  className="object-cover"
+                  className="object-contain"
                 />
               )}
               {selectedVariant?.tryOnImage && (
@@ -246,9 +245,8 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                   <button
                     key={idx}
                     onClick={() => setActiveMedia(media)}
-                    className={`relative w-16 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${
-                      activeMedia?.url === media.url ? "border-sovia-900" : "border-transparent opacity-70 hover:opacity-100"
-                    }`}
+                    className={`relative w-16 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all ${activeMedia?.url === media.url ? "border-sovia-900" : "border-transparent opacity-70 hover:opacity-100"
+                      }`}
                   >
                     {media.type === 'video' ? (
                       <>
@@ -318,13 +316,12 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                         setActiveMedia({ type: 'image', url: variant.image })
                       }
                     }}
-                    className={`p-3 border rounded-lg text-left transition-colors ${
-                      selectedVariant?.id === variant.id
+                    className={`p-3 border rounded-lg text-left transition-colors ${selectedVariant?.id === variant.id
                         ? "border-sovia-900 bg-sovia-900 text-sovia-50"
                         : variant.stock === 0
                           ? "border-sovia-200 bg-sovia-100 text-sovia-400 cursor-not-allowed"
                           : "border-sovia-300 hover:border-sovia-900"
-                    }`}
+                      }`}
                   >
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">{variant.name}</span>
@@ -348,22 +345,20 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                       key={sizeObj.name}
                       onClick={() => { setSelectedSize(sizeObj.name); setQuantity(1); }}
                       disabled={sizeObj.stock === 0}
-                      className={`min-w-[60px] px-3 py-1.5 flex flex-col items-center justify-center border rounded-lg transition-colors ${
-                        selectedSize === sizeObj.name
+                      className={`min-w-[60px] px-3 py-1.5 flex flex-col items-center justify-center border rounded-lg transition-colors ${selectedSize === sizeObj.name
                           ? "border-sovia-900 bg-sovia-900 text-sovia-50"
                           : sizeObj.stock === 0
                             ? "border-sovia-200 bg-sovia-100 text-sovia-400 cursor-not-allowed"
                             : "border-sovia-300 hover:border-sovia-900"
-                      }`}
+                        }`}
                     >
                       <span className="font-medium leading-tight">{sizeObj.name}</span>
-                      <span className={`text-[10px] leading-tight mt-0.5 ${
-                        selectedSize === sizeObj.name 
-                          ? "text-sovia-200" 
-                          : sizeObj.stock === 0 
-                            ? "text-sovia-400" 
+                      <span className={`text-[10px] leading-tight mt-0.5 ${selectedSize === sizeObj.name
+                          ? "text-sovia-200"
+                          : sizeObj.stock === 0
+                            ? "text-sovia-400"
                             : "text-sovia-500"
-                      }`}>
+                        }`}>
                         {t("catalog.stock")}: {sizeObj.stock}
                       </span>
                     </button>
@@ -379,7 +374,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                 </label>
                 <div className="flex items-center gap-3">
                   {(() => {
-                    const availableStock = selectedSize 
+                    const availableStock = selectedSize
                       ? (variantSizes.find(s => s.name === selectedSize)?.stock || 0)
                       : selectedVariant.stock;
                     return (
@@ -415,11 +410,10 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                   <button
                     onClick={handleAddToCart}
                     disabled={!selectedVariant || selectedVariant.stock === 0 || !selectedSize || loading || addedToCart}
-                    className={`flex-1 py-3 rounded-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${
-                      addedToCart
+                    className={`flex-1 py-3 rounded-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 ${addedToCart
                         ? "bg-green-600 border border-green-600 text-sovia-50"
                         : "bg-sovia-50 border border-sovia-900 text-sovia-900 hover:bg-sovia-100 disabled:opacity-50"
-                    }`}
+                      }`}
                   >
                     {loading ? (
                       <>
@@ -585,11 +579,10 @@ function CatalogContent() {
               <div className="space-y-2">
                 <button
                   onClick={() => setSelectedCategory("")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                    selectedCategory === ""
+                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedCategory === ""
                       ? "bg-sovia-900 text-sovia-50"
                       : "bg-sovia-100 text-sovia-700 hover:bg-sovia-200"
-                  }`}
+                    }`}
                 >
                   {t("catalog.all")}
                 </button>
@@ -597,11 +590,10 @@ function CatalogContent() {
                   <button
                     key={category.id}
                     onClick={() => setSelectedCategory(category.id)}
-                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                      selectedCategory === category.id
+                    className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedCategory === category.id
                         ? "bg-sovia-900 text-sovia-50"
                         : "bg-sovia-100 text-sovia-700 hover:bg-sovia-200"
-                    }`}
+                      }`}
                   >
                     {category.name}
                   </button>
@@ -625,11 +617,10 @@ function CatalogContent() {
               <div className="flex flex-wrap gap-2">
                 <button
                   onClick={() => setSelectedSizeFilter("")}
-                  className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${
-                    selectedSizeFilter === ""
+                  className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${selectedSizeFilter === ""
                       ? "bg-sovia-900 text-sovia-50 border-sovia-900"
                       : "bg-sovia-50 text-sovia-700 border-sovia-300 hover:border-sovia-900"
-                  }`}
+                    }`}
                 >
                   {t("catalog.all")}
                 </button>
@@ -637,11 +628,10 @@ function CatalogContent() {
                   <button
                     key={size}
                     onClick={() => setSelectedSizeFilter(size)}
-                    className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${
-                      selectedSizeFilter === size
+                    className={`px-3 py-1.5 rounded-lg border text-sm transition-colors ${selectedSizeFilter === size
                         ? "bg-sovia-900 text-sovia-50 border-sovia-900"
                         : "bg-sovia-50 text-sovia-700 border-sovia-300 hover:border-sovia-900"
-                    }`}
+                      }`}
                   >
                     {size}
                   </button>
