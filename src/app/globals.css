@@ -1,9 +1,8 @@
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-/* 
-   ---break---
-   */
+
 @custom-variant dark (&:is(.dark *));
 
 @theme {
@@ -39,7 +38,6 @@
    LIGHT THEME (default)
    ============================ */
 :root {
-
   --sovia-900: #3c3228;
   --sovia-800: #504738;
   --sovia-700: #504738;
@@ -61,67 +59,36 @@
   --card-bg: #f3efe6;
 
   --background: oklch(1 0 0);
-
   --foreground: oklch(0.145 0 0);
-
   --card: oklch(1 0 0);
-
   --card-foreground: oklch(0.145 0 0);
-
   --popover: oklch(1 0 0);
-
   --popover-foreground: oklch(0.145 0 0);
-
   --primary: oklch(0.205 0 0);
-
   --primary-foreground: oklch(0.985 0 0);
-
   --secondary: oklch(0.97 0 0);
-
   --secondary-foreground: oklch(0.205 0 0);
-
   --muted: oklch(0.97 0 0);
-
   --muted-foreground: oklch(0.556 0 0);
-
   --accent: oklch(0.97 0 0);
-
   --accent-foreground: oklch(0.205 0 0);
-
   --destructive: oklch(0.577 0.245 27.325);
-
   --border: oklch(0.922 0 0);
-
   --input: oklch(0.922 0 0);
-
   --ring: oklch(0.708 0 0);
-
   --chart-1: oklch(0.87 0 0);
-
   --chart-2: oklch(0.556 0 0);
-
   --chart-3: oklch(0.439 0 0);
-
   --chart-4: oklch(0.371 0 0);
-
   --chart-5: oklch(0.269 0 0);
-
   --radius: 0.625rem;
-
   --sidebar: oklch(0.985 0 0);
-
   --sidebar-foreground: oklch(0.145 0 0);
-
   --sidebar-primary: oklch(0.205 0 0);
-
   --sidebar-primary-foreground: oklch(0.985 0 0);
-
   --sidebar-accent: oklch(0.97 0 0);
-
   --sidebar-accent-foreground: oklch(0.205 0 0);
-
   --sidebar-border: oklch(0.922 0 0);
-
   --sidebar-ring: oklch(0.708 0 0);
 }
 
@@ -152,50 +119,39 @@ html.dark {
   --accent-100: #362d25;
 
   --card-bg: #382e26;
+
+  /* Shadcn dark mode variables */
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.87 0 0);
+  --chart-2: oklch(0.556 0 0);
+  --chart-3: oklch(0.439 0 0);
+  --chart-4: oklch(0.371 0 0);
+  --chart-5: oklch(0.269 0 0);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
 }
 
-body {
-  font-family: var(--font-sans);
-  transition:
-    background-color 0.3s ease,
-    color 0.3s ease;
-}
-
-/* Dark mode overrides for hardcoded bg-[#F3EFE6] */
-html.dark .bg-\[\#F3EFE6\] {
-  background-color: var(--card-bg) !important;
-}
-
-/* Custom background for HomeContent */
-.bg-summer {
-  background-image: url("/bg-summer.png");
-}
-html.dark .bg-summer {
-  background-image: url("/bg-summer-dark.png");
-}
-
-/* Custom Thin Scrollbar */
-.custom-scrollbar::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
-}
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: var(--sovia-300);
-  border-radius: 10px;
-}
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--sovia-400);
-}
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: var(--sovia-300) transparent;
-}
-/* 
-   ---break---
-   */
 @theme inline {
   --font-heading: var(--font-sans);
   --font-sans: var(--font-sans);
@@ -238,45 +194,47 @@ html.dark .bg-summer {
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 }
-/* 
-   ---break---
-   */
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+
+body {
+  font-family: var(--font-sans);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
 }
-/* 
-   ---break---
-   */
+
+/* Dark mode overrides for hardcoded bg-[#F3EFE6] */
+html.dark .bg-\[\#F3EFE6\] {
+  background-color: var(--card-bg) !important;
+}
+
+/* Custom background for HomeContent */
+.bg-summer {
+  background-image: url("/bg-summer.png");
+}
+html.dark .bg-summer {
+  background-image: url("/bg-summer-dark.png");
+}
+
+/* Custom Thin Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--sovia-300);
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--sovia-400);
+}
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--sovia-300) transparent;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -287,4 +245,52 @@ html.dark .bg-summer {
   html {
     @apply font-sans;
   }
+}
+
+/* React Quill Custom Theme Fixes for Dark Mode */
+.quill-custom-theme .ql-toolbar {
+  background-color: var(--sovia-50) !important;
+  border-color: var(--sovia-200) !important;
+}
+.quill-custom-theme .ql-container {
+  border-color: var(--sovia-200) !important;
+}
+.quill-custom-theme .ql-editor {
+  color: var(--sovia-900) !important;
+}
+.quill-custom-theme .ql-stroke {
+  stroke: var(--sovia-700) !important;
+}
+.quill-custom-theme .ql-fill {
+  fill: var(--sovia-700) !important;
+}
+.quill-custom-theme .ql-picker {
+  color: var(--sovia-700) !important;
+}
+.quill-custom-theme .ql-picker-options {
+  background-color: var(--sovia-50) !important;
+  border-color: var(--sovia-200) !important;
+}
+.quill-custom-theme .ql-picker-item {
+  color: var(--sovia-700) !important;
+}
+.quill-custom-theme .ql-picker-item:hover,
+.quill-custom-theme .ql-picker-item.ql-selected {
+  color: var(--sovia-900) !important;
+}
+.quill-custom-theme button:hover .ql-stroke,
+.quill-custom-theme .ql-active .ql-stroke,
+.quill-custom-theme .ql-picker-label:hover .ql-stroke,
+.quill-custom-theme .ql-picker-label.ql-active .ql-stroke {
+  stroke: var(--sovia-900) !important;
+}
+.quill-custom-theme button:hover .ql-fill,
+.quill-custom-theme .ql-active .ql-fill,
+.quill-custom-theme .ql-picker-label:hover .ql-fill,
+.quill-custom-theme .ql-picker-label.ql-active .ql-fill {
+  fill: var(--sovia-900) !important;
+}
+.quill-custom-theme .ql-picker-label:hover,
+.quill-custom-theme .ql-picker-label.ql-active {
+  color: var(--sovia-900) !important;
 }

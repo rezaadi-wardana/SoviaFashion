@@ -7,6 +7,10 @@ import { Plus, Edit, Trash2, Search, ChevronDown, PackageX, Loader2, ImagePlus, 
 import { formatPrice } from "@/lib/utils"
 import { toast } from "sonner"
 import LoadingOverlay from "@/components/ui/LoadingOverlay"
+import dynamic from "next/dynamic"
+import "react-quill-new/dist/quill.snow.css"
+
+const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false })
 
 const MAX_UPLOAD_SIZE = 3 * 1024 * 1024; // 3MB max after compression
 
@@ -621,14 +625,14 @@ function ProductFormModal({
             </div>
             <div>
               <label className="text-sovia-700 text-sm block mb-2">Description</label>
-              <textarea
-                value={formData.description}
-                onChange={(e) =>
-                  setFormData({ ...formData, description: e.target.value })
-                }
-                rows={4}
-                className="w-full py-2 px-4 bg-sovia-100 rounded-lg"
-              />
+              <div className="bg-sovia-100 rounded-lg overflow-hidden border border-sovia-200 quill-custom-theme">
+                <ReactQuill
+                  theme="snow"
+                  value={formData.description || ""}
+                  onChange={(content) => setFormData({ ...formData, description: content })}
+                  className="[&_.ql-toolbar]:border-x-0 [&_.ql-toolbar]:border-t-0 [&_.ql-container]:border-none [&_.ql-editor]:min-h-[150px]"
+                />
+              </div>
             </div>
             {/* Removed Global Price Input */}
             <div>
@@ -1178,8 +1182,15 @@ function ProductDetailModal({
                 <p className="text-sovia-900">{product.sku || "-"}</p>
               </div>
               <div>
-                <p className="text-sovia-500 text-sm">Description</p>
-                <p className="text-sovia-700">{product.description || "-"}</p>
+                <p className="text-sovia-500 text-sm mb-1">Description</p>
+                {product.description ? (
+                  <div
+                    className="prose prose-sm max-w-none text-sovia-700 overflow-hidden break-words [&>p]:mb-2 [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&_strong]:text-sovia-900 [&_a]:text-sovia-600 [&_a]:underline"
+                    dangerouslySetInnerHTML={{ __html: product.description }}
+                  />
+                ) : (
+                  <p className="text-sovia-700">-</p>
+                )}
               </div>
               <div>
                 <p className="text-sovia-500 text-sm">Total Stock</p>

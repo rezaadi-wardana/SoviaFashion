@@ -79,6 +79,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
     thumbnails.length > 0 ? thumbnails[0] : null
   )
   const [isMuted, setIsMuted] = useState(true)
+  const [descExpanded, setDescExpanded] = useState(false)
 
   useEffect(() => {
     async function fetchStoreProfile() {
@@ -286,9 +287,20 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                 return formatPrice(range.min)
               })()}
             </p>
-            <p className="text-sovia-600 mb-6">
-              {product.description}
-            </p>
+            {product.description && (
+              <div className="mb-6">
+                <div
+                  className={`prose prose-sm md:prose-base max-w-none text-sovia-600 break-words [&>p]:mb-2 [&>ul]:list-disc [&>ul]:ml-4 [&>ol]:list-decimal [&>ol]:ml-4 [&_strong]:text-sovia-800 [&_a]:text-sovia-600 [&_a]:underline ${!descExpanded ? 'line-clamp-3 overflow-hidden' : ''}`}
+                  dangerouslySetInnerHTML={{ __html: product.description }}
+                />
+                <button
+                  onClick={() => setDescExpanded(!descExpanded)}
+                  className="text-sovia-500 hover:text-sovia-700 text-sm font-medium mt-2 transition-colors"
+                >
+                  {descExpanded ? '▲ Sembunyikan' : '▼ Lihat selengkapnya'}
+                </button>
+              </div>
+            )}
 
             <div className="mb-6">
               <label className="text-sovia-600 text-sm mb-2 block">
