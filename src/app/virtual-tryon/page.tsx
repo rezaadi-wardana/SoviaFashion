@@ -1,5 +1,4 @@
 import { prisma } from '@/lib/prisma';
-import VirtualTryOnClient from '@/components/VirtualTryOnClient';
 import VirtualTryOnAdvanced from '@/components/VirtualTryOnAdvanced';
 import { Suspense } from 'react';
 
@@ -8,9 +7,9 @@ export const dynamic = 'force-dynamic';
 async function getProducts() {
   const variants = await prisma.productVariant.findMany({
     where: { tryOnImage: { not: null } },
-    select: { 
-      id: true, 
-      name: true, 
+    select: {
+      id: true,
+      name: true,
       tryOnImage: true,
       product: { select: { name: true, category: { select: { name: true } } } }
     },
@@ -30,17 +29,11 @@ async function getProducts() {
 
 export default async function VirtualTryOnPage() {
   const products = await getProducts();
-  
+
   return (
     <div className="min-h-screen bg-sovia-50 py-12 px-4 sm:px-6 lg:px-8 space-y-16">
-      {/* Real-time Webcam Try-On - Saat ini di-hidden sesuai permintaan, dapat diaktifkan kembali nanti jika dibutuhkan */}
-      {/* 
-      <section>
-        <VirtualTryOnClient products={products} />
-      </section>
-      */}
 
-      {/* Advanced AI Try-On using Replicate */}
+      {/* AI Virtual Try-On using Replicate */}
       <section className="pt-8">
         <div className="text-center max-w-2xl mx-auto mb-4">
           <h2 className="text-3xl font-serif text-sovia-800">Virtual Try-On</h2>

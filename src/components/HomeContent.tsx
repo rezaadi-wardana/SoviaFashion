@@ -44,6 +44,7 @@ function getProductImages(images: string | null): string[] {
   }
 }
 
+// Main Code Home Page
 export function HomeContent({
   heros,
   featuredProducts,
@@ -62,7 +63,7 @@ export function HomeContent({
       {/* Hero Slider Section */}
       <HeroSliderTranslated slides={heros} />
 
-      {/* Curated For You */}
+      {/* Pilihan untuk anda */}
       <section className="max-w-[1280px] mx-auto px-8 py-24">
         <div className="mb-16">
           <h2 className="text-sovia-900 text-5xl font-serif mb-4">{t("home.curatedForYou")}</h2>
@@ -118,7 +119,7 @@ export function HomeContent({
         </div>
       </section>
 
-      {/* Latest Arrivals */}
+      {/* Produk Terbaru */}
       <section className="py-24 bg-sovia-200">
         <div className="max-w-[1280px] mx-auto px-8">
           <div className="text-center mb-16">
@@ -200,7 +201,7 @@ export function HomeContent({
         </div>
       </section>
 
-      {/* Categories */}
+      {/* Kategori */}
       <section className="max-w-[1280px] mx-auto px-8 py-24">
         <div className="text-center mb-16">
           <h2 className="text-sovia-900 text-5xl font-serif mb-4">

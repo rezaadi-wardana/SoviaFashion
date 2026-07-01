@@ -15,6 +15,7 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
   const [cartCount, setCartCount] = useState(0)
+  const [storeName, setStoreName] = useState("Sovia Fashion")
   const { theme, toggleTheme } = useTheme()
   const { locale, setLocale, t } = useLanguage()
   const [langDropdownOpen, setLangDropdownOpen] = useState(false)
@@ -62,6 +63,15 @@ export function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
+  useEffect(() => {
+    fetch("/api/admin/store-profile")
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.name) setStoreName(data.name)
+      })
+      .catch(() => {})
+  }, [])
+
   return (
     <>
       <nav className={cn("top-0 left-0 right-0 z-50 border-b border-sovia-200/20", pathname.startsWith("/admin") ? "absolute bg-sovia-50" : "fixed bg-sovia-50/70 backdrop-blur-[6px]")}>
@@ -73,7 +83,7 @@ export function Navbar() {
             pathname.startsWith("/admin") ? "opacity-0 pointer-events-none invisible" : "opacity-100 visible"
           )}
         >
-          <img src={theme === "dark" ? "/just-logo-dark.png" : "/just-logo.png"} alt="logo by sovia fashion" className="h-[40px] w-auto" />Sovia Fashion
+          <img src={theme === "dark" ? "/just-logo-dark.png" : "/just-logo.png"} alt={`logo by ${storeName}`} className="h-[40px] w-auto" />{storeName}
         </Link>
 
         <div className="hidden md:flex items-center gap-8">

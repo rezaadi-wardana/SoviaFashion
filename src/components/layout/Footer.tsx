@@ -34,7 +34,7 @@ export function Footer() {
         {/* Brand & Socials */}
         <div className="flex flex-col items-center md:items-start text-center md:text-left">
           <h2 className="text-sovia-600 text-3xl font-serif font-normal mb-6">
-            Sovia Fashion
+            {profile?.name || 'Sovia Fashion'}
           </h2>
           <div className="text-sovia-500 text-sm space-y-4">
             {profile?.instagram && (

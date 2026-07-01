@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
 import { LayoutDashboard, Package, ShoppingCart, Users, FileBarChart, Image as ImageIcon, LogOut, Folder, Store, Menu, X, User, Sun, Moon, Globe, ChevronLeft, ChevronRight } from "lucide-react"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { useTheme } from "@/components/ThemeProvider"
 import { useLanguage } from "@/components/LanguageProvider"
@@ -50,8 +50,18 @@ export default function AdminLayout({
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [showLogoutModal, setShowLogoutModal] = useState(false)
+  const [storeName, setStoreName] = useState("Sovia Fashion")
   const { theme, toggleTheme } = useTheme()
   const { locale, setLocale } = useLanguage()
+
+  useEffect(() => {
+    fetch("/api/admin/store-profile")
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data?.name) setStoreName(data.name)
+      })
+      .catch(() => {})
+  }, [])
 
   if (status === "loading") {
     return (
@@ -74,8 +84,8 @@ export default function AdminLayout({
       {/* Mobile Top Bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-sovia-50 border-b border-sovia-200/30 z-50 flex items-center justify-between px-4">
         <Link href="/" className="text-sovia-800 text-lg font-serif flex items-center gap-2 font-semibold">  
-          <img src={theme === "dark" ? "/just-logo-dark.png" : "/just-logo.png"} alt="logo by sovia fashion" className="h-[32px] w-auto" /> 
-          Sovia Fashion
+          <img src={theme === "dark" ? "/just-logo-dark.png" : "/just-logo.png"} alt={`logo by ${storeName}`} className="h-[32px] w-auto" /> 
+          {storeName}
         </Link>
         <div className="flex items-center gap-1">
           <Link href="/cart" className="p-2 text-sovia-800 hover:bg-sovia-100 rounded-lg relative">
@@ -116,8 +126,8 @@ export default function AdminLayout({
           </button>
 
           <Link href="/" className={cn("text-sovia-800 text-xl font-serif flex items-center gap-2 mb-6 hidden lg:flex font-semibold transition-all duration-300", isCollapsed ? "justify-center" : "px-2")}>
-            <img src={theme === "dark" ? "/just-logo-dark.png" : "/just-logo.png"} alt="logo by sovia fashion" className="h-[32px] w-auto transition-all duration-300" />
-            {!isCollapsed && <span className="text-xl truncate">Sovia Fashion</span>}
+            <img src={theme === "dark" ? "/just-logo-dark.png" : "/just-logo.png"} alt={`logo by ${storeName}`} className="h-[32px] w-auto transition-all duration-300" />
+            {!isCollapsed && <span className="text-xl truncate">{storeName}</span>}
           </Link>
           
           <div className={cn("flex items-center gap-3 transition-all duration-300", isCollapsed ? "justify-center" : "px-2")}>

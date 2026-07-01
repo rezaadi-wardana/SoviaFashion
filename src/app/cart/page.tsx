@@ -243,12 +243,11 @@ export default function CartPage() {
                 </div>
               ))}
             </div>
-
             {/* Order Summary */}
             <div className="w-full lg:w-96">
               <div className="border border-sovia-200 bg-sovia-100 rounded-xl p-6 lg:p-8 shadow-sm">
                 <h2 className="text-2xl font-serif mb-6">
-                  Order Summary
+                  Ringkasan Pesanan
                 </h2>
                 <div className="space-y-3 mb-6">
                   <div className="flex justify-between">
@@ -270,6 +269,7 @@ export default function CartPage() {
                     </span>
                   </div>
                 </div>
+                {/* Button proceed to checkout */}
                 <Link
                   href="/checkout"
                   className="flex items-center justify-center w-full py-4 bg-gradient-to-r from-sovia-600 to-accent-300 text-sovia-50 text-center rounded-lg font-medium"

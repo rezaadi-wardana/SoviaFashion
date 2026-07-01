@@ -61,6 +61,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
     return { name: name.trim(), stock: stockStr !== undefined ? parseInt(stockStr) : 0 }
   }) : []
 
+  // Pengecekan video thumbnail
   const thumbnails: { type: 'video' | 'image', url: string }[] = []
   if (product.video) {
     thumbnails.push({ type: 'video', url: product.video })
@@ -197,6 +198,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
         <div className="grid grid-cols-1 md:grid-cols-2">
           <div className="p-6 md:p-8 flex flex-col gap-4 bg-sovia-100/50">
             <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-sovia-200">
+              {/* Element untuk menampilkan media (video dan foto) */}
               {activeMedia?.type === 'video' ? (
                 <>
                   <video
@@ -215,6 +217,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                   </button>
                 </>
               ) : (
+                // Image dari product
                 <Image
                   src={
                     activeMedia?.url || "/placeholder.jpg"
@@ -396,6 +399,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
             <div className="mt-auto space-y-3">
               <div className="relative group">
                 <div className="flex gap-4">
+                  {/* Button add to cart */}
                   <button
                     onClick={handleAddToCart}
                     disabled={!selectedVariant || selectedVariant.stock === 0 || !selectedSize || loading || addedToCart}
@@ -422,6 +426,7 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                       </>
                     )}
                   </button>
+                  {/* Button buy now */}
                   <button
                     onClick={handleBuyNow}
                     disabled={!selectedVariant || selectedVariant.stock === 0 || !selectedSize || loading}
@@ -431,12 +436,14 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
                     {t("catalog.buyNow")}
                   </button>
                 </div>
+                {/* Tooltip when selecting variant and size */}
                 {(!selectedVariant || !selectedSize) && (
                   <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-max px-3 py-1.5 bg-gray-800 text-white text-xs font-medium rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50 shadow-lg">
                     Pilih dahulu varian dan ukuran produk
                   </div>
                 )}
               </div>
+
               {/* WhatsApp Chat Button */}
               <button
                 onClick={handleWhatsAppChat}
