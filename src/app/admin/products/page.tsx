@@ -734,19 +734,32 @@ function ProductFormModal({
                     setUploadingVideo(true)
                     const loadingToast = toast.loading("Mengunggah video...")
                     try {
-                      const formDataUpload = new FormData()
-                      formDataUpload.append("file", file)
-                      const res = await fetch("/api/upload", {
-                        method: "POST",
-                        body: formDataUpload,
-                      })
-                      const data = await res.json()
-                      if (data.url) {
-                        setFormData({ ...formData, video: data.url })
-                        toast.success("Video berhasil diunggah", { id: loadingToast })
-                      } else {
-                        throw new Error(data.error || "Upload failed")
+                      let videoUrl = "";
+                      try {
+                        const { upload } = await import('@vercel/blob/client');
+                        const blob = await upload(file.name, file, {
+                          access: 'public',
+                          handleUploadUrl: '/api/upload/token',
+                        });
+                        videoUrl = blob.url;
+                      } catch (err) {
+                        console.log("Client upload failed or not configured, falling back to server upload", err);
+                        const formDataUpload = new FormData()
+                        formDataUpload.append("file", file)
+                        const res = await fetch("/api/upload", {
+                          method: "POST",
+                          body: formDataUpload,
+                        })
+                        const data = await res.json()
+                        if (data.url) {
+                          videoUrl = data.url;
+                        } else {
+                          throw new Error(data.error || "Upload failed")
+                        }
                       }
+
+                      setFormData({ ...formData, video: videoUrl })
+                      toast.success("Video berhasil diunggah", { id: loadingToast })
                     } catch (error) {
                       console.error("Video upload failed:", error)
                       toast.error("Gagal mengunggah video", { id: loadingToast })
