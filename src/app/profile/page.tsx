@@ -602,7 +602,9 @@ function ProfileContent() {
 
       if (res.ok) {
         toast.success("Profile updated successfully!");
-        await update({ name: formData.name });
+        await update({ name: formData.name, image: formData.image });
+        setIsEditingProfile(false);
+        setIsEditingAddress(false);
       } else {
         toast.error("Failed to update profile");
       }

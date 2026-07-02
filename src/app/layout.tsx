@@ -6,6 +6,7 @@ import { Providers } from "@/components/Providers"
 import { Navbar } from "@/components/layout/Navbar"
 import { Footer } from "@/components/layout/Footer"
 import { cn } from "@/lib/utils";
+import { Toaster } from "sonner";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -61,6 +62,7 @@ export default function RootLayout({
           <main className="flex-1 pt-16">{children}</main>
           <Footer />
         </Providers>
+        <Toaster position="bottom-right" richColors />
         <Script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" strategy="beforeInteractive" />
         <Script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" strategy="beforeInteractive" />
         <Script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" strategy="beforeInteractive" />

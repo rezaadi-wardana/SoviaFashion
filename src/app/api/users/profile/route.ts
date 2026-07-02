@@ -36,6 +36,7 @@ export async function PUT(request: Request) {
         lng: true,
         job: true,
         birthDate: true,
+        image: true,
       },
     })
 

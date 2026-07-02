@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useSession, signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { Sparkles, UploadCloud, CheckCircle2, AlertCircle, RefreshCw, Download, Image as ImageIcon } from 'lucide-react';
+import { toast } from 'sonner';
 import { CustomSelect } from '@/components/ui/CustomSelect';
 
 interface Product {
@@ -177,6 +178,11 @@ export default function VirtualTryOnAdvanced({ products = [] }: { products?: Pro
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) {
+                    if (file.size > 2 * 1024 * 1024) {
+                      toast.error("Ukuran file foto Anda melebihi 2MB. Silakan unggah foto dengan ukuran lebih kecil.");
+                      e.target.value = '';
+                      return;
+                    }
                     setHumanFile(file);
                     setHumanPreview(URL.createObjectURL(file));
                   }
@@ -189,7 +195,7 @@ export default function VirtualTryOnAdvanced({ products = [] }: { products?: Pro
                 <div className="flex flex-col items-center text-sovia-400 group-hover:text-accent-400 transition-colors p-6 text-center">
                   <UploadCloud className="w-12 h-12 mb-3" />
                   <p className="font-medium text-sm">Klik atau drop foto Anda di sini</p>
-                  <p className="text-xs mt-1 opacity-70">Pastikan pose tubuh terlihat jelas</p>
+                  <p className="text-xs mt-1 opacity-70">Pastikan pose tubuh terlihat jelas <br></br>Maks. 2Mb</p>
                 </div>
               )}
               {humanPreview && (
