@@ -96,6 +96,15 @@ export default function AdminDashboard() {
       color: "bg-[#F3EFE6]",
     },
   ]
+  const statusLabels: Record<string, string> = {
+    PENDING_PAYMENT: "Menunggu Pembayaran",
+    WAITING_CONFIRMATION: "Menunggu Konfirmasi",
+    PACKING: "Dalam Pengemasan",
+    SHIPPED: "Dikirim",
+    COMPLETED: "Selesai",
+    CANCELLED: "Dibatalkan",
+  }
+
   if (loading) return <LoadingOverlay />
 
   return (
@@ -276,7 +285,7 @@ export default function AdminDashboard() {
                                 order.status === "CANCELLED" ? "bg-rose-500 text-rose-50" :
                                   "bg-amber-500 text-amber-50"
                           }`}>
-                          {order.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
+                          {statusLabels[order.status] ?? order.status}
                         </span>
                       </td>
                     </tr>

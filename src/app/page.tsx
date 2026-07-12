@@ -11,14 +11,21 @@ async function getHeroSliders() {
 async function getFeaturedProducts() {
   return await prisma.product.findMany({
     where: { isFeatured: true },
-    include: { category: true },
+    include: { 
+      category: true,
+      variants: true,
+    },
+    orderBy: { updatedAt: "desc" },
     take: 8,
   })
 }
 
 async function getLatestProducts() {
   return await prisma.product.findMany({
-    include: { category: true },
+    include: { 
+      category: true,
+      variants: true,
+    },
     orderBy: { createdAt: "desc" },
     take: 6,
   })

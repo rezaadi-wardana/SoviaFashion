@@ -35,11 +35,17 @@ export async function PUT(
 
   const { id } = await params
   const body = await request.json()
-  const { name, description, price, images, sku, categoryId, isFeatured, video } = body
 
-  const product = await prisma.product.update({
-    where: { id },
-    data: {
+  // Support partial update (e.g. toggle isFeatured only from table)
+  const isPartialUpdate = Object.keys(body).length === 1 && "isFeatured" in body
+
+  let updateData: any
+
+  if (isPartialUpdate) {
+    updateData = { isFeatured: body.isFeatured }
+  } else {
+    const { name, description, price, images, sku, categoryId, isFeatured, video } = body
+    updateData = {
       name,
       description,
       price: parseFloat(price) || 0,
@@ -48,7 +54,12 @@ export async function PUT(
       sku: sku || null,
       categoryId: categoryId || null,
       isFeatured: isFeatured || false,
-    },
+    }
+  }
+
+  const product = await prisma.product.update({
+    where: { id },
+    data: updateData,
   })
 
   revalidatePath('/')

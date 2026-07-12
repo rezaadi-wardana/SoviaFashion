@@ -14,6 +14,7 @@ interface Product {
   images: string | null
   isFeatured: boolean
   category: { id: string; name: string } | null
+  variants?: any[]
 }
 
 interface Category {

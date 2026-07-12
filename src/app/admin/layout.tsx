@@ -14,15 +14,15 @@ const adminGroups = [
     title: "",
     links: [
       { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-      { href: "/admin/orders", label: "Orders", icon: ShoppingCart },
+      { href: "/admin/orders", label: "Pesanan", icon: ShoppingCart },
     ]
   },
   {
     title: "Management",
     links: [
-      { href: "/admin/products", label: "Products", icon: Package },
-      { href: "/admin/categories", label: "Categories", icon: Folder },
-      { href: "/admin/users", label: "Customers", icon: Users },
+      { href: "/admin/products", label: "Produk", icon: Package },
+      { href: "/admin/categories", label: "Kategori", icon: Folder },
+      { href: "/admin/users", label: "Pelanggan", icon: Users },
     ]
   },
   {
@@ -35,7 +35,7 @@ const adminGroups = [
   {
     title: "Reports",
     links: [
-      { href: "/admin/reports", label: "Report", icon: FileBarChart },
+      { href: "/admin/reports", label: "Laporan", icon: FileBarChart },
     ]
   }
 ]

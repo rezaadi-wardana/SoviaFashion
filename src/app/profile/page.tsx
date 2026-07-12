@@ -559,9 +559,19 @@ function ProfileContent() {
     }
   }
 
+  // True jika user belum pernah menyimpan alamat sebelumnya
+  const isFirstTimeAddress = !formData.address;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
+
+    // Jika pertama kali mengisi alamat, lat & lng wajib diisi
+    if (isFirstTimeAddress && (!formData.lat || !formData.lng || formData.lat === 0 || formData.lng === 0)) {
+      toast.error("Titik lokasi (pin peta) wajib diatur saat pertama kali mengisi alamat. Geser pin atau gunakan tombol 'Lokasi Saya'.");
+      setLoading(false);
+      return;
+    }
 
     let finalAddress = "";
     if (addressDetails.provinceName) {
@@ -601,15 +611,15 @@ function ProfileContent() {
       });
 
       if (res.ok) {
-        toast.success("Profile updated successfully!");
+        toast.success("Profile berhasil diupdate!");
         await update({ name: formData.name, image: formData.image });
         setIsEditingProfile(false);
         setIsEditingAddress(false);
       } else {
-        toast.error("Failed to update profile");
+        toast.error("Gagal mengupdate profile!");
       }
     } catch {
-      toast.error("An error occurred");
+      toast.error("Terjadi kesalahan saat mengupdate profile!");
     } finally {
       setLoading(false);
     }
@@ -621,7 +631,7 @@ function ProfileContent() {
         <div className="text-center">
           <User className="w-16 h-16 mx-auto mb-4 text-sovia-400" />
           <p className="text-sovia-600 text-lg">
-            Please sign in to view your profile
+            Silahkan login untuk melihat profil
           </p>
         </div>
       </div>
@@ -1100,14 +1110,38 @@ function ProfileContent() {
                     </div>
 
                     <div className="mb-4">
-                      <div className="rounded-xl overflow-hidden border border-sovia-200 h-[200px]">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-sovia-700 text-xs font-medium flex items-center gap-1">
+                          Titik Lokasi (Pin Peta)
+                          {isFirstTimeAddress && <span className="text-red-500">*</span>}
+                        </label>
+                        {isFirstTimeAddress && (!formData.lat || !formData.lng || formData.lat === 0 || formData.lng === 0) && (
+                          <span className="text-[10px] text-red-500 font-medium animate-pulse">Wajib ditentukan</span>
+                        )}
+                      </div>
+                      <div className={`rounded-xl overflow-hidden h-[200px] border-2 transition-colors ${
+                        isFirstTimeAddress && (!formData.lat || !formData.lng || formData.lat === 0 || formData.lng === 0)
+                          ? 'border-red-400'
+                          : 'border-sovia-200'
+                      }`}>
                         <MapPicker lat={formData.lat} lng={formData.lng} onLocationChange={(lat, lng) => setFormData(p => ({ ...p, lat, lng }))} height="h-[200px]" />
                       </div>
-                      <p className="text-[10px] text-sovia-500 mt-1.5 text-center">Geser pin untuk menentukan titik pengiriman presisi.</p>
+                      {isFirstTimeAddress && (!formData.lat || !formData.lng || formData.lat === 0 || formData.lng === 0) ? (
+                        <p className="text-[10px] text-red-500 mt-1.5 text-center font-medium">
+                          ⚠ Geser pin atau klik tombol "Lokasi Saya" untuk menentukan titik pengiriman. Wajib diisi.
+                        </p>
+                      ) : (
+                        <p className="text-[10px] text-sovia-500 mt-1.5 text-center">Geser pin untuk menentukan titik pengiriman presisi.</p>
+                      )}
                     </div>
 
                     <div className="flex justify-end pt-2">
-                      <button type="submit" disabled={loading} className="px-5 py-2 bg-sovia-900 text-sovia-50 text-xs font-medium rounded-lg flex items-center gap-1.5 hover:bg-sovia-800 disabled:opacity-70 transition-colors">
+                      <button
+                        type="submit"
+                        disabled={loading || (isFirstTimeAddress && (!formData.lat || !formData.lng || formData.lat === 0 || formData.lng === 0))}
+                        title={isFirstTimeAddress && (!formData.lat || !formData.lng || formData.lat === 0 || formData.lng === 0) ? "Tentukan titik lokasi pada peta terlebih dahulu" : undefined}
+                        className="px-5 py-2 bg-sovia-900 text-sovia-50 text-xs font-medium rounded-lg flex items-center gap-1.5 hover:bg-sovia-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      >
                         {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />} Simpan Alamat
                       </button>
                     </div>

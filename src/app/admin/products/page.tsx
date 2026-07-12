@@ -803,6 +803,20 @@ function ProductFormModal({
                 </select>
               </div>
 
+              {/* Featured Checkbox */}
+              <div className="flex items-center gap-3 p-3 bg-sovia-100 rounded-lg border border-sovia-200">
+                <input
+                  type="checkbox"
+                  id="isFeatured"
+                  checked={formData.isFeatured}
+                  onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                  className="w-4 h-4 accent-sovia-700 cursor-pointer rounded"
+                />
+                <label htmlFor="isFeatured" className="cursor-pointer select-none flex-1">
+                  <span className="text-sovia-800 text-sm font-medium">Produk Pilihan (Featured)</span>
+                  <p className="text-sovia-500 text-xs mt-0.5">Produk akan ditampilkan di bagian unggulan pada halaman utama.</p>
+                </label>
+              </div>
 
               <div>
                 <label className="text-sovia-700 text-sm block mb-2 font-semibold">
