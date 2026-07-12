@@ -39,6 +39,21 @@ interface CartItem {
   }
 }
 
+function getMaxStock(item: CartItem): number {
+  if (!item.product.variants || item.product.variants.length === 0) return 99
+  const variant = item.product.variants.find(v => v.name === item.color)
+  if (!variant) return 99
+
+  if (item.size && variant.sizes) {
+    const sizeObj = variant.sizes.split(",").find(s => s.split(":")[0].trim().toUpperCase() === item.size?.toUpperCase())
+    if (sizeObj) {
+      return parseInt(sizeObj.split(":")[1] || "0")
+    }
+    return 0
+  }
+  return variant.stock
+}
+
 export default function CartPage() {
   const { data: session, status } = useSession()
   const [items, setItems] = useState<CartItem[]>([])
@@ -65,14 +80,27 @@ export default function CartPage() {
   }
 
   async function updateQuantity(itemId: string, delta: number) {
-    const item = items.find((i) => i.id === itemId)
-    if (!item) return
+    const itemIndex = items.findIndex((i) => i.id === itemId)
+    if (itemIndex === -1) return
+    const item = items[itemIndex]
 
     const newQty = item.quantity + delta
     if (newQty < 1) {
       await removeItem(itemId)
       return
     }
+
+    const maxStock = getMaxStock(item)
+    if (newQty > maxStock) {
+      toast.error(`Stok maksimal untuk item ini adalah ${maxStock}`)
+      return
+    }
+
+    // Optimistic update
+    const previousItems = [...items]
+    const updatedItems = [...items]
+    updatedItems[itemIndex] = { ...item, quantity: newQty }
+    setItems(updatedItems)
 
     try {
       const res = await fetch("/api/cart", {
@@ -83,14 +111,19 @@ export default function CartPage() {
 
       if (res.ok) {
         window.dispatchEvent(new Event("cartUpdated"))
-        fetchCartItems()
+      } else {
+        setItems(previousItems)
       }
     } catch (error) {
       console.error("Error updating quantity:", error)
+      setItems(previousItems)
     }
   }
 
   async function removeItem(itemId: string) {
+    const previousItems = [...items]
+    setItems(items.filter((i) => i.id !== itemId))
+
     try {
       const res = await fetch(`/api/cart?itemId=${itemId}`, {
         method: "DELETE",
@@ -98,11 +131,13 @@ export default function CartPage() {
 
       if (res.ok) {
         window.dispatchEvent(new Event("cartUpdated"))
-        fetchCartItems()
         toast.success("Item removed from cart")
+      } else {
+        setItems(previousItems)
       }
     } catch (error) {
       console.error("Error removing item:", error)
+      setItems(previousItems)
     }
   }
 
@@ -228,7 +263,8 @@ export default function CartPage() {
                       <span className="w-8 text-center">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.id, 1)}
-                        className="w-8 h-8 flex items-center justify-center hover:bg-sovia-200 rounded-md"
+                        disabled={item.quantity >= getMaxStock(item)}
+                        className="w-8 h-8 flex items-center justify-center hover:bg-sovia-200 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <Plus className="w-4 h-4" />
                       </button>

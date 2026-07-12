@@ -154,27 +154,27 @@ export default function AdminReportsPage() {
 
   const summaryCards = [
     {
-      label: "Total Revenue",
+      label: "Total Pendapatan",
       value: formatPrice(dynamicRevenue),
       icon: DollarSign,
     },
     {
-      label: "Total Profit",
+      label: "Total Laba",
       value: formatPrice(dynamicProfit || 0),
       icon: Wallet,
     },
     {
-      label: "Total Orders",
+      label: "Total Pesanan",
       value: dynamicOrders.toString(),
       icon: ShoppingCart,
     },
     {
-      label: "Products Sold",
+      label: "Produk Terjual",
       value: dynamicProductsSold.toString(),
       icon: Package,
     },
     {
-      label: "Average Order Value",
+      label: "Rata-rata Nilai Pesanan",
       value: formatPrice(dynamicAverageOrderValue),
       icon: Activity,
     },
@@ -272,9 +272,9 @@ export default function AdminReportsPage() {
     <div className="relative">
       <div className="mb-8 -mx-6 px-6 sticky top-0 z-20 bg-sovia-50 pt-6 pb-4 border-b border-sovia-200 flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
-          <h1 className="text-sovia-900 text-3xl font-serif mb-2">Sales Reports</h1>
+          <h1 className="text-sovia-900 text-3xl font-serif mb-2">Penjualan Produk</h1>
           <p className="text-sovia-700 text-sm">
-            View detailed sales analytics and performance metrics.
+            Lihat performa penjualan produk.
           </p>
         </div>
         <div className="flex gap-2 items-center">
@@ -321,7 +321,7 @@ export default function AdminReportsPage() {
         {/* Revenue by Month */}
         <div className="bg-[#F3EFE6] p-8 rounded-lg shadow-lg">
           <h2 className="text-sovia-900 text-xl font-serif mb-6">
-            Revenue by Month
+            Pendapatan per Bulan
           </h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -349,7 +349,7 @@ export default function AdminReportsPage() {
         {/* Orders by Status */}
         <div className="bg-[#F3EFE6] p-8 rounded-lg shadow-lg">
           <h2 className="text-sovia-900 text-xl font-serif mb-6">
-            Orders by Status
+            Status Pesanan
           </h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -383,20 +383,20 @@ export default function AdminReportsPage() {
       {/* Top Products */}
       <div className="bg-[#F3EFE6] p-6 md:p-8 rounded-lg shadow-lg mt-8">
         <h2 className="text-sovia-900 text-xl font-serif mb-6">
-          Top Selling Products
+          Produk Terlaris
         </h2>
         <div className="overflow-x-auto w-full">
         <table className="w-full min-w-[500px]">
           <thead>
             <tr className="border-b border-sovia-200">
               <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">
-                Product
+                Produk
               </th>
               <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">
-                Units Sold
+                Unit Terjual
               </th>
               <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">
-                Revenue
+                Pendapatan
               </th>
             </tr>
           </thead>
@@ -417,19 +417,19 @@ export default function AdminReportsPage() {
       {/* Order History */}
       <div className="bg-[#F3EFE6] p-6 md:p-8 rounded-lg shadow-lg mt-8">
         <h2 className="text-sovia-900 text-xl font-serif mb-6">
-          Order History
+          Riwayat Pesanan
         </h2>
         <div className="overflow-x-auto w-full">
           <table className="w-full min-w-[800px]">
             <thead>
               <tr className="border-b border-sovia-200">
-                <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">Order ID</th>
-                <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">Date</th>
-                <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">Customer</th>
+                <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">ID Pesanan</th>
+                <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">Tanggal</th>
+                <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">Pelanggan</th>
                 <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">Status</th>
-                <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">Revenue</th>
-                <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">Expense</th>
-                <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">Profit</th>
+                <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">Pendapatan</th>
+                <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">Biaya</th>
+                <th className="text-left py-4 text-sovia-700 text-xs font-semibold uppercase">Laba</th>
               </tr>
             </thead>
             <tbody>
@@ -459,7 +459,7 @@ export default function AdminReportsPage() {
               {paginatedOrders.length === 0 && (
                 <tr>
                   <td colSpan={7} className="py-8 text-center text-sovia-500 text-sm">
-                    No orders found for the selected period.
+                    Tidak ada pesanan untuk periode ini.
                   </td>
                 </tr>
               )}
@@ -508,7 +508,7 @@ export default function AdminReportsPage() {
             <div className="bg-[#F3EFE6] rounded-2xl flex flex-col max-h-[90vh] overflow-hidden relative">
               <div className="px-6 md:px-8 py-5 border-b border-sovia-200 bg-[#F3EFE6] shrink-0 z-10 shadow-sm relative">
                 <h2 className="text-sovia-900 text-2xl font-serif">
-                  Order Details
+                  Detail Pesanan
                 </h2>
               </div>
             
@@ -516,11 +516,11 @@ export default function AdminReportsPage() {
                 {/* Top Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sovia-500 text-xs uppercase mb-1">Order ID</p>
+                  <p className="text-sovia-500 text-xs uppercase mb-1">ID Pesanan</p>
                   <p className="text-sovia-900 font-mono text-sm">{selectedOrder.id}</p>
                 </div>
                 <div>
-                  <p className="text-sovia-500 text-xs uppercase mb-1">Date</p>
+                  <p className="text-sovia-500 text-xs uppercase mb-1">Tanggal</p>
                   <p className="text-sovia-900 text-sm">{new Date(selectedOrder.createdAt).toLocaleString("id-ID")}</p>
                 </div>
                 <div>
@@ -534,25 +534,25 @@ export default function AdminReportsPage() {
                   </span>
                 </div>
                 <div>
-                  <p className="text-sovia-500 text-xs uppercase mb-1">Payment Method</p>
+                  <p className="text-sovia-500 text-xs uppercase mb-1">Metode Pembayaran</p>
                   <p className="text-sovia-900 text-sm font-medium">{selectedOrder.paymentMethod || '-'}</p>
                 </div>
               </div>
 
               {/* Customer Info */}
               <div className="bg-sovia-100/50 p-4 rounded-lg">
-                <h4 className="text-sovia-900 font-semibold mb-3 text-sm border-b border-sovia-200 pb-2">Customer Information</h4>
+                <h4 className="text-sovia-900 font-semibold mb-3 text-sm border-b border-sovia-200 pb-2">Informasi Pelanggan</h4>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-sovia-600">Name</span>
+                    <span className="text-sovia-600">Nama</span>
                     <span className="text-sovia-900 font-medium">{selectedOrder.recipientName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sovia-600">Phone</span>
+                    <span className="text-sovia-600">No. Telepon</span>
                     <span className="text-sovia-900">{selectedOrder.phone}</span>
                   </div>
                   <div className="flex flex-col gap-1 mt-2">
-                    <span className="text-sovia-600">Address</span>
+                    <span className="text-sovia-600">Alamat</span>
                     <span className="text-sovia-900 whitespace-pre-wrap">
                       {selectedOrder.address}
                       {selectedOrder.detailAddress && `\n${selectedOrder.detailAddress}`}
@@ -569,16 +569,16 @@ export default function AdminReportsPage() {
 
               {/* Items List */}
               <div>
-                <h4 className="text-sovia-900 font-semibold mb-3 text-sm">Items</h4>
+                <h4 className="text-sovia-900 font-semibold mb-3 text-sm">Produk yang dibeli</h4>
                 <div className="space-y-3">
                   {selectedOrder.items.map((item, idx) => (
                     <div key={idx} className="flex justify-between items-center bg-sovia-50 border border-sovia-100 p-3 rounded-lg shadow-sm">
                       <div>
                         <p className="text-sovia-900 text-sm font-medium">{item.name}</p>
                         <div className="flex gap-2 text-xs text-sovia-600 mt-1">
-                          {item.size && <span>Size: {item.size}</span>}
-                          {item.color && <span>Color: {item.color}</span>}
-                          <span>Qty: {item.quantity}</span>
+                          {item.size && <span>Ukuran: {item.size}</span>}
+                          {item.color && <span>Warna: {item.color}</span>}
+                          <span>Jumlah: {item.quantity}</span>
                         </div>
                       </div>
                       <div className="text-right">
@@ -597,19 +597,19 @@ export default function AdminReportsPage() {
                   <span className="text-sovia-900">{formatPrice(selectedOrder.subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sovia-600">Shipping</span>
+                  <span className="text-sovia-600">Ongkos Kirim</span>
                   <span className="text-sovia-900">{formatPrice(selectedOrder.shippingCost)}</span>
                 </div>
                 <div className="flex justify-between border-t border-sovia-200 pt-2 font-medium">
-                  <span className="text-sovia-900">Total Revenue</span>
+                  <span className="text-sovia-900">Total Pemasukan</span>
                   <span className="text-sovia-900">{formatPrice(selectedOrder.total)}</span>
                 </div>
                 <div className="flex justify-between text-red-600">
-                  <span>Total Expense</span>
+                  <span>Total Pengeluaran</span>
                   <span>{formatPrice(selectedOrder.expense)}</span>
                 </div>
                 <div className="flex justify-between border-t border-sovia-200 pt-2 font-medium text-green-600">
-                  <span>Net Profit</span>
+                  <span>Profit Bersih</span>
                   <span>{formatPrice(selectedOrder.profit)}</span>
                 </div>
               </div>
@@ -619,7 +619,7 @@ export default function AdminReportsPage() {
                   onClick={() => setSelectedOrder(null)}
                   className="px-6 py-2 bg-sovia-200 hover:bg-sovia-300 text-sovia-900 rounded-lg text-sm font-medium transition-colors"
                 >
-                  Close
+                  Tutup
                 </button>
               </div>
             </div>

@@ -95,9 +95,9 @@ export default function AdminUsersPage() {
       <div className="sticky top-0 z-20 bg-sovia-50/90 backdrop-blur-sm pt-4 pb-4 -mt-4 -mx-4 px-4 mb-6 border-b border-sovia-200/50">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-sovia-900 text-3xl font-serif mb-2">Customer Management</h1>
+            <h1 className="text-sovia-900 text-3xl font-serif mb-2">Kelola Pelanggan</h1>
             <p className="text-sovia-700 text-sm">
-              View and manage registered customers.
+              Lihat dan kelola pelanggan terdaftar.
             </p>
           </div>
         </div>
@@ -107,7 +107,7 @@ export default function AdminUsersPage() {
           <div className="relative flex-1 max-w-md">
             <input
               type="text"
-              placeholder="Search by name or email"
+              placeholder="Cari berdasarkan nama atau email"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-3 bg-sovia-200/30 border border-sovia-200/50 rounded-lg text-sm focus:outline-none focus:border-sovia-400 transition-colors"
@@ -119,12 +119,12 @@ export default function AdminUsersPage() {
 
       {/* Users Grid */}
       {filteredUsers.length === 0 ? (
-        <div className="text-center py-16 text-sovia-500">No users found</div>
+        <div className="text-center py-16 text-sovia-500">Tidak ada pelanggan ditemukan</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredUsers.map((user) => (
-            <div 
-              key={user.id} 
+            <div
+              key={user.id}
               onClick={() => setViewingUser(user)}
               className="bg-sovia-100 rounded-2xl p-6 shadow-sm border border-sovia-200/50 relative group cursor-pointer hover:shadow-md hover:border-sovia-300 transition-all flex flex-col"
             >
@@ -150,25 +150,25 @@ export default function AdminUsersPage() {
 
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-sovia-500">Phone</span>
+                  <span className="text-sovia-500">No. Telepon</span>
                   <span className="text-sovia-700">{user.phone || "-"}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sovia-500">Joined</span>
+                  <span className="text-sovia-500">Bergabung Sejak</span>
                   <span className="text-sovia-700">{formatDate(user.createdAt)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-sovia-500">Orders</span>
+                  <span className="text-sovia-500">Pesanan</span>
                   <span className="text-sovia-700">{user._count.orders}</span>
                 </div>
                 <div className="flex justify-between items-center pt-2 border-t border-sovia-200 mt-auto">
                   <span className="text-sovia-500">Role</span>
                   <div className="flex items-center gap-2">
-                    <RoleSelect 
-                      user={user} 
-                      onChange={(newRole) => setConfirmModal({ isOpen: true, action: "ROLE", userId: user.id, newRole })} 
+                    <RoleSelect
+                      user={user}
+                      onChange={(newRole) => setConfirmModal({ isOpen: true, action: "ROLE", userId: user.id, newRole })}
                     />
-                    
+
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
@@ -195,7 +195,7 @@ export default function AdminUsersPage() {
                 Ubah Role Pengguna
               </h2>
               <p className="text-sm text-sovia-500 leading-relaxed">
-                Apakah Anda yakin ingin mengubah role pengguna ini menjadi {confirmModal.newRole}? 
+                Apakah kamu yakin ingin mengubah role pengguna ini menjadi {confirmModal.newRole}?
                 {confirmModal.newRole === "ADMIN" && " Perhatian: Pengguna akan mendapatkan akses ke dashboard Admin."}
               </p>
             </div>
@@ -228,10 +228,10 @@ export default function AdminUsersPage() {
           <div className="bg-sovia-50 rounded-2xl w-full max-w-md overflow-hidden shadow-xl animate-in zoom-in-95 duration-200">
             <div className="p-6">
               <h2 className="text-xl font-semibold mb-2 text-rose-600">
-                Hapus Pengguna
+                Hapus Pelanggan
               </h2>
               <p className="text-sm text-sovia-500 leading-relaxed">
-                Apakah Anda yakin ingin menghapus pengguna ini beserta seluruh datanya? Aksi ini tidak dapat dibatalkan.
+                Apakah kamu yakin ingin menghapus pelanggan ini beserta seluruh datanya? Aksi ini tidak dapat dibatalkan.
               </p>
             </div>
             <div className="px-6 py-4 bg-sovia-50 border-t border-sovia-100 flex justify-end gap-3">
@@ -278,7 +278,7 @@ function ViewUserModal({ user, onClose }: { user: User, onClose: () => void }) {
 
         <div className="bg-sovia-50 rounded-2xl flex flex-col max-h-[90vh] overflow-hidden relative">
           <div className="px-6 md:px-8 py-5 border-b border-sovia-200 bg-sovia-50 shrink-0 z-10 shadow-sm relative">
-            <h2 className="text-sovia-900 text-2xl font-serif">Customer Details</h2>
+            <h2 className="text-sovia-900 text-2xl font-serif">Detail Pelanggan</h2>
           </div>
 
           <div className="p-6 md:p-8 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-sovia-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-sovia-300">
@@ -293,7 +293,7 @@ function ViewUserModal({ user, onClose }: { user: User, onClose: () => void }) {
 
               <div className="flex-1 space-y-4 w-full">
                 <div>
-                  <p className="text-sovia-500 text-sm">Name</p>
+                  <p className="text-sovia-500 text-sm">Nama</p>
                   <p className="text-sovia-900 text-lg font-semibold">{user.name || "-"}</p>
                 </div>
                 <div>
@@ -301,7 +301,7 @@ function ViewUserModal({ user, onClose }: { user: User, onClose: () => void }) {
                   <p className="text-sovia-900">{user.email}</p>
                 </div>
                 <div>
-                  <p className="text-sovia-500 text-sm">Phone</p>
+                  <p className="text-sovia-500 text-sm">No. Telepon</p>
                   <p className="text-sovia-900">{user.phone || "-"}</p>
                 </div>
                 <div className="flex gap-8">
@@ -312,19 +312,19 @@ function ViewUserModal({ user, onClose }: { user: User, onClose: () => void }) {
                     </span>
                   </div>
                   <div>
-                    <p className="text-sovia-500 text-sm">Total Orders</p>
-                    <p className="text-sovia-900 font-semibold">{user._count.orders} orders</p>
+                    <p className="text-sovia-500 text-sm">Total Pesanan</p>
+                    <p className="text-sovia-900 font-semibold">{user._count.orders} pesanan</p>
                   </div>
                 </div>
                 <div>
-                  <p className="text-sovia-500 text-sm">Joined At</p>
+                  <p className="text-sovia-500 text-sm">Bergabung Sejak</p>
                   <p className="text-sovia-900">{formatDate(user.createdAt)}</p>
                 </div>
               </div>
             </div>
 
             <div className="flex gap-4 mt-8 pt-6 border-t border-sovia-200">
-              <button onClick={onClose} className="w-full py-3 border border-sovia-300 bg-sovia-100 rounded-lg text-sovia-600 hover:bg-sovia-200 transition-all active:transform-[scale(0.95)] font-medium">Close</button>
+              <button onClick={onClose} className="w-full py-3 border border-sovia-300 bg-sovia-100 rounded-lg text-sovia-600 hover:bg-sovia-200 transition-all active:transform-[scale(0.95)] font-medium">Tutup</button>
             </div>
           </div>
         </div>
@@ -352,18 +352,17 @@ function RoleSelect({ user, onChange }: { user: User, onChange: (role: string) =
           if (user.role !== "ADMIN") setIsOpen(!isOpen)
         }}
         disabled={user.role === "ADMIN"}
-        className={`flex items-center justify-between w-24 text-sm border font-medium rounded-lg pl-3 pr-2 py-1.5 focus:outline-none transition-colors ${
-          user.role === "ADMIN" 
-            ? "bg-sovia-600 text-sovia-50 border-sovia-600 opacity-90 cursor-not-allowed" 
+        className={`flex items-center justify-between w-24 text-sm border font-medium rounded-lg pl-3 pr-2 py-1.5 focus:outline-none transition-colors ${user.role === "ADMIN"
+            ? "bg-sovia-600 text-sovia-50 border-sovia-600 opacity-90 cursor-not-allowed"
             : "bg-sovia-200 text-sovia-800 border-sovia-300 hover:bg-sovia-300"
-        }`}
+          }`}
       >
         <span>{user.role === "ADMIN" ? "Admin" : "User"}</span>
         <ChevronDown className={`w-4 h-4 opacity-70 ${user.role === "ADMIN" ? "text-sovia-50" : "text-sovia-800"}`} />
       </button>
 
       {isOpen && (
-        <div 
+        <div
           onClick={(e) => e.stopPropagation()}
           className="absolute z-50 top-full mt-1 left-0 w-28 bg-sovia-50 border border-sovia-200 rounded-lg shadow-lg overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100"
         >
@@ -374,7 +373,7 @@ function RoleSelect({ user, onChange }: { user: User, onChange: (role: string) =
             }}
             className="w-full text-left px-3 py-2 text-sm text-sovia-900 hover:bg-sovia-800 hover:text-sovia-50 transition-colors"
           >
-            User
+            Pelanggan
           </button>
           <button
             onClick={() => {

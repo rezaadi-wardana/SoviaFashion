@@ -128,7 +128,12 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
         await new Promise(resolve => setTimeout(resolve, 1500))
         setLoading(false)
         setAddedToCart(true)
-        toast.success(t("catalog.addedToCart"))
+        toast.success(t("catalog.addedToCart"), {
+          action: {
+            label: "Lihat Keranjang",
+            onClick: () => router.push("/cart"),
+          },
+        })
         // Reset success state after 1.5 seconds
         setTimeout(() => setAddedToCart(false), 1500)
       } else {

@@ -74,7 +74,7 @@ export default function AdminLayout({
   if (!session || session.user?.role !== "ADMIN") {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p>Please sign in as admin</p>
+        <p className="text-sovia-800 text-xl font-serif">Silahkan login sebagai admin terlebih dahulu</p>
       </div>
     )
   }
@@ -143,7 +143,7 @@ export default function AdminLayout({
             {!isCollapsed && (
               <div className="overflow-hidden">
                 <p className="text-sovia-900 text-sm font-semibold truncate">Admin Panel</p>
-                <p className="text-sovia-700 text-xs truncate">Editorial Control</p>
+                <p className="text-sovia-700 text-xs truncate">Kontrol Editorial</p>
               </div>
             )}
           </div>

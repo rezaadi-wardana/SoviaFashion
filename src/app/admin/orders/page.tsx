@@ -715,7 +715,7 @@ export default function AdminOrdersPage() {
             <div className="p-6">
               <h2 className="text-xl font-semibold text-sovia-900 mb-2">Input Nomor Resi</h2>
               <p className="text-sm text-sovia-500 mb-5 leading-relaxed">
-                Silakan masukkan nomor resi pengiriman untuk pesanan ini. Pelanggan akan dapat melacak pesanannya menggunakan nomor ini.
+                Masukkan nomor resi pengiriman untuk pesanan ini. Pelanggan akan dapat melacak pesanannya menggunakan nomor ini.
               </p>
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-sovia-700">Nomor Resi <span className="text-rose-500">*</span></label>
@@ -749,7 +749,7 @@ export default function AdminOrdersPage() {
                 }}
                 className="px-4 py-2 text-sm font-medium hover:bg-sovia-600 text-sovia-50 bg-sovia-700  rounded-lg shadow-sm transition-colors"
               >
-                Simpan & Kirim
+                Simpan & Update Resi
               </button>
             </div>
           </div>

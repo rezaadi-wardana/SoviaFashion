@@ -90,9 +90,9 @@ export default function AdminHeroPage() {
     <div className="space-y-6 max-w-[1400px] mx-auto animate-in fade-in duration-500">
       <div className="sticky top-0 z-20 bg-sovia-50/90 backdrop-blur-sm pt-4 pb-4 -mt-4 -mx-4 px-4 mb-6 border-b border-sovia-200/50 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-sovia-900 text-3xl font-serif mb-2">Hero Slider Management</h1>
+          <h1 className="text-sovia-900 text-3xl font-serif mb-2">Hero Slider</h1>
           <p className="text-sovia-700 text-sm">
-            Manage the hero section sliders for the homepage.
+            Kelola slide untuk section hero di halaman utama.
           </p>
         </div>
         <button
@@ -103,14 +103,14 @@ export default function AdminHeroPage() {
           className="px-6 py-3 bg-sovia-700 hover:bg-sovia-600 text-sovia-50 transition duration-300 text-sm font-medium rounded-lg flex items-center gap-2 active:transform-[scale(0.95)] shadow-sm"
         >
           <Plus className="w-4 h-4 shrink-0" />
-          New Slide
+          Tambah Slide
         </button>
       </div>
 
       {/* Slides List */}
       {slides.length === 0 ? (
         <div className="text-center py-16 text-sovia-500">
-          No hero slides yet. Create your first slide.
+          Belum ada slide hero. Buat slide pertama Anda.
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -123,7 +123,7 @@ export default function AdminHeroPage() {
               <div className="flex justify-between items-center border-b border-sovia-200 pb-3">
                 <div className="flex items-center gap-2">
                   <GripVertical className="w-4 h-4 text-sovia-400" />
-                  <span className="text-sovia-500 text-xs font-medium uppercase tracking-wider">Order: {slide.order}</span>
+                  <span className="text-sovia-500 text-xs font-medium uppercase tracking-wider">Urutan: {slide.order}</span>
                 </div>
                 <span
                   className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase ${slide.isActive ? "bg-emerald-500 text-emerald-50" : "bg-sovia-200 text-sovia-500"
@@ -167,7 +167,7 @@ export default function AdminHeroPage() {
                   className="flex-1 py-2 flex items-center justify-center gap-2 bg-rose-700 text-rose-50 hover:bg-rose-800 rounded-lg transition-colors text-sm font-medium active:scale-95"
                 >
                   <Trash2 className="w-4 h-4" />
-                  Delete
+                  Hapus
                 </button>
               </div>
             </div>
@@ -257,7 +257,7 @@ function ViewSlideModal({
 
         <div className="bg-sovia-50 rounded-2xl flex flex-col max-h-[90vh] overflow-hidden relative">
           <div className="px-6 md:px-8 py-5 border-b border-sovia-200 bg-sovia-50 shrink-0 z-10 shadow-sm relative">
-            <h2 className="text-sovia-900 text-2xl font-serif">Slide Details</h2>
+            <h2 className="text-sovia-900 text-2xl font-serif">Detail Slide</h2>
           </div>
 
           <div className="p-6 md:p-8 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-sovia-200 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-sovia-300">
@@ -270,20 +270,20 @@ function ViewSlideModal({
 
               <div className="space-y-4">
                 <div>
-                  <p className="text-sovia-500 text-sm">Title</p>
+                  <p className="text-sovia-500 text-sm">Judul</p>
                   <p className="text-sovia-900 text-lg font-semibold">{slide.title}</p>
                 </div>
                 <div>
-                  <p className="text-sovia-500 text-sm">Subtitle</p>
+                  <p className="text-sovia-500 text-sm">Subjudul</p>
                   <p className="text-sovia-900">{slide.subtitle || "-"}</p>
                 </div>
                 <div>
-                  <p className="text-sovia-500 text-sm">Link</p>
+                  <p className="text-sovia-500 text-sm">Link </p>
                   <p className="text-sovia-900 break-all">{slide.link || "-"}</p>
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sovia-500 text-sm">Order</p>
+                    <p className="text-sovia-500 text-sm">Urutan</p>
                     <p className="text-sovia-900">{slide.order}</p>
                   </div>
                   <div>

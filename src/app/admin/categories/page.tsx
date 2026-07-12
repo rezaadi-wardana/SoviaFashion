@@ -81,10 +81,10 @@ export default function AdminCategoriesPage() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-sovia-900 text-3xl font-serif mb-2">
-              Category Management
+              Kelola Kategori
             </h1>
             <p className="text-sovia-700 text-sm">
-              Manage product categories for the Sovia collection.
+              Kelola kategori produk untuk koleksi Sovia.
             </p>
           </div>
           <button
@@ -92,7 +92,7 @@ export default function AdminCategoriesPage() {
             className="px-6 py-3 bg-sovia-700 hover:bg-sovia-600 text-sovia-50 transition duration-300 text-sm font-medium rounded-lg flex items-center gap-2 active:transform-[scale(0.95)]"
           >
             <Plus className="w-4 h-4" />
-            New Category
+            Tambah Kategori
           </button>
         </div>
 
@@ -116,16 +116,16 @@ export default function AdminCategoriesPage() {
           <thead>
             <tr className="border-b border-sovia-200/50">
               <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
-                IMAGE
+                GAMBAR
               </th>
               <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
-                NAME
+                NAMA
               </th>
               <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
-                DESCRIPTION
+                DESKRIPSI
               </th>
               <th className="text-right py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
-                ACTIONS
+                AKSI
               </th>
             </tr>
           </thead>
@@ -133,7 +133,7 @@ export default function AdminCategoriesPage() {
             {filteredCategories.length === 0 ? (
               <tr>
                 <td colSpan={4} className="py-8 text-center text-sovia-500">
-                  No categories found
+                  Tidak ada kategori ditemukan
                 </td>
               </tr>
             ) : (
@@ -151,7 +151,7 @@ export default function AdminCategoriesPage() {
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-sovia-400 text-xs">
-                          No Image
+                          Tidak ada gambar
                         </div>
                       )}
                     </div>
@@ -285,13 +285,13 @@ function CategoryFormModal({
         <div className="bg-[#F3EFE6] rounded-2xl flex flex-col max-h-[90vh] overflow-hidden relative">
           <div className="px-6 md:px-8 py-5 border-b border-sovia-200 bg-[#F3EFE6] shrink-0 z-10 shadow-sm relative">
             <h2 className="text-sovia-900 text-2xl font-serif">
-              {category ? "Edit Category" : "New Category"}
+              {category ? "Edit KategorI" : "Tambah Kategori"}
             </h2>
           </div>
           <div className="p-6 md:p-8 overflow-y-auto [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-sovia-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-sovia-400">
             <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sovia-700 text-sm block mb-2">Category Name</label>
+            <label className="text-sovia-700 text-sm block mb-2">Nama Kategori</label>
             <input
               type="text"
               value={formData.name}
@@ -301,7 +301,7 @@ function CategoryFormModal({
             />
           </div>
           <div>
-            <label className="text-sovia-700 text-sm block mb-2">Description</label>
+            <label className="text-sovia-700 text-sm block mb-2">Deskripsi</label>
             <textarea
               value={formData.description}
               onChange={(e) =>
@@ -312,7 +312,7 @@ function CategoryFormModal({
             />
           </div>
           <div>
-            <label className="text-sovia-700 text-sm block mb-2">Category Image</label>
+            <label className="text-sovia-700 text-sm block mb-2">Foto Kategori</label>
             <input
               type="file"
               accept="image/*"
@@ -331,11 +331,11 @@ function CategoryFormModal({
                     const data = await res.json()
                     if (data.url) {
                       setFormData((prev) => ({ ...prev, image: data.url }))
-                      toast.success("Image uploaded successfully")
+                      toast.success("Gambar berhasil diunggah")
                     }
                   } catch (error) {
                     console.error("Upload failed:", error)
-                    toast.error("Image upload failed")
+                    toast.error("Gambar gagal diunggah")
                   } finally {
                     setIsUploading(false)
                   }
@@ -344,7 +344,7 @@ function CategoryFormModal({
               className="w-full py-2 px-4 bg-sovia-100 rounded-lg file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-sovia-600 file:text-sovia-50 file:cursor-pointer disabled:opacity-50"
             />
             {isUploading && (
-              <p className="text-sovia-600 text-sm mt-2 animate-pulse">Uploading image, please wait...</p>
+              <p className="text-sovia-600 text-sm mt-2 animate-pulse">Mengunggah gambar, tunggu sebentar...</p>
             )}
             {formData.image && !isUploading && (
               <div className="mt-2 relative w-24 h-24">
@@ -370,14 +370,14 @@ function CategoryFormModal({
               disabled={isUploading || saving}
               className="flex-1 py-3 border border-sovia-300 rounded-lg text-sovia-600 disabled:opacity-50 hover:bg-sovia-100 transition-all active:transform-[scale(0.95)] font-medium"
             >
-              Cancel
+              Batal
             </button>
             <button
               type="submit"
               disabled={saving || isUploading}
               className="flex-1 py-3 bg-sovia-700 hover:bg-sovia-600 text-sovia-50 rounded-lg disabled:opacity-60 transition-all active:transform-[scale(0.95)] font-medium"
             >
-              {saving ? "Saving..." : isUploading ? "Uploading..." : "Save Category"}
+              {saving ? "Menyimpan..." : isUploading ? "Mengunggah..." : "Simpan Kategori"}
             </button>
           </div>
         </form>

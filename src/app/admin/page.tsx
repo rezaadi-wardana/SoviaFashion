@@ -148,7 +148,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mb-6">
         {/* Sales Trajectory */}
         <div className="bg-sovia-50 p-8 rounded-lg shadow-lg">
-          <h2 className="text-sovia-800 text-xl font-serif mb-6">Sales Trajectory</h2>
+          <h2 className="text-sovia-800 text-xl font-serif mb-6">Grafik Penjualan</h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={stats.ordersByDay}>
@@ -178,7 +178,7 @@ export default function AdminDashboard() {
 
         {/* Visitor Traffic */}
         <div className="bg-sovia-50 p-8 rounded-lg shadow-lg">
-          <h2 className="text-sovia-800 text-xl font-serif mb-6">Website Visitors</h2>
+          <h2 className="text-sovia-800 text-xl font-serif mb-6">Pengunjung Website</h2>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={stats.visitorsByDay}>
@@ -206,7 +206,7 @@ export default function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-12">
         {/* Top Selling */}
         <div className="col-span-1 bg-sovia-100 p-6 md:p-8 rounded-lg shadow-lg">
-          <h2 className="text-sovia-900 text-xl font-serif mb-6">Top Selling Collections</h2>
+          <h2 className="text-sovia-900 text-xl font-serif mb-6">Penjualan Terlaris</h2>
           <div className="space-y-4">
             {stats.topProducts.length > 0 ? (
               stats.topProducts.slice(0, 5).map((product, index) => (
@@ -220,7 +220,7 @@ export default function AdminDashboard() {
                     <p className="text-sovia-900 text-sm font-medium truncate">
                       {product.name}
                     </p>
-                    <p className="text-sovia-700 text-xs">{product.sold} units</p>
+                    <p className="text-sovia-700 text-xs">{product.sold} terjual</p>
                   </div>
                   <p className="text-sovia-700 text-sm font-medium whitespace-nowrap">
                     {formatPrice(product.revenue)}
@@ -229,7 +229,7 @@ export default function AdminDashboard() {
               ))
             ) : (
               <div className="text-center text-sovia-500 text-sm py-8">
-                No sales data yet
+                Belum ada data penjualan
               </div>
             )}
           </div>
@@ -237,63 +237,62 @@ export default function AdminDashboard() {
 
         {/* Recent Orders */}
         <div className="col-span-1 lg:col-span-2 bg-[#F3EFE6] p-6 md:p-8 rounded-lg shadow-lg">
-          <h2 className="text-sovia-900 text-xl font-serif mb-6">Recent Orders</h2>
+          <h2 className="text-sovia-900 text-xl font-serif mb-6">Pesanan Terbaru</h2>
           <div className="overflow-x-auto w-full">
-          <table className="w-full min-w-[600px]">
-            <thead>
-              <tr className="border-b border-sovia-200">
-                <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
-                  Order ID
-                </th>
-                <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
-                  Customer
-                </th>
-                <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
-                  Items
-                </th>
-                <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
-                  Total
-                </th>
-                <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
-                  Status
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {stats.recentOrders.length > 0 ? (
-                stats.recentOrders.map((order) => (
-                  <tr key={order.id} className="border-b border-sovia-100">
-                    <td className="py-4 px-4 text-sovia-700 text-sm">#{order.id.slice(-8)}</td>
-                    <td className="py-4 px-4 text-sovia-700 text-sm">{order.user?.name || "Guest"}</td>
-                    <td className="py-4 px-4 text-sovia-700 text-sm">{order.items?.length || 0} items</td>
-                    <td className="py-4 px-4 text-sovia-700 text-sm">
-                      {formatPrice(order.total)}
-                    </td>
-                    <td className="py-4 px-4">
-                      <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                        order.status === "COMPLETED" ? "bg-emerald-500 text-emerald-50" :
-                        order.status === "SHIPPED" ? "bg-indigo-500 text-indigo-50" :
-                        order.status === "PACKING" ? "bg-sky-500 text-sky-50" :
-                        order.status === "CANCELLED" ? "bg-rose-500 text-rose-50" :
-                        "bg-amber-500 text-amber-50"
-                      }`}>
-                        {order.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
-                      </span>
+            <table className="w-full min-w-[600px]">
+              <thead>
+                <tr className="border-b border-sovia-200">
+                  <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
+                    Order ID
+                  </th>
+                  <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
+                    Customer
+                  </th>
+                  <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
+                    Items
+                  </th>
+                  <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
+                    Total
+                  </th>
+                  <th className="text-left py-4 px-4 text-sovia-700 text-xs font-semibold uppercase">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.recentOrders.length > 0 ? (
+                  stats.recentOrders.map((order) => (
+                    <tr key={order.id} className="border-b border-sovia-100">
+                      <td className="py-4 px-4 text-sovia-700 text-sm">#{order.id.slice(-8)}</td>
+                      <td className="py-4 px-4 text-sovia-700 text-sm">{order.user?.name || "Guest"}</td>
+                      <td className="py-4 px-4 text-sovia-700 text-sm">{order.items?.length || 0} items</td>
+                      <td className="py-4 px-4 text-sovia-700 text-sm">
+                        {formatPrice(order.total)}
+                      </td>
+                      <td className="py-4 px-4">
+                        <span className={`px-3 py-1 text-xs font-semibold rounded-full ${order.status === "COMPLETED" ? "bg-emerald-500 text-emerald-50" :
+                            order.status === "SHIPPED" ? "bg-indigo-500 text-indigo-50" :
+                              order.status === "PACKING" ? "bg-sky-500 text-sky-50" :
+                                order.status === "CANCELLED" ? "bg-rose-500 text-rose-50" :
+                                  "bg-amber-500 text-amber-50"
+                          }`}>
+                          {order.status.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={5} className="py-8 text-center text-sovia-500 text-sm">
+                     Tidak ada order terbaru
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={5} className="py-8 text-center text-sovia-500 text-sm">
-                    No recent orders
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   )
 }
