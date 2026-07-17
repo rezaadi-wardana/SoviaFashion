@@ -49,8 +49,32 @@ export async function DELETE(
       return NextResponse.json({ error: "Cannot delete yourself" }, { status: 400 })
     }
 
-    await prisma.user.delete({
-      where: { id: resolvedParams.id },
+    // Hapus semua relasi secara berurutan dalam satu transaction
+    // karena Order tidak memiliki onDelete: Cascade ke User di schema
+    await prisma.$transaction(async (tx) => {
+      // 1. Ambil semua order ID milik user ini
+      const userOrders = await tx.order.findMany({
+        where: { userId: resolvedParams.id },
+        select: { id: true },
+      })
+      const orderIds = userOrders.map((o) => o.id)
+
+      // 2. Hapus semua OrderItem dari orders milik user
+      if (orderIds.length > 0) {
+        await tx.orderItem.deleteMany({
+          where: { orderId: { in: orderIds } },
+        })
+      }
+
+      // 3. Hapus semua Order milik user
+      await tx.order.deleteMany({
+        where: { userId: resolvedParams.id },
+      })
+
+      // 4. Hapus user (CartItem, Account, Session sudah Cascade di schema)
+      await tx.user.delete({
+        where: { id: resolvedParams.id },
+      })
     })
 
     return NextResponse.json({ message: "User deleted successfully" })

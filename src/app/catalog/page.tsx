@@ -167,6 +167,8 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
   /**
    * Menyimpan detail item pembelian langsung ke sessionStorage (directOrder)
    * dan mengarahkan pengguna ke halaman checkout.
+   * Sebelum checkout, validasi kelengkapan data profil pengguna (nama, telepon, alamat, lokasi)
+   * dan tampilkan notifikasi spesifik untuk setiap data yang belum diisi.
    */
   async function handleBuyNow() {
     if (!selectedVariant) return
@@ -174,6 +176,43 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
     if (!session?.user?.id) {
       redirectToSignIn()
       return
+    }
+
+    // Fetch data profil user untuk validasi kelengkapan
+    try {
+      const userRes = await fetch(`/api/users/${session.user.id}`)
+      if (userRes.ok) {
+        const userData = await userRes.json()
+
+        const missingFields: string[] = []
+
+        if (!userData.name || userData.name.trim() === "") {
+          missingFields.push("Nama lengkap")
+        }
+        if (!userData.phone || userData.phone.trim() === "") {
+          missingFields.push("Nomor telepon")
+        }
+        if (!userData.address || userData.address.trim() === "") {
+          missingFields.push("Alamat pengiriman")
+        }
+        if (!userData.lat || !userData.lng) {
+          missingFields.push("Lokasi pengiriman (pin maps)")
+        }
+
+        if (missingFields.length > 0) {
+          // Tampilkan notifikasi spesifik untuk setiap field yang kurang
+          missingFields.forEach((field) => {
+            toast.error(`${field} belum lengkap`, {
+              description: "Silakan lengkapi data di halaman profil",
+            })
+          })
+          // Redirect ke profil setelah notifikasi
+          setTimeout(() => router.push("/profile"), 800)
+          return
+        }
+      }
+    } catch {
+      // Jika gagal fetch, tetap lanjut ke checkout
     }
 
     const finalPrice = resolvePrice(product.price, selectedVariant, selectedSize)
@@ -303,18 +342,38 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
             <h2 className="text-sovia-900 text-2xl font-serif mb-2">
               {product.name}
             </h2>
-            <p className="text-sovia-900 text-xl font-serif mb-4">
+            <div className="mb-4">
               {(() => {
                 if (selectedVariant) {
-                  return formatPrice(resolvePrice(product.price, selectedVariant, selectedSize))
+                  const unitPrice = resolvePrice(product.price, selectedVariant, selectedSize)
+                  const totalPrice = unitPrice * quantity
+                  return (
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <p className="text-sovia-900 text-xl font-serif">
+                        {formatPrice(unitPrice)}
+                      </p>
+                      {quantity > 1 && (
+                        <>
+                          <span className="text-sovia-400 text-sm">×{quantity}</span>
+                          <span className="text-sovia-600 text-base font-semibold font-serif">
+                            = {formatPrice(totalPrice)}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                  )
                 }
                 const range = getProductPriceRange(product)
                 if (range.hasRange) {
-                  return `${formatPrice(range.min)} - ${formatPrice(range.max)}`
+                  return (
+                    <p className="text-sovia-900 text-xl font-serif">
+                      {`${formatPrice(range.min)} - ${formatPrice(range.max)}`}
+                    </p>
+                  )
                 }
-                return formatPrice(range.min)
+                return <p className="text-sovia-900 text-xl font-serif">{formatPrice(range.min)}</p>
               })()}
-            </p>
+            </div>
             {product.description && (
               <div className="mb-6">
                 <div
