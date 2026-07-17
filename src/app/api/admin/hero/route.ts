@@ -3,7 +3,10 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
-// GET - fetch all hero slides
+/**
+ * GET /api/admin/hero
+ * Mengambil seluruh daftar slide hero berurutan berdasarkan order dari database.
+ */
 export async function GET() {
   try {
     const slides = await prisma.hero.findMany({
@@ -16,7 +19,10 @@ export async function GET() {
   }
 }
 
-// POST - create a new hero slide
+/**
+ * POST /api/admin/hero
+ * Membuat slide hero baru dan menyimpannya ke database. Hanya dapat diakses oleh ADMIN.
+ */
 export async function POST(request: Request) {
   const session = await auth()
   if (!session || session.user.role !== "ADMIN") {

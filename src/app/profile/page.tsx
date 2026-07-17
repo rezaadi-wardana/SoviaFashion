@@ -104,6 +104,9 @@ const statusConfig: Record<
   },
 };
 
+/**
+ * Komponen ikon X sederhana (tanda silang).
+ */
 function X({ className }: { className?: string }) {
   return (
     <svg
@@ -140,6 +143,11 @@ const tabs = [
   { id: "COMPLETED", label: "Selesai" },
 ];
 
+/**
+ * Komponen Utama Konten Profil (ProfileContent) untuk mengelola data diri pengguna,
+ * memperbarui detail alamat pengiriman, memetakan koordinat peta Leaflet,
+ * mengubah password akun, mengunggah foto profil, serta melacak status riwayat pesanan (orders).
+ */
 function ProfileContent() {
 
   const { data: session, update } = useSession();
@@ -195,6 +203,7 @@ function ProfileContent() {
   );
   const [villages, setVillages] = useState<{ id: string; name: string }[]>([]);
 
+  // UseEffect untuk mengambil data provinsi
   useEffect(() => {
     fetch("https://www.emsifa.com/api-wilayah-indonesia/api/provinces.json")
       .then((res) => res.json())
@@ -287,6 +296,10 @@ function ProfileContent() {
     // Logic updated to remove expandedOrders dependency
   };
 
+  /**
+   * Mengonfirmasi bahwa barang pesanan telah diterima dengan baik oleh pengguna,
+   * lalu memperbarui status pesanan menjadi 'COMPLETED' ke database via PATCH /api/orders/[id].
+   */
   async function handleCompleteOrder(orderId: string) {
     if (
       !window.confirm(
@@ -312,10 +325,16 @@ function ProfileContent() {
   }
 
   // Handle completion order via confirm modal
+  /**
+   * Callback pembantu untuk memproses penyelesaian konfirmasi pesanan.
+   */
   async function confirmOrder(orderId: string, isConfirmed: boolean, isReject?: boolean) {
     handleCompleteOrder(orderId);
   }
 
+  /**
+   * Menangani pengunggahan foto bukti transfer pembayaran oleh pengguna untuk pesanan yang berstatus PENDING_PAYMENT.
+   */
   async function handleUploadProof(orderId: string, e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -388,6 +407,9 @@ function ProfileContent() {
     fetchStoreProfile();
   }, []);
 
+  /**
+   * Mengambil informasi rekening bank dan e-wallet toko untuk pembayaran dari API /api/admin/store-profile.
+   */
   async function fetchStoreProfile() {
     try {
       const res = await fetch("/api/admin/store-profile");
@@ -405,6 +427,9 @@ function ProfileContent() {
     }
   }
 
+  /**
+   * Mengambil seluruh daftar pesanan milik pengguna yang sedang login dari API /api/orders.
+   */
   async function fetchOrders() {
     setLoadingOrders(true);
     try {
@@ -487,6 +512,10 @@ function ProfileContent() {
     loadUserData();
   }, [session]);
 
+  /**
+   * Menggunakan navigator.geolocation browser untuk mendapatkan koordinat lokasi GPS user
+   * dan menyimpannya ke data state koordinat form profil.
+   */
   async function handleGetLocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -507,6 +536,9 @@ function ProfileContent() {
     }
   }
 
+  /**
+   * Mengunggah file foto profil baru ke storage server via POST /api/upload.
+   */
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -535,6 +567,9 @@ function ProfileContent() {
     }
   }
 
+  /**
+   * Mengirimkan perubahan password baru pengguna ke API PUT /api/users/password.
+   */
   async function handlePasswordSubmit(e: React.FormEvent) {
     e.preventDefault();
     setPasswordLoading(true);
@@ -562,6 +597,9 @@ function ProfileContent() {
   // True jika user belum pernah menyimpan alamat sebelumnya
   const isFirstTimeAddress = !formData.address;
 
+  /**
+   * Menyimpan data diri lengkap pengguna beserta alamat hasil konversi dan titik koordinat peta ke database via PUT /api/users/profile.
+   */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -638,6 +676,9 @@ function ProfileContent() {
     );
   }
 
+  /**
+   * Fungsi helper untuk merender detail informasi barang yang dipesan, total biaya, kurir, dan riwayat pelacakan pesanan.
+   */
   const renderOrderDetails = (order: OrderItem, isMobile: boolean) => (
     <div className={`space-y-6 animate-in fade-in duration-500 ${isMobile ? 'pt-4 border-t border-sovia-100' : ''}`}>
       {/* Items List */}
@@ -1515,6 +1556,10 @@ function ProfileContent() {
   );
 }
 
+/**
+ * Komponen Halaman Profil Pengguna (ProfilePage) yang dibungkus Suspense
+ * agar parameter tab/query search didukung saat render.
+ */
 export default function ProfilePage() {
   return (
     <Suspense

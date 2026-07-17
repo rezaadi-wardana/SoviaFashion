@@ -14,10 +14,17 @@ const ThemeContext = createContext<ThemeContextType>({
   toggleTheme: () => {},
 })
 
+/**
+ * Hook untuk menggunakan status tema aktif (light/dark) dan fungsi pengubah tema (toggleTheme).
+ */
 export function useTheme() {
   return useContext(ThemeContext)
 }
 
+/**
+ * Provider komponen untuk membungkus aplikasi dan menyajikan/mengelola state tema
+ * yang disinkronkan dengan localStorage serta kelas CSS di root HTML.
+ */
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>("light")
   const [mounted, setMounted] = useState(false)
@@ -35,6 +42,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setMounted(true)
   }, [])
 
+  /**
+   * Mengubah tema aktif dari terang ke gelap (atau sebaliknya), menyimpan preferensi
+   * di localStorage, dan memperbarui class list pada elemen root HTML.
+   */
   function toggleTheme() {
     const newTheme = theme === "light" ? "dark" : "light"
     setTheme(newTheme)

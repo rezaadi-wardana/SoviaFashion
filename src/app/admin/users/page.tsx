@@ -18,6 +18,10 @@ interface User {
   _count: { orders: number }
 }
 
+/**
+ * Komponen Utama Halaman Kelola Pelanggan Admin yang menampilkan daftar pengguna terdaftar,
+ * dilengkapi pencarian, perubahan role (USER/ADMIN), hapus akun, dan detail profil pengguna.
+ */
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
@@ -29,6 +33,9 @@ export default function AdminUsersPage() {
     fetchUsers()
   }, [])
 
+  /**
+   * Mengambil seluruh data pengguna terdaftar dari API /api/admin/users.
+   */
   async function fetchUsers() {
     try {
       const res = await fetch("/api/admin/users")
@@ -43,6 +50,9 @@ export default function AdminUsersPage() {
     }
   }
 
+  /**
+   * Memperbarui role pengguna (USER atau ADMIN) via PATCH /api/admin/users/[id].
+   */
   async function updateRole(userId: string, newRole: string) {
     try {
       const res = await fetch(`/api/admin/users/${userId}`, {
@@ -63,6 +73,9 @@ export default function AdminUsersPage() {
     }
   }
 
+  /**
+   * Menghapus akun pengguna beserta seluruh datanya dari database via DELETE /api/admin/users/[id].
+   */
   async function deleteUser(userId: string) {
     try {
       const res = await fetch(`/api/admin/users/${userId}`, {
@@ -82,6 +95,9 @@ export default function AdminUsersPage() {
     }
   }
 
+  /**
+   * Menyaring daftar pengguna berdasarkan kata kunci pencarian nama atau email.
+   */
   const filteredUsers = users.filter(
     (u) =>
       u.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -265,6 +281,10 @@ export default function AdminUsersPage() {
   )
 }
 
+/**
+ * Komponen Modal Detail Pengguna (ViewUserModal) yang menampilkan informasi lengkap
+ * tentang profil pengguna: foto, nama, email, telepon, role, dan jumlah pesanan.
+ */
 function ViewUserModal({ user, onClose }: { user: User, onClose: () => void }) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[70] p-4 animate-in fade-in duration-200" onClick={onClose}>
@@ -333,6 +353,10 @@ function ViewUserModal({ user, onClose }: { user: User, onClose: () => void }) {
   )
 }
 
+/**
+ * Komponen Dropdown Pemilih Role (RoleSelect) yang memungkinkan admin
+ * mengubah role pengguna antara USER dan ADMIN melalui dropdown interaktif.
+ */
 function RoleSelect({ user, onChange }: { user: User, onChange: (role: string) => void }) {
   const [isOpen, setIsOpen] = useState(false)
 

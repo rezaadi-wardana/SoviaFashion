@@ -27,6 +27,9 @@ interface Category {
   name: string
 }
 
+/**
+ * Mengurai string JSON daftar gambar produk menjadi array string URL.
+ */
 function getProductImages(images: string | null): string[] {
   if (!images) return []
   try {
@@ -37,6 +40,9 @@ function getProductImages(images: string | null): string[] {
   }
 }
 
+/**
+ * Komponen ikon SVG WhatsApp.
+ */
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
@@ -45,6 +51,10 @@ function WhatsAppIcon({ className }: { className?: string }) {
   )
 }
 
+/**
+ * Komponen Modal Detail Produk untuk memilih varian warna/ukuran, jumlah pembelian,
+ * serta tombol Tambah ke Keranjang, Beli Sekarang, Chat WhatsApp, dan Try-On Virtual.
+ */
 function ProductModal({ product, onClose }: { product: Product; onClose: () => void }) {
   const { data: session } = useSession()
   const router = useRouter()
@@ -96,10 +106,17 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
     fetchStoreProfile()
   }, [])
 
+  /**
+   * Mengalihkan halaman pengguna ke halaman masuk (sign-in) dengan URL callback catalog.
+   */
   function redirectToSignIn() {
     router.push("/auth/signin?callbackUrl=/catalog")
   }
 
+  /**
+   * Mengirim permintaan POST ke API keranjang (/api/cart) untuk menyimpan produk,
+   * ukuran, warna, dan jumlah yang dipilih ke keranjang belanja database.
+   */
   async function handleAddToCart() {
     if (!selectedVariant) return
 
@@ -147,6 +164,10 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
     }
   }
 
+  /**
+   * Menyimpan detail item pembelian langsung ke sessionStorage (directOrder)
+   * dan mengarahkan pengguna ke halaman checkout.
+   */
   async function handleBuyNow() {
     if (!selectedVariant) return
 
@@ -172,6 +193,10 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
     window.location.href = "/checkout"
   }
 
+  /**
+   * Membuka obrolan WhatsApp dengan penjual menggunakan format pesan kustom yang terisi otomatis
+   * yang menyebutkan nama produk, varian, ukuran, dan harga.
+   */
   function handleWhatsAppChat() {
     if (!storeWhatsApp) {
       toast.error(t("catalog.whatsappUnavailable"))
@@ -471,6 +496,10 @@ function ProductModal({ product, onClose }: { product: Product; onClose: () => v
   )
 }
 
+/**
+ * Komponen utama konten katalog (CatalogContent) yang melakukan fetch daftar produk,
+ * menangani input pencarian, filter kategori, filter ukuran, serta slider rentang harga.
+ */
 function CatalogContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -726,6 +755,10 @@ function CatalogContent() {
   )
 }
 
+/**
+ * Komponen Halaman Katalog (CatalogPage) yang dibungkus dengan React Suspense
+ * untuk meminimalkan loading delay client-side pada parameter pencarian.
+ */
 export default function CatalogPage() {
   return (
     <Suspense fallback={

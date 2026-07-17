@@ -5,6 +5,9 @@ import { useRouter, useSearchParams } from "next/navigation"
 import { useEffect, useState, Suspense } from "react"
 import { Loader2, Mail, Lock, User as UserIcon, Phone } from "lucide-react"
 
+/**
+ * Komponen ikon SVG Google.
+ */
 function GoogleIcon() {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20">
@@ -28,6 +31,10 @@ function GoogleIcon() {
   )
 }
 
+/**
+ * Komponen Utama Konten Sign In (SignInContent) yang melayani form otentikasi masuk (login)
+ * dan pendaftaran akun (register) dengan credentials email/password, serta integrasi tombol login OAuth Google.
+ */
 function SignInContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -51,6 +58,9 @@ function SignInContent() {
     }
   }, [status, router, callbackUrl])
 
+  /**
+   * Menangani proses login menggunakan Google OAuth NextAuth.
+   */
   async function handleGoogleSignIn() {
     setLoading(true)
     try {
@@ -60,6 +70,10 @@ function SignInContent() {
     }
   }
 
+  /**
+   * Menangani pengiriman form login atau pendaftaran. Mengirim kredensial email/password
+   * ke fungsi NextAuth signIn credentials, atau melakukan pendaftaran user baru via POST /api/auth/register.
+   */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setErrorMsg("")
@@ -118,6 +132,9 @@ function SignInContent() {
     }
   }
 
+  /**
+   * Mengatur perubahan input field secara dinamis untuk disimpan ke dalam status formulir data otentikasi.
+   */
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }))
   }
@@ -305,6 +322,10 @@ function SignInContent() {
   )
 }
 
+/**
+ * Komponen Halaman Masuk Akun (SignInPage) yang dibungkus Suspense
+ * agar parameter query callbackUrl didukung saat dimuat.
+ */
 export default function SignInPage() {
   return (
     <Suspense

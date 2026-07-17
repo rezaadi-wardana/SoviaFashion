@@ -10,6 +10,15 @@ interface MapPickerProps {
   height?: string
 }
 
+/**
+ * Komponen MapPicker berbasis Leaflet untuk memilih titik koordinat lokasi (latitude & longitude)
+ * melalui antarmuka peta interaktif dengan penanda (marker) yang dapat diseret (draggable).
+ * 
+ * @param lat - Nilai latitude lokasi terpilih saat ini
+ * @param lng - Nilai longitude lokasi terpilih saat ini
+ * @param onLocationChange - Callback untuk mengirimkan perubahan koordinat ke komponen induk
+ * @param height - String ukuran tinggi kontainer peta (opsional)
+ */
 export default function MapPicker({ lat, lng, onLocationChange, height = "h-80" }: MapPickerProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null)
   const mapInstanceRef = useRef<any>(null)
@@ -23,6 +32,10 @@ export default function MapPicker({ lat, lng, onLocationChange, height = "h-80" 
     let isMounted = true;
     let map: any = null
 
+    /**
+     * Memuat dan menginisialisasi pustaka Leaflet secara dinamis pada client-side.
+     * Mengatur tile layer, marker awal, event drag, dan klik pada peta.
+     */
     async function initMap() {
       const L = (await import("leaflet")).default
       await import("leaflet/dist/leaflet.css")
@@ -103,6 +116,10 @@ export default function MapPicker({ lat, lng, onLocationChange, height = "h-80" 
     }
   }, [lat, lng])
 
+  /**
+   * Menggunakan Geolocation API bawaan browser untuk mendeteksi posisi GPS pengguna saat ini,
+   * lalu memindahkan marker dan posisi tengah peta ke koordinat tersebut.
+   */
   function handleDetectLocation() {
     if (!navigator.geolocation) return
     setDetecting(true)

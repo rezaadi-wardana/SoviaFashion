@@ -1,3 +1,8 @@
+/**
+ * GET /api/admin/users
+ * Mengambil seluruh daftar pengguna (termasuk jumlah pesanan masing-masing).
+ * Hanya dapat diakses oleh ADMIN.
+ */
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"

@@ -2,6 +2,12 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
+/**
+ * GET /api/admin/orders
+ * Mengambil seluruh daftar pesanan dari database beserta data pengguna dan produk yang dipesan.
+ * Hanya dapat diakses oleh ADMIN.
+ */
+
 export async function GET() {
   const session = await auth()
   

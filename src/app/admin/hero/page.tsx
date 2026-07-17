@@ -16,6 +16,10 @@ interface HeroSlide {
   isActive: boolean
 }
 
+/**
+ * Komponen Utama Halaman Kelola Hero Slider Admin yang menampilkan daftar slide
+ * beranda, dilengkapi fitur tambah, ubah, hapus slide, dan preview slide.
+ */
 export default function AdminHeroPage() {
   const [slides, setSlides] = useState<HeroSlide[]>([])
   const [loading, setLoading] = useState(true)
@@ -31,6 +35,9 @@ export default function AdminHeroPage() {
     fetchSlides()
   }, [])
 
+  /**
+   * Mengambil seluruh data slide hero dari API /api/admin/hero dan menyimpannya ke state.
+   */
   async function fetchSlides() {
     try {
       const res = await fetch("/api/admin/hero")
@@ -45,6 +52,9 @@ export default function AdminHeroPage() {
     }
   }
 
+  /**
+   * Menghapus slide hero tertentu berdasarkan ID via DELETE /api/admin/hero/[id].
+   */
   async function handleDelete(slideId: string) {
     try {
       const res = await fetch(`/api/admin/hero/${slideId}`, {
@@ -61,6 +71,10 @@ export default function AdminHeroPage() {
     }
   }
 
+  /**
+   * Menyimpan atau memperbarui data slide hero ke server.
+   * Menggunakan PUT untuk edit dan POST untuk tambah slide baru.
+   */
   async function handleSave(slideData: Partial<HeroSlide>) {
     try {
       const url = editingSlide ? `/api/admin/hero/${editingSlide.id}` : "/api/admin/hero"
@@ -236,6 +250,9 @@ export default function AdminHeroPage() {
   )
 }
 
+/**
+ * Komponen Modal Preview untuk menampilkan detail isi sebuah slide hero.
+ */
 function ViewSlideModal({
   slide,
   onClose,
@@ -307,6 +324,10 @@ function ViewSlideModal({
   )
 }
 
+/**
+ * Komponen Modal Form untuk membuat slide hero baru atau mengedit slide yang sudah ada,
+ * termasuk pengunggahan gambar slide ke server storage.
+ */
 function HeroSlideModal({
   slide,
   onClose,
@@ -327,6 +348,10 @@ function HeroSlideModal({
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  /**
+   * Mengunggah gambar slide yang dipilih ke server via POST /api/upload
+   * dan menyimpan URL hasil unggah ke state form.
+   */
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return

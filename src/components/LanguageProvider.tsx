@@ -15,10 +15,18 @@ const LanguageContext = createContext<LanguageContextType>({
   t: (key: TranslationKey) => translations[key]?.id || key,
 })
 
+/**
+ * Hook untuk menggunakan konteks bahasa aktif (locale, setLocale, dan fungsi terjemahan t)
+ * di seluruh komponen aplikasi.
+ */
 export function useLanguage() {
   return useContext(LanguageContext)
 }
 
+/**
+ * Komponen Provider untuk membungkus aplikasi dan menyediakan status bahasa (lokalisasi)
+ * yang tersimpan secara lokal di localStorage.
+ */
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("id")
   const [mounted, setMounted] = useState(false)
@@ -36,12 +44,24 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     setMounted(true)
   }, [])
 
+  /**
+   * Mengubah bahasa aktif aplikasi dan menyimpannya ke dalam localStorage
+   * serta mengubah atribut lang pada dokumen HTML utama.
+   */
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale)
     localStorage.setItem("sovia-lang", newLocale)
     document.documentElement.setAttribute("lang", newLocale)
   }, [])
 
+  /**
+   * Fungsi untuk menerjemahkan kunci teks berdasarkan bahasa aktif.
+   * Mendukung substitusi parameter seperti {year}.
+   * 
+   * @param key - Kunci terjemahan dari kamus data translations
+   * @param params - Parameter opsional untuk mengganti placeholder dalam string terjemahan
+   * @returns String teks yang sudah diterjemahkan
+   */
   const t = useCallback(
     (key: TranslationKey, params?: Record<string, string>): string => {
       let text: string = translations[key]?.[locale] || translations[key]?.id || key

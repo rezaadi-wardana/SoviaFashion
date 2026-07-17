@@ -9,6 +9,10 @@ import { cn } from "@/lib/utils"
 import { useTheme } from "@/components/ThemeProvider"
 import { useLanguage } from "@/components/LanguageProvider"
 
+/**
+ * Komponen Navbar utama yang menangani navigasi, pencarian keranjang belanja,
+ * toggle tema gelap/terang, pergantian bahasa, serta alur masuk/keluar pengguna.
+ */
 export function Navbar() {
   const { data: session, status } = useSession()
   const pathname = usePathname()
@@ -30,6 +34,9 @@ export function Navbar() {
   ]
 
   useEffect(() => {
+    /**
+     * Mengambil jumlah produk di keranjang belanja pengguna yang sedang login.
+     */
     const fetchCartCount = () => {
       if (session?.user) {
         fetch("/api/cart")
@@ -54,6 +61,9 @@ export function Navbar() {
 
   // Close language dropdown when clicking outside
   useEffect(() => {
+    /**
+     * Handler untuk menutup dropdown bahasa jika pengguna mengeklik di luar elemen dropdown.
+     */
     function handleClickOutside(event: MouseEvent) {
       if (langDropdownRef.current && !langDropdownRef.current.contains(event.target as Node)) {
         setLangDropdownOpen(false)

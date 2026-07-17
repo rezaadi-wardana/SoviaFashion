@@ -35,6 +35,10 @@ interface DashboardStats {
   visitorsByDay: { date: string; visitors: number }[]
 }
 
+/**
+ * Komponen Utama Halaman Dashboard Admin yang menampilkan statistik ringkasan toko,
+ * grafik penjualan harian, grafik pengunjung website, produk terlaris, dan pesanan terbaru.
+ */
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
     totalRevenue: 0,
@@ -50,6 +54,9 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    /**
+     * Mengambil data statistik penjualan & pengunjung untuk dashboard dari API /api/admin/dashboard.
+     */
     async function fetchStats() {
       try {
         const res = await fetch("/api/admin/dashboard")

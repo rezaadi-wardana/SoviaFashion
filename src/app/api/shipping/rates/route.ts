@@ -1,3 +1,9 @@
+/**
+ * POST /api/shipping/rates
+ * Menghitung tarif ongkos kirim ke alamat tujuan menggunakan API Biteship.
+ * Mendukung metode reguler dan COD dengan fallback tarif jika tidak ada kurir tersedia.
+ * Origin pengiriman diambil dari koordinat toko (StoreProfile).
+ */
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 

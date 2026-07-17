@@ -58,6 +58,11 @@ interface ReportData {
 
 const COLORS = ["#B49583", "#0ea5e9", "#8b5cf6", "#22c55e", "#f59e0b"]
 
+/**
+ * Komponen Utama Halaman Laporan Penjualan Admin yang menampilkan ringkasan keuangan,
+ * grafik pendapatan bulanan, distribusi status pesanan, produk terlaris, dan riwayat
+ * pesanan lengkap dengan kemampuan ekspor ke file PDF.
+ */
 export default function AdminReportsPage() {
   const [data, setData] = useState<ReportData>({
     totalRevenue: 0,
@@ -81,6 +86,9 @@ export default function AdminReportsPage() {
     fetchReports()
   }, [])
 
+  /**
+   * Mengambil seluruh data laporan penjualan dari API /api/admin/reports.
+   */
   async function fetchReports() {
     try {
       const res = await fetch("/api/admin/reports")
@@ -101,6 +109,9 @@ export default function AdminReportsPage() {
   })))
   const availableYears = Array.from(new Set(data.rawOrders.map(o => new Date(o.createdAt).getFullYear().toString())))
 
+  /**
+   * Menyaring daftar pesanan berdasarkan filter periode yang dipilih (semua waktu, bulan, atau tahun).
+   */
   const filteredOrders = data.rawOrders.filter(order => {
     if (pdfFilter === "ALL") return true
     const orderDate = new Date(order.createdAt)
@@ -183,6 +194,10 @@ export default function AdminReportsPage() {
   const totalPages = Math.ceil(filteredOrders.length / itemsPerPage)
   const paginatedOrders = filteredOrders.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
 
+  /**
+   * Menghasilkan dan mengunduh file PDF laporan penjualan lengkap menggunakan library jsPDF,
+   * mencakup ringkasan keuangan, produk terlaris, dan detail riwayat pesanan berdasarkan filter periode.
+   */
   const handleGeneratePDF = () => {
     const doc = new jsPDF('landscape')
     doc.setFontSize(18)

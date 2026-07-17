@@ -1,3 +1,8 @@
+/**
+ * PATCH /api/admin/users/[id] — Mengubah peran/role pengguna (USER / ADMIN).
+ * DELETE /api/admin/users/[id] — Menghapus akun pengguna (tidak bisa menghapus diri sendiri).
+ * Keduanya hanya dapat diakses oleh ADMIN.
+ */
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"

@@ -3,6 +3,12 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
 
+/**
+ * PATCH /api/admin/orders/[id]
+ * Memperbarui status, konfirmasi, atau nomor resi sebuah pesanan.
+ * Jika status diubah ke CANCELLED, stok varian produk dikembalikan secara otomatis.
+ * Hanya dapat diakses oleh ADMIN.
+ */
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   const session = await auth()

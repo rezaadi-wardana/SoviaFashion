@@ -14,6 +14,13 @@ interface Product {
   category: string;
 }
 
+/**
+ * Komponen utama fitur Virtual Try-On berbasis AI.
+ * Memungkinkan pengguna mengunggah foto diri, memilih pakaian dari katalog,
+ * lalu mengirimkannya ke API Replicate untuk melihat visualisasi kecocokan pakaian.
+ * 
+ * @param products - Daftar produk pakaian yang tersedia untuk dicoba
+ */
 export default function VirtualTryOnAdvanced({ products = [] }: { products?: Product[] }) {
   const { data: session } = useSession();
   const searchParams = useSearchParams();
@@ -50,6 +57,12 @@ export default function VirtualTryOnAdvanced({ products = [] }: { products?: Pro
 
   const pollingInterval = useRef<NodeJS.Timeout | null>(null);
 
+  /**
+   * Mengunggah file gambar ke API server (/api/upload/public) untuk mendapatkan URL publiknya.
+   * 
+   * @param file - File gambar yang akan diunggah
+   * @returns URL publik gambar yang berhasil diunggah
+   */
   const uploadImage = async (file: File): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
@@ -62,6 +75,10 @@ export default function VirtualTryOnAdvanced({ products = [] }: { products?: Pro
     return data.url;
   };
 
+  /**
+   * Menangani pengiriman form try-on. Melakukan pengecekan limitasi tamu,
+   * mengunggah gambar wajah, memulai prediksi Replicate, dan menjalankan polling status hasil AI.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!humanFile || !selectedProduct) {
@@ -307,6 +324,7 @@ export default function VirtualTryOnAdvanced({ products = [] }: { products?: Pro
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center backdrop-blur-[2px]">
               <button
                 onClick={async () => {
+                  // Mengunduh hasil gambar try-on AI ke perangkat lokal pengguna
                   try {
                     const res = await fetch(resultImage);
                     const blob = await res.blob();

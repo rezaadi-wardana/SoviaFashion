@@ -1,3 +1,7 @@
+/**
+ * GET /api/categories — Mengambil semua kategori produk (diurutkan berdasarkan nama).
+ * POST /api/categories (Admin) — Membuat kategori baru.
+ */
 import { NextResponse } from "next/server"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"

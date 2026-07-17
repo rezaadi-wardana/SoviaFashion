@@ -1,5 +1,9 @@
 import React from 'react';
 
+/**
+ * Komponen overlay loading layar penuh yang menampilkan indikator animasi memantul
+ * dan teks brand dengan blur backdrop.
+ */
 export default function LoadingOverlay() {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-sovia-50/80 dark:bg-sovia-950/80 backdrop-blur-sm transition-all duration-500">

@@ -28,6 +28,11 @@ export const metadata: Metadata = {
   },
 }
 
+/**
+ * Komponen Layout Utama (Root Layout) aplikasi.
+ * Menangani pengaturan font Google, metadata SEO, injeksi skrip pencegahan flash tema/bahasa,
+ * pembungkus Providers, penyediaan Navbar, elemen Main, dan Footer global.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{

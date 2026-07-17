@@ -1,3 +1,8 @@
+/**
+ * GET /api/auth/role
+ * Mengambil peran/role pengguna saat ini dari database berdasarkan sesi aktif,
+ * lalu mengembalikannya dalam format JSON dan menyimpannya ke cookie `user-role`.
+ */
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";

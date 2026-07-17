@@ -1,3 +1,8 @@
+/**
+ * POST /api/upload/token (Admin)
+ * Membuat token upload client-side untuk Vercel Blob (khusus video).
+ * Digunakan untuk mengunggah video produk dari frontend langsung ke Blob Storage.
+ */
 import { handleUpload, type HandleUploadBody } from '@vercel/blob/client';
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';

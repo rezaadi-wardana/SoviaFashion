@@ -1,3 +1,9 @@
+/**
+ * POST /api/upload (Admin)
+ * Mengunggah dan memproses gambar produk.
+ * Gambar dikompresi ke WebP (resize 1920px, quality 80%) menggunakan Sharp,
+ * lalu disimpan ke Vercel Blob (production) atau folder public/uploads/ (local).
+ */
 import { NextResponse } from "next/server"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"

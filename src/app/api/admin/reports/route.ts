@@ -2,6 +2,11 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
+/**
+ * Endpoint GET /api/admin/reports.
+ * Mengembalikan data laporan penjualan dan performa bisnis yang komprehensif.
+ * Hanya dapat diakses oleh user dengan role ADMIN.
+ */
 export async function GET() {
   const session = await auth()
   

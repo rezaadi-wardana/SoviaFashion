@@ -30,6 +30,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" }
       },
+      /**
+       * Melakukan verifikasi kredensial pengguna (email & password) saat login manual.
+       * 
+       * @param credentials - Objek yang berisi email dan password yang diinput user
+       * @returns Objek user jika kredensial cocok, atau null jika tidak valid
+       */
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           return null;
@@ -63,6 +69,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
+    /**
+     * Callback session untuk memodifikasi objek Session yang dikirim ke client.
+     * Memasukkan data ID dan Role user dari JWT token ke objek session.user.
+     */
     async session({ session, token }) {
       if (session.user && token.sub) {
         session.user.id = token.sub;
@@ -72,6 +82,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
       return session;
     },
+    /**
+     * Callback JWT untuk memproses pembuatan/pembaruan token JWT NextAuth.
+     * Mengambil info nama, gambar, ID, dan role terbaru dari database untuk disimpan di token.
+     */
     async jwt({ token, trigger, session }) {
       if (trigger === "update" && session) {
         if (session.name) token.name = session.name;

@@ -2,6 +2,11 @@ import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
+/**
+ * GET /api/admin/dashboard
+ * Mengambil data statistik ringkasan untuk dashboard admin: total pendapatan, jumlah produk,
+ * pengguna, pesanan, produk terlaris, pesanan terbaru, dan simulasi data pengunjung 7 hari terakhir.
+ */
 export async function GET() {
   const session = await auth()
   if (!session || session.user.role !== "ADMIN") {

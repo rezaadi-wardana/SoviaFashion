@@ -1,3 +1,8 @@
+/**
+ * POST /api/orders/direct
+ * Membuat pesanan langsung (tanpa melalui keranjang) untuk satu produk tertentu
+ * dengan data alamat dan harga yang dikirim langsung dari client.
+ */
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"

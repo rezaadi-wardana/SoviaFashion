@@ -8,6 +8,9 @@ import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
 
 const Select = SelectPrimitive.Root
 
+/**
+ * Komponen pembungkus grup opsi pilihan dalam dropdown Select.
+ */
 function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
   return (
     <SelectPrimitive.Group
@@ -18,6 +21,9 @@ function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
   )
 }
 
+/**
+ * Komponen untuk menampilkan nilai/label dari opsi yang sedang terpilih pada tombol pemicu.
+ */
 function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
   return (
     <SelectPrimitive.Value
@@ -28,6 +34,9 @@ function SelectValue({ className, ...props }: SelectPrimitive.Value.Props) {
   )
 }
 
+/**
+ * Komponen tombol pemicu untuk membuka/menutup dropdown Select.
+ */
 function SelectTrigger({
   className,
   size = "default",
@@ -56,6 +65,9 @@ function SelectTrigger({
   )
 }
 
+/**
+ * Komponen popup kontainer yang berisi daftar opsi Select yang diposisikan di layar.
+ */
 function SelectContent({
   className,
   children,
@@ -95,6 +107,9 @@ function SelectContent({
   )
 }
 
+/**
+ * Komponen label judul untuk memisahkan grup opsi.
+ */
 function SelectLabel({
   className,
   ...props
@@ -108,6 +123,9 @@ function SelectLabel({
   )
 }
 
+/**
+ * Komponen untuk baris opsi pilihan individual di dalam dropdown Select.
+ */
 function SelectItem({
   className,
   children,
@@ -136,6 +154,9 @@ function SelectItem({
   )
 }
 
+/**
+ * Komponen pembatas (garis pemisah) antar grup/opsi dalam list dropdown.
+ */
 function SelectSeparator({
   className,
   ...props
@@ -149,6 +170,9 @@ function SelectSeparator({
   )
 }
 
+/**
+ * Tombol indikator scroll ke atas saat daftar opsi melebihi tinggi layar.
+ */
 function SelectScrollUpButton({
   className,
   ...props
@@ -168,6 +192,9 @@ function SelectScrollUpButton({
   )
 }
 
+/**
+ * Tombol indikator scroll ke bawah saat daftar opsi melebihi tinggi layar.
+ */
 function SelectScrollDownButton({
   className,
   ...props

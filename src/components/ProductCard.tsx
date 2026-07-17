@@ -2,6 +2,13 @@ import Image from "next/image"
 import Link from "next/link"
 import { formatPrice, getProductPriceRange } from "@/lib/utils"
 
+/**
+ * Mengurai string JSON daftar gambar produk menjadi array string URL.
+ * Jika parsing gagal, mengembalikan array berisi string mentah.
+ * 
+ * @param images - String JSON atau URL tunggal
+ * @returns Array dari string URL gambar
+ */
 export function getProductImages(images: string | null): string[] {
   if (!images) return []
   try {
@@ -19,6 +26,14 @@ interface ProductCardProps {
 }
 
 // Main Code Product Card
+/**
+ * Komponen kartu produk individual (ProductCard) untuk menampilkan gambar utama, kategori,
+ * nama produk, serta rentang harga jual. Dapat berfungsi sebagai Link navigasi atau tombol klik biasa.
+ * 
+ * @param product - Objek detail produk
+ * @param onClick - Handler klik manual jika tidak menggunakan href (opsional)
+ * @param href - URL tautan katalog untuk detail produk (opsional)
+ */
 export function ProductCard({ product, onClick, href }: ProductCardProps) {
   const imageUrl = getProductImages(product.images)[0] || `https://placehold.co/400x500/F3EFE6/3C3228?text=${encodeURIComponent(product.name || 'Product')}`
   

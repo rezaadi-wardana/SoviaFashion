@@ -9,6 +9,9 @@ import { Check, Truck, Package, MapPin, Loader2, AlertCircle, ChevronDown, Chevr
 import { formatPrice, resolvePrice } from "@/lib/utils"
 import { toast } from "sonner"
 
+/**
+ * Mengurai string JSON daftar gambar produk menjadi array string URL.
+ */
 function getProductImages(images: string | null): string[] {
   if (!images) return []
   try {
@@ -81,6 +84,11 @@ interface SelectedCourier {
   duration: string
 }
 
+/**
+ * Komponen Halaman Checkout (CheckoutPage) yang menangani pengisian alamat pengiriman,
+ * pengambilan tarif kurir pengiriman secara dinamis (via Biteship), pembuatan pesanan (order),
+ * transfer manual, dan pengunggahan bukti pembayaran.
+ */
 export default function CheckoutPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -109,6 +117,10 @@ export default function CheckoutPage() {
   const [selectedCourier, setSelectedCourier] = useState<SelectedCourier | null>(null)
   const [showAllCouriers, setShowAllCouriers] = useState(false)
 
+  /**
+   * Mengambil data keranjang belanja (atau detail pesanan langsung jika beli sekarang),
+   * profil pengguna, dan info rekening/E-wallet toko secara paralel.
+   */
   const fetchData = useCallback(async () => {
     const userId = session?.user?.id
     if (!userId) {
@@ -194,6 +206,10 @@ export default function CheckoutPage() {
   }, [fetchData])
 
   // Fetch shipping rates when user data and items are available
+  /**
+   * Menghubungi API server (/api/shipping/rates) untuk menghitung tarif pengiriman kurir reguler
+   * dan COD secara dinamis berdasarkan koordinat latitude & longitude alamat penerima.
+   */
   const fetchShippingRates = useCallback(async () => {
     if (!userData.lat || !userData.lng || items.length === 0) return
 
@@ -272,6 +288,9 @@ export default function CheckoutPage() {
     setSelectedCourier(null)
   }, [shippingMethod])
 
+  /**
+   * Memilih kurir pengiriman spesifik untuk pesanan ini.
+   */
   function handleSelectCourier(rate: ShippingRate) {
     setSelectedCourier({
       courierName: rate.courierName,
@@ -283,6 +302,10 @@ export default function CheckoutPage() {
     })
   }
 
+  /**
+   * Membuat pesanan baru ke database dengan mengirim POST request ke /api/orders,
+   * menyertakan daftar item, kurir terpilih, jenis pembayaran, dan alamat penerima.
+   */
   const handleCreateOrder = async () => {
     if (!userData.name || !userData.phone || !userData.address) {
       toast.error("Lengkapi data profil pengiriman terlebih dahulu")
@@ -373,6 +396,10 @@ export default function CheckoutPage() {
     }
   }
 
+  /**
+   * Mengunggah gambar bukti transfer manual ke storage public dan memperbarui status pesanan
+   * dengan mengirim POST request ke API /api/orders/[id]/payment-proof.
+   */
   const handleConfirmPayment = async () => {
     if (!createdOrderId) return
     

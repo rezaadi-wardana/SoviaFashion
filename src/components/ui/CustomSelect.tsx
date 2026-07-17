@@ -20,6 +20,15 @@ interface CustomSelectProps {
   className?: string;
 }
 
+/**
+ * Komponen Dropdown Select kustom yang mendukung opsi berupa teks, gambar varian, badge, dan kategori.
+ * 
+ * @param options - Array opsi pilihan (berupa value, label, gambar, kategori, dll)
+ * @param value - Nilai saat ini yang terpilih
+ * @param onChange - Fungsi callback ketika nilai berubah
+ * @param placeholder - Teks placeholder jika belum ada pilihan
+ * @param className - Kelas CSS tambahan untuk styling container dropdown
+ */
 export function CustomSelect({ options, value, onChange, placeholder = "Select...", className }: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -27,6 +36,7 @@ export function CustomSelect({ options, value, onChange, placeholder = "Select..
   const selectedOption = options.find(opt => opt.value === value);
 
   useEffect(() => {
+    // Handler untuk menutup dropdown jika pengguna mengeklik di luar container dropdown
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
         setIsOpen(false);

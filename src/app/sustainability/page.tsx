@@ -1,3 +1,7 @@
+/**
+ * Komponen Halaman Keberlanjutan (SustainabilityPage) yang menjelaskan komitmen
+ * Sovia Fashion terhadap penggunaan material ramah lingkungan dan praktik produksi etis.
+ */
 export default function SustainabilityPage() {
   return (
     <div className="pt-32 pb-24 px-8 bg-sovia-50 min-h-screen">

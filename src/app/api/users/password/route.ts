@@ -1,3 +1,8 @@
+/**
+ * PUT /api/users/password
+ * Mengubah password akun pengguna yang sedang login.
+ * Memvalidasi password saat ini (jika ada) sebelum mengenkripsi dan menyimpan password baru dengan bcrypt.
+ */
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";

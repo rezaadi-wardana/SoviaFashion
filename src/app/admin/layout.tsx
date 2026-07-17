@@ -40,6 +40,11 @@ const adminGroups = [
   }
 ]
 
+/**
+ * Layout Utama Panel Admin yang memuat sidebar navigasi dengan menu manajemen toko,
+ * header mobile, toggle tema, toggle bahasa, dan modal konfirmasi logout.
+ * Hanya dapat diakses oleh pengguna berperan ADMIN.
+ */
 export default function AdminLayout({
   children,
 }: {

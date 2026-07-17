@@ -1,3 +1,10 @@
+/**
+ * CRUD keranjang belanja pengguna.
+ * GET — Mengambil semua item dalam keranjang pengguna yang sedang login.
+ * POST — Menambahkan item baru atau menambah kuantitas item yang sudah ada (berdasarkan productId/size/color).
+ * PATCH — Memperbarui jumlah kuantitas item (jika <= 0, item akan dihapus).
+ * DELETE — Menghapus item tertentu (query `?itemId=`) atau mengosongkan seluruh keranjang.
+ */
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"

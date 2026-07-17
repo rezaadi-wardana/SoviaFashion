@@ -1,3 +1,9 @@
+/**
+ * CRUD kategori produk individual.
+ * GET — Mengambil detail kategori beserta produk di dalamnya.
+ * PUT (Admin) — Memperbarui nama, deskripsi, dan gambar kategori.
+ * DELETE (Admin) — Menghapus kategori dari database.
+ */
 import { NextResponse } from "next/server"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"

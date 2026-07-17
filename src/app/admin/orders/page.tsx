@@ -48,6 +48,10 @@ const statusConfig: Record<string, { label: string; icon: any; color: string }> 
 
 const statusOrder = ["PENDING_PAYMENT", "WAITING_CONFIRMATION", "PACKING", "SHIPPED", "COMPLETED"]
 
+/**
+ * Komponen Utama Halaman Kelola Pesanan Admin yang menampilkan daftar seluruh transaksi,
+ * dilengkapi filter status, pencarian, paginasi, riwayat status, dan pembaruan status pesanan.
+ */
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -79,6 +83,10 @@ export default function AdminOrdersPage() {
     fetchOrders()
   }, [])
 
+  /**
+   * Mengambil seluruh daftar transaksi/order dari API /api/admin/orders,
+   * diurutkan berdasarkan tanggal terbaru.
+   */
   async function fetchOrders() {
     try {
       const res = await fetch("/api/admin/orders")
@@ -100,6 +108,10 @@ export default function AdminOrdersPage() {
     }
   }
 
+  /**
+   * Mengubah status pesanan ke tahap berikutnya (misal: PACKING, SHIPPED, COMPLETED)
+   * via PATCH /api/admin/orders/[id]. Jika status SHIPPED, nomor resi wajib diisi.
+   */
   async function updateOrderStatus(orderId: string, newStatus: string, trackingNumber?: string) {
     let payload: any = { status: newStatus }
 
@@ -129,6 +141,9 @@ export default function AdminOrdersPage() {
     }
   }
 
+  /**
+   * Menyetujui pesanan baru (mengubah status ke PACKING) atau menolak pesanan (CANCELLED).
+   */
   async function confirmOrder(orderId: string, confirmed: boolean, bypassModal: boolean = false) {
     if (!confirmed && !bypassModal) {
       if (!window.confirm("Apakah Anda yakin ingin menolak pesanan ini?")) return
@@ -180,6 +195,10 @@ export default function AdminOrdersPage() {
     setCurrentPage(1);
   }, [searchQuery, activeTab, sortOrder]);
 
+  /**
+   * Fungsi helper untuk merender detail informasi produk dipesan, data pengiriman,
+   * riwayat status pesanan, dan tombol aksi update status.
+   */
   const renderOrderDetails = (order: Order, isMobile: boolean) => (
     <div className={`space-y-6 animate-in fade-in duration-500 ${isMobile ? 'pt-4 border-t border-sovia-100' : ''}`}>
       {/* Items List */}

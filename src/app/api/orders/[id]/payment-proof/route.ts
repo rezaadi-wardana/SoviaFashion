@@ -1,3 +1,9 @@
+/**
+ * POST /api/orders/[id]/payment-proof
+ * Mengunggah dan menyimpan URL bukti pembayaran manual transfer untuk pesanan tertentu.
+ * Hanya pemilik pesanan yang dapat melakukan ini, dan pesanan harus berstatus PENDING_PAYMENT.
+ * Setelah berhasil, status pesanan berubah menjadi WAITING_CONFIRMATION.
+ */
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"

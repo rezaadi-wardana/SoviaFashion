@@ -1,7 +1,19 @@
+/**
+ * POST /api/auth/register
+ * Mendaftarkan akun pengguna baru ke dalam database.
+ * Memvalidasi kelengkapan data (nama, email, password), memeriksa duplikasi email,
+ * mengenkripsi password dengan bcrypt, lalu menyimpan user baru.
+ */
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
+/**
+ * Endpoint POST /api/auth/register.
+ * Mendaftarkan akun pengguna baru ke dalam database.
+ * Memvalidasi kelengkapan data (nama, email, password), memeriksa duplikasi email,
+ * mengenkripsi password dengan bcrypt, lalu menyimpan user baru.
+ */
 export async function POST(request: Request) {
   try {
     const body = await request.json();

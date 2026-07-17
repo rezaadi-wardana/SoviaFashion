@@ -1,3 +1,8 @@
+/**
+ * GET /api/products — Mengambil daftar semua produk (termasuk kategori & varian).
+ * Dapat difilter dengan query `?tryOn=true` untuk hanya mengambil varian dengan gambar try-on.
+ * POST /api/products (Admin) — Membuat produk baru beserta varian-variannya.
+ */
 import { NextResponse } from "next/server"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
@@ -32,6 +37,9 @@ export async function GET(request: Request) {
   return NextResponse.json(products)
 }
 
+/**
+ * POST /api/products — (Admin) Membuat produk baru beserta data varian yang dikirimkan.
+ */
 export async function POST(request: Request) {
   const session = await auth()
   if (!session || session.user.role !== "ADMIN") {

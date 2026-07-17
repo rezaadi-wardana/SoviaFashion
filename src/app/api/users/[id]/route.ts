@@ -1,3 +1,7 @@
+/**
+ * GET /api/users/[id]
+ * Mengambil data profil pengguna tertentu. Hanya pengguna itu sendiri atau admin yang dapat mengakses.
+ */
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"

@@ -3,7 +3,10 @@ import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 
-// PUT - update a hero slide
+/**
+ * PUT /api/admin/hero/[id]
+ * Memperbarui data slide hero berdasarkan ID. Hanya dapat diakses oleh ADMIN.
+ */
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -40,7 +43,10 @@ export async function PUT(
   }
 }
 
-// DELETE - delete a hero slide
+/**
+ * DELETE /api/admin/hero/[id]
+ * Menghapus slide hero berdasarkan ID dari database. Hanya dapat diakses oleh ADMIN.
+ */
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

@@ -1,3 +1,10 @@
+/**
+ * Full CRUD untuk varian produk (ProductVariant) dalam suatu produk.
+ * GET — Mengambil daftar varian produk.
+ * POST (Admin) — Menambahkan varian baru (maks 10 varian).
+ * PUT (Admin) — Memperbarui data varian yang sudah ada.
+ * DELETE (Admin) — Menghapus varian (minimal 1 varian harus tersisa, atau hapus semua dengan `variantId: "all"`).
+ */
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"

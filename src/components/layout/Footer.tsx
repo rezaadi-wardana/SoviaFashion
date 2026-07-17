@@ -8,6 +8,10 @@ import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 
 
+/**
+ * Komponen Footer halaman utama yang menampilkan kontak, tautan sosial media,
+ * alamat toko, serta navigasi tautan tambahan seperti kebijakan privasi dan panduan ukuran.
+ */
 export function Footer() {
   const { t } = useLanguage()
   const pathname = usePathname()

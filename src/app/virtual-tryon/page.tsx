@@ -4,6 +4,10 @@ import { Suspense } from 'react';
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Mengambil daftar varian produk dari database Prisma yang memiliki gambar coba virtual (tryOnImage),
+ * menyaring kategori hijab, lalu memetakan data tersebut ke bentuk objek yang dikenali oleh UI Try-on.
+ */
 async function getProducts() {
   const variants = await prisma.productVariant.findMany({
     where: { tryOnImage: { not: null } },
@@ -27,6 +31,10 @@ async function getProducts() {
     }));
 }
 
+/**
+ * Komponen Halaman Virtual Try-On (Server Component) yang mengambil data produk dengan try-on aktif,
+ * lalu merendernya dalam komponen VirtualTryOnAdvanced di bawah Suspense.
+ */
 export default async function VirtualTryOnPage() {
   const products = await getProducts();
 

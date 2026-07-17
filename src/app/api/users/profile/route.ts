@@ -1,3 +1,7 @@
+/**
+ * PUT /api/users/profile
+ * Memperbarui data profil pengguna yang sedang login (nama, telepon, alamat, koordinat, pekerjaan, tanggal lahir, foto).
+ */
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"

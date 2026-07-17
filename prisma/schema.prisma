@@ -1,3 +1,5 @@
+// Prisma schema untuk database MySQL Sovia Fashion
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,43 +9,52 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ─── Enums ────────────────────────────────────────────────
+
+// Peran pengguna dalam sistem
 enum Role {
   USER
   ADMIN
 }
 
+// Status siklus hidup pesanan
 enum OrderStatus {
-  PENDING_PAYMENT
-  WAITING_CONFIRMATION
-  PACKING
-  SHIPPED
-  COMPLETED
-  CANCELLED
+  PENDING_PAYMENT      // Menunggu pembayaran (transfer manual)
+  WAITING_CONFIRMATION // Bukti bayar sudah diupload, menunggu konfirmasi admin
+  PACKING              // Sedang dipacking
+  SHIPPED              // Dikirim (dilengkapi nomor resi)
+  COMPLETED            // Selesai diterima
+  CANCELLED            // Dibatalkan (stok dikembalikan)
 }
 
+// Metode pengiriman pesanan
 enum ShippingMethod {
-  EXPEDITION
-  COD
+  EXPEDITION // Dikirim via kurir ekspedisi
+  COD        // Bayar di tempat
 }
 
+// Metode pembayaran pesanan
 enum PaymentMethod {
-  MANUAL_TRANSFER
-  COD
+  MANUAL_TRANSFER // Transfer bank / e-wallet
+  COD             // Bayar di tempat
 }
 
+// ─── Model-Model ──────────────────────────────────────────
+
+// Pengguna terdaftar (pelanggan atau admin)
 model User {
   id        String   @id @default(cuid())
   name      String?
   email     String   @unique
   emailVerified DateTime?
-  password  String?
+  password  String?  // Hash bcrypt (null untuk user OAuth)
   image     String?
   role      Role     @default(USER)
   phone     String?
   address   String?   @db.Text
   detailAddress String? @db.Text
-  lat       Float?
-  lng       Float?
+  lat       Float?   // Koordinat latitude alamat pengiriman
+  lng       Float?   // Koordinat longitude alamat pengiriman
   job       String?
   birthDate DateTime?
   createdAt DateTime @default(now())
@@ -55,6 +66,7 @@ model User {
   orders      Order[]
 }
 
+// Akun OAuth (NextAuth) untuk login Google
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -75,6 +87,7 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
+// Sesi login NextAuth
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
@@ -83,6 +96,7 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+// Token verifikasi sementara (NextAuth)
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -91,6 +105,7 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+// Kategori produk (misal: Hijab, Gamis, Atasan, Bawahan)
 model Category {
   id          String    @id @default(cuid())
   name        String
@@ -101,17 +116,18 @@ model Category {
   products    Product[]
 }
 
+// Produk utama (memiliki beberapa varian warna/ukuran)
 model Product {
   id          String    @id @default(cuid())
   name        String
-  description String?   @db.Text
-  price       Float
-  images      String?   @db.Text
-  sku         String?   @unique
+  description String?   @db.Text // HTML dari ReactQuill
+  price       Float     // Harga dasar (digunakan sebagai fallback)
+  images      String?   @db.Text // JSON array URL gambar
+  sku         String?   @unique  // SKU unik produk
   isFeatured  Boolean  @default(false)
   categoryId  String?
   category    Category? @relation(fields: [categoryId], references: [id])
-  video       String?   @db.Text
+  video       String?   @db.Text // URL video produk (opsional)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
@@ -120,41 +136,44 @@ model Product {
   variants   ProductVariant[]
 }
 
+// Varian produk: warna, stok, harga khusus, ukuran, gambar try-on AI
 model ProductVariant {
   id         String   @id @default(cuid())
-  name       String
+  name       String   // Nama varian (misal: "Hitam", "Navy")
   stock      Int      @default(0)
-  price      Float?
-  buyPrice   Float?
-  sizes      String?
-  image      String?  @db.Text
-  tryOnImage String?  @db.Text
+  price      Float?   // Harga override khusus varian (opsional)
+  buyPrice   Float?   // Harga modal untuk laporan laba
+  sizes      String?  // Format: "Nama:Stok:Harga:HargaModal,Nama:Stok:Harga:HargaModal,..."
+  image      String?  @db.Text // URL gambar varian
+  tryOnImage String?  @db.Text // URL gambar untuk virtual try-on
   imageUrl   String?  @db.Text
   productId  String
   product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   createdAt  DateTime @default(now())
 }
 
+// Slide hero di halaman beranda
 model Hero {
   id          String   @id @default(cuid())
   title       String
   subtitle    String?
   description String?
   image      String   @db.Text
-  link       String?
-  order      Int      @default(0)
+  link       String?  // URL tautan tombol CTA
+  order      Int      @default(0) // Urutan tampilan
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
 
+// Item keranjang belanja pengguna
 model CartItem {
   id        String   @id @default(cuid())
   userId    String
   productId String
   quantity  Int      @default(1)
-  size      String?
-  color     String?
+  size      String?  // Ukuran yang dipilih
+  color     String?  // Varian warna yang dipilih
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -164,6 +183,7 @@ model CartItem {
   @@unique([userId, productId, size, color])
 }
 
+// Pesanan (order) pelanggan
 model Order {
   id              String        @id @default(cuid())
   userId          String
@@ -177,28 +197,29 @@ model Order {
   phone        String
   address      String        @db.Text
   detailAddress String?      @db.Text
-  lat          Float?
-  lng          Float?
-  courierName    String?
-  courierCode    String?
-  courierService String?
-  trackingNumber String?
-  paymentProofUrl String?      @db.Text
+  lat          Float?        // Latitude alamat tujuan
+  lng          Float?        // Longitude alamat tujuan
+  courierName    String?     // Nama kurir (JNE, JNT, dll)
+  courierCode    String?     // Kode kurir
+  courierService String?     // Nama layanan (REG, YES, dll)
+  trackingNumber String?     // Nomor resi pengiriman
+  paymentProofUrl String?    @db.Text // URL bukti transfer
   createdAt     DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
-  isConfirmed  Boolean       @default(false)
+  isConfirmed  Boolean       @default(false) // Konfirmasi admin
 
   user      User        @relation(fields: [userId], references: [id])
   items     OrderItem[]
 }
 
+// Item dalam pesanan (produk yang dibeli)
 model OrderItem {
   id        String   @id @default(cuid())
   orderId   String
   productId String
   quantity  Int
-  price    Float
-  buyPrice Float?
+  price    Float    // Harga jual saat pembelian
+  buyPrice Float?   // Harga modal saat pembelian
   size     String?
   color    String?
   createdAt DateTime @default(now())
@@ -207,21 +228,22 @@ model OrderItem {
   product  Product  @relation(fields: [productId], references: [id])
 }
 
+// Profil toko (single-row untuk pengaturan global)
 model StoreProfile {
-  id          String   @id @default("store-profile")
+  id          String   @id @default("store-profile") // ID tetap: "store-profile"
   name        String   @default("Sovia Fashion")
   description String?  @db.Text
   ownerName   String?
   phone       String?
-  whatsapp    String?
+  whatsapp    String?  // Nomor WhatsApp bisnis
   email       String?
   address     String?  @db.Text
-  lat         Float?
-  lng         Float?
-  bankAccount String?  @db.Text
-  bankImage   String?  @db.Text
-  eWallet     String?  @db.Text
-  eWalletImage String? @db.Text
+  lat         Float?   // Koordinat toko (origin pengiriman)
+  lng         Float?   // Koordinat toko (origin pengiriman)
+  bankAccount String?  @db.Text // Informasi rekening bank
+  bankImage   String?  @db.Text // QR code / logo bank
+  eWallet     String?  @db.Text // Informasi e-wallet
+  eWalletImage String? @db.Text // QR code e-wallet
   instagram   String?
   facebook    String?
   tiktok      String?
@@ -229,11 +251,12 @@ model StoreProfile {
   updatedAt   DateTime @updatedAt
 }
 
+// Hasil prediksi Virtual Try-On AI (Replicate API)
 model TryOnResult {
   id             String   @id @default(cuid())
-  predictionId   String   @unique
-  status         String   @default("starting")
-  resultImageUrl String?  @db.Text
+  predictionId   String   @unique // ID dari Replicate API
+  status         String   @default("starting") // starting | processing | COMPLETED | FAILED
+  resultImageUrl String?  @db.Text // URL gambar hasil try-on
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }

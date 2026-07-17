@@ -40,6 +40,14 @@ const buttonVariants = cva(
   }
 )
 
+/**
+ * Komponen Button kustom berbasis Base UI ButtonPrimitive dengan variasi gaya Tailwind.
+ * 
+ * @param className - Kelas CSS tambahan (opsional)
+ * @param variant - Varian tombol (default, outline, secondary, ghost, destructive, link)
+ * @param size - Ukuran tombol (default, xs, sm, lg, icon, icon-xs, icon-sm, icon-lg)
+ * @param props - Properti tombol standar lainnya dari Base UI Button
+ */
 function Button({
   className,
   variant = "default",

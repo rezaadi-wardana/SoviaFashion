@@ -1,3 +1,8 @@
+/**
+ * POST /api/webhooks/replicate
+ * Webhook receiver untuk notifikasi hasil prediksi Virtual Try-On dari Replicate API.
+ * Memperbarui status prediksi (COMPLETED/FAILED) di database saat AI selesai memproses.
+ */
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import crypto from 'crypto';

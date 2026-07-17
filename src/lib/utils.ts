@@ -1,10 +1,23 @@
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
+/**
+ * Menggabungkan nama-nama kelas CSS dengan clsx dan tailwind-merge
+ * untuk menghasilkan daftar kelas CSS yang bersih dan tanpa konflik.
+ * 
+ * @param inputs - Daftar kelas CSS (string, object, array, dll)
+ * @returns String nama-nama kelas yang sudah bersih dari duplikasi/konflik
+ */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+/**
+ * Memformat angka nominal uang menjadi string mata uang Rupiah (IDR).
+ * 
+ * @param price - Angka harga yang akan diformat
+ * @returns String harga terformat (contoh: Rp 150.000,00)
+ */
 export function formatPrice(price: number): string {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -12,6 +25,12 @@ export function formatPrice(price: number): string {
   }).format(price)
 }
 
+/**
+ * Memformat objek Date atau string tanggal menjadi format tanggal lokal Indonesia.
+ * 
+ * @param date - Tanggal berupa objek Date atau string
+ * @returns String tanggal terformat (contoh: 14 Juli 2026)
+ */
 export function formatDate(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date
   return new Intl.DateTimeFormat("id-ID", {
@@ -21,6 +40,12 @@ export function formatDate(date: Date | string): string {
   }).format(d)
 }
 
+/**
+ * Mengubah string menjadi format Title Case (huruf pertama setiap kata menjadi kapital).
+ * 
+ * @param str - String input yang akan diubah
+ * @returns String hasil konversi ke Title Case
+ */
 export function toTitleCase(str: string): string {
   if (!str) return ""
   return str.replace(
@@ -29,10 +54,21 @@ export function toTitleCase(str: string): string {
   )
 }
 
+/**
+ * Menentukan harga jual produk berdasarkan varian dan ukuran yang dipilih.
+ * Jika terdapat ukuran spesifik, akan ditarik harga untuk ukuran tersebut.
+ * Jika tidak, akan memakai harga varian atau harga dasar produk sebagai cadangan (fallback).
+ * 
+ * @param productPrice - Harga dasar produk
+ * @param variant - Objek varian produk yang dipilih (opsional)
+ * @param sizeName - Nama ukuran yang dipilih (opsional)
+ * @returns Harga final dalam tipe number
+ */
 export function resolvePrice(
   productPrice: number,
   variant?: { price?: number | null; sizes?: string | null },
-  sizeName?: string | null
+  sizeName?: string | null,
+  stock?: number,
 ): number {
   if (!variant) return productPrice;
 
@@ -59,6 +95,14 @@ export function resolvePrice(
   return productPrice;
 }
 
+/**
+ * Menentukan harga beli modal (buyPrice) berdasarkan varian dan ukuran yang dipilih.
+ * Berguna untuk pencatatan laporan keuangan/admin.
+ * 
+ * @param variant - Objek varian produk yang dipilih (opsional)
+ * @param sizeName - Nama ukuran yang dipilih (opsional)
+ * @returns Harga beli final (dalam number) atau null jika tidak didefinisikan
+ */
 export function resolveBuyPrice(
   variant?: { buyPrice?: number | null; sizes?: string | null },
   sizeName?: string | null
@@ -88,6 +132,13 @@ export function resolveBuyPrice(
   return null;
 }
 
+/**
+ * Mendapatkan rentang harga (minimum dan maksimum) dari suatu produk
+ * berdasarkan harga dasar dan harga varian/ukurannya.
+ * 
+ * @param product - Objek produk yang menyertakan harga dasar dan varian
+ * @returns Objek berisi harga min, max, dan boolean hasRange jika harga bervariasi
+ */
 export function getProductPriceRange(product: {
   price: number;
   variants?: { price?: number | null; sizes?: string | null }[];

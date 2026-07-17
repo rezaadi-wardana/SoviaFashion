@@ -1,3 +1,8 @@
+/**
+ * GET /api/products/[id] — Mengambil detail produk (termasuk kategori & varian).
+ * PUT /api/products/[id] (Admin) — Memperbarui data produk secara penuh atau parsial (misal toggle isFeatured).
+ * DELETE /api/products/[id] (Admin) — Menghapus produk dari database.
+ */
 import { NextResponse } from "next/server"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/lib/auth"
@@ -24,6 +29,10 @@ export async function GET(
   return NextResponse.json(product)
 }
 
+/**
+ * PUT /api/products/[id] — (Admin) Memperbarui data produk.
+ * Mendukung update parsial (hanya field isFeatured) untuk toggle cepat dari tabel admin.
+ */
 export async function PUT(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -70,6 +79,9 @@ export async function PUT(
   return NextResponse.json(product)
 }
 
+/**
+ * DELETE /api/products/[id] — (Admin) Menghapus produk berdasarkan ID.
+ */
 export async function DELETE(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

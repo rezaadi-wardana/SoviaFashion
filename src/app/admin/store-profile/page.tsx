@@ -36,6 +36,10 @@ interface StoreProfileData {
   eWalletImage: string | null
 }
 
+/**
+ * Komponen Halaman Profil Toko Admin yang memungkinkan pengelola mengubah informasi toko
+ * seperti nama, kontak, media sosial, rekening pembayaran manual, serta lokasi toko pada peta.
+ */
 export default function StoreProfilePage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -64,6 +68,9 @@ export default function StoreProfilePage() {
     fetchProfile()
   }, [])
 
+  /**
+   * Mengambil data profil toko dari API /api/admin/store-profile dan mengisi form dengan data tersebut.
+   */
   async function fetchProfile() {
     try {
       const res = await fetch("/api/admin/store-profile")
@@ -95,6 +102,9 @@ export default function StoreProfilePage() {
     }
   }
 
+  /**
+   * Menyimpan perubahan data profil toko ke database via PUT /api/admin/store-profile.
+   */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
@@ -118,6 +128,10 @@ export default function StoreProfilePage() {
     }
   }
 
+  /**
+   * Mengunggah gambar QR code atau logo rekening bank/e-wallet ke storage via POST /api/upload
+   * dan menyimpan URL hasilnya ke field yang sesuai pada state form.
+   */
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>, field: "bankImage" | "eWalletImage") {
     const file = e.target.files?.[0]
     if (!file) return

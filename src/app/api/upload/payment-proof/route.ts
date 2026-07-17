@@ -1,3 +1,8 @@
+/**
+ * POST /api/upload/payment-proof
+ * Mengunggah bukti pembayaran transfer manual oleh pembeli.
+ * Gambar dikompresi ke WebP dan disimpan di Vercel Blob (production) atau folder local.
+ */
 import { NextResponse } from "next/server"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"

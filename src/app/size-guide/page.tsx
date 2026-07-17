@@ -1,3 +1,7 @@
+/**
+ * Komponen Halaman Panduan Ukuran (SizeGuidePage) yang menampilkan tabel
+ * referensi ukuran pakaian (S, M, L, XL) beserta dimensi lingkar dada, panjang baju, dan panjang lengan.
+ */
 export default function SizeGuidePage() {
   return (
     <div className="pt-32 pb-24 px-8 bg-sovia-50 min-h-screen">

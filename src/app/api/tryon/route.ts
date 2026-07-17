@@ -1,8 +1,15 @@
+/**
+ * POST /api/tryon
+ * Memulai prediksi Virtual Try-On menggunakan API Replicate.
+ * Mengirim foto pengguna dan gambar pakaian sebagai input ke model AI,
+ * lalu menyimpan predictionId ke database untuk dipantau (polling/webhook).
+ */
 import { NextResponse, NextRequest } from "next/server";
 import Replicate from "replicate";
 import { prisma } from "@/lib/prisma";
 import { readFile } from "fs/promises";
 import { join } from "path";
+
 // 1. Inisialisasi client Replicate
 const replicate = new Replicate({
   auth: process.env.REPLICATE_API_TOKEN || "",
@@ -58,6 +65,7 @@ export async function POST(request: NextRequest) {
       humanImageUrl, // URL foto pengguna (data URI dari upload endpoint)
       garmentImageUrl, // URL foto produk (relative path dari database)
       garmentDesc, // Deskripsi produk
+      crop, // Apakah akan di crop
       category, // Kategori: "upper_body", "lower_body", "dresses"
     } = await request.json();
 
@@ -128,7 +136,7 @@ export async function POST(request: NextRequest) {
         garm_img: finalGarmentImageUrl,
         garment_des: garmentDesc || "",
         category: category || "upper_body",
-        crop: false,
+        crop: true,
         force_dc: category === "dresses",
         mask_only: false,
         steps: 30,
@@ -148,7 +156,6 @@ export async function POST(request: NextRequest) {
 
     // 4. Kirim request ke Replicate
     const prediction = await replicate.predictions.create(predictionOptions);
-
     console.log(`✅ Prediction created: ${prediction.id} (status: ${prediction.status})`);
 
     // Save initial record to database

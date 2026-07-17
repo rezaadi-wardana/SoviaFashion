@@ -35,6 +35,13 @@ interface Hero {
   isActive: boolean
 }
 
+/**
+ * Mengurai string JSON daftar gambar produk menjadi array string.
+ * Jika string kosong atau tidak valid, mengembalikan array kosong atau fallback.
+ * 
+ * @param images - String JSON gambar atau string URL tunggal
+ * @returns Array string URL gambar
+ */
 function getProductImages(images: string | null): string[] {
   if (!images) return []
   try {
@@ -46,6 +53,10 @@ function getProductImages(images: string | null): string[] {
 }
 
 // Main Code Home Page
+/**
+ * Komponen konten utama halaman Beranda yang menampilkan Hero Slider,
+ * Produk Pilihan (Featured Products), Produk Terbaru (Latest Products), dan daftar Kategori.
+ */
 export function HomeContent({
   heros,
   featuredProducts,
@@ -268,6 +279,10 @@ export function HomeContent({
 import { useState, useEffect, useCallback } from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
+/**
+ * Komponen Slider Hero di Beranda yang diterjemahkan dengan dukungan transisi fade
+ * dan perpindahan slide otomatis secara berkala.
+ */
 function HeroSliderTranslated({ slides }: { slides: Hero[] }) {
   const { t } = useLanguage()
 
@@ -286,6 +301,9 @@ function HeroSliderTranslated({ slides }: { slides: Hero[] }) {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
 
+  /**
+   * Mengubah indeks slide aktif saat ini dengan menerapkan waktu jeda transisi.
+   */
   const goToSlide = useCallback((index: number) => {
     if (isTransitioning) return
     setIsTransitioning(true)
@@ -293,10 +311,16 @@ function HeroSliderTranslated({ slides }: { slides: Hero[] }) {
     setTimeout(() => setIsTransitioning(false), 700)
   }, [isTransitioning])
 
+  /**
+   * Berpindah ke slide berikutnya (maju).
+   */
   const goNext = useCallback(() => {
     goToSlide((currentIndex + 1) % heroSlides.length)
   }, [currentIndex, heroSlides.length, goToSlide])
 
+  /**
+   * Berpindah ke slide sebelumnya (mundur).
+   */
   const goPrev = useCallback(() => {
     goToSlide((currentIndex - 1 + heroSlides.length) % heroSlides.length)
   }, [currentIndex, heroSlides.length, goToSlide])

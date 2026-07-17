@@ -1,3 +1,7 @@
+/**
+ * Komponen Halaman Pengiriman & Pengembalian (ShippingReturnsPage) yang memuat
+ * informasi kebijakan pengiriman barang dan prosedur pengembalian/retur produk Sovia Fashion.
+ */
 export default function ShippingReturnsPage() {
   return (
     <div className="pt-32 pb-24 px-8 bg-sovia-50 min-h-screen">

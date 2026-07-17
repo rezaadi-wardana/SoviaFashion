@@ -8,6 +8,9 @@ import { Trash2, Minus, Plus, ShoppingBag } from "lucide-react"
 import { formatPrice, resolvePrice } from "@/lib/utils"
 import { toast } from "sonner"
 
+/**
+ * Mengurai string JSON daftar gambar produk menjadi array string URL.
+ */
 function getProductImages(images: string | null): string[] {
   if (!images) return []
   try {
@@ -39,6 +42,10 @@ interface CartItem {
   }
 }
 
+/**
+ * Mendapatkan sisa stok maksimal yang tersedia untuk item keranjang belanja tertentu,
+ * dicocokkan berdasarkan warna (varian) dan ukuran yang dipilih.
+ */
 function getMaxStock(item: CartItem): number {
   if (!item.product.variants || item.product.variants.length === 0) return 99
   const variant = item.product.variants.find(v => v.name === item.color)
@@ -54,6 +61,10 @@ function getMaxStock(item: CartItem): number {
   return variant.stock
 }
 
+/**
+ * Komponen Halaman Keranjang Belanja (CartPage) untuk menampilkan item di keranjang belanja pengguna,
+ * memperbarui jumlah (quantity), menghapus item, dan menampilkan ringkasan harga order sebelum checkout.
+ */
 export default function CartPage() {
   const { data: session, status } = useSession()
   const [items, setItems] = useState<CartItem[]>([])
@@ -65,6 +76,9 @@ export default function CartPage() {
     }
   }, [session])
 
+  /**
+   * Mengambil seluruh item keranjang belanja pengguna saat ini dari database melalui API GET /api/cart.
+   */
   async function fetchCartItems() {
     try {
       const res = await fetch("/api/cart")
@@ -79,6 +93,10 @@ export default function CartPage() {
     }
   }
 
+  /**
+   * Memperbarui kuantitas item keranjang dengan delta (+1 / -1),
+   * melakukan validasi batas stok maksimal, dan mengirim permintaan PATCH ke API /api/cart.
+   */
   async function updateQuantity(itemId: string, delta: number) {
     const itemIndex = items.findIndex((i) => i.id === itemId)
     if (itemIndex === -1) return
@@ -120,6 +138,9 @@ export default function CartPage() {
     }
   }
 
+  /**
+   * Menghapus item dari keranjang belanja berdasarkan ID item keranjang belanja dengan mengirim DELETE ke /api/cart.
+   */
   async function removeItem(itemId: string) {
     const previousItems = [...items]
     setItems(items.filter((i) => i.id !== itemId))

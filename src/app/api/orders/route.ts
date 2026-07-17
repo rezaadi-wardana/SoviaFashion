@@ -1,3 +1,9 @@
+/**
+ * GET /api/orders — Mengambil semua pesanan milik pengguna yang sedang login.
+ *   Otomatis menyelesaikan (COMPLETED) pesanan berstatus SHIPPED yang sudah > 7 hari.
+ * POST /api/orders — Membuat pesanan baru (dari keranjang atau direct order).
+ *   Mengurangi stok varian produk dan menghapus item keranjang setelah sukses.
+ */
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"

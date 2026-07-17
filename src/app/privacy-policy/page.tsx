@@ -1,3 +1,7 @@
+/**
+ * Komponen Halaman Kebijakan Privasi (PrivacyPolicyPage) yang memuat informasi
+ * tentang pengumpulan, penggunaan, dan perlindungan data pribadi pengguna oleh Sovia Fashion.
+ */
 export default function PrivacyPolicyPage() {
   return (
     <div className="pt-32 pb-24 px-8 bg-sovia-50 min-h-screen">

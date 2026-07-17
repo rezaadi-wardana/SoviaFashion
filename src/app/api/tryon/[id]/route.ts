@@ -1,3 +1,9 @@
+/**
+ * GET /api/tryon/[id]
+ * Memeriksa status prediksi Virtual Try-On berdasarkan predictionId.
+ * Pertama mengecek database (untuk hasil dari webhook), lalu fallback ke polling langsung Replicate API.
+ * Mengembalikan status COMPLETED (dengan URL gambar hasil) / FAILED / processing.
+ */
 import { NextResponse } from 'next/server';
 import Replicate from 'replicate';
 import { prisma } from '@/lib/prisma';

@@ -1,3 +1,8 @@
+/**
+ * PATCH /api/orders/[id]
+ * Memperbarui status pesanan. Hanya pemilik pesanan yang dapat mengubah status.
+ * Saat ini hanya mengizinkan perubahan status menjadi "COMPLETED" oleh pengguna.
+ */
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"

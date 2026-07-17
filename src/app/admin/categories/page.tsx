@@ -13,6 +13,10 @@ interface Category {
   image: string | null
 }
 
+/**
+ * Komponen Utama Halaman Kelola Kategori Admin yang menampilkan daftar kategori produk,
+ * dilengkapi fitur pencarian, tambah, ubah, dan hapus kategori.
+ */
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<Category[]>([])
   const [loading, setLoading] = useState(true)
@@ -25,6 +29,9 @@ export default function AdminCategoriesPage() {
     fetchData()
   }, [])
 
+  /**
+   * Mengambil seluruh data kategori dari API /api/categories dan menyimpannya ke state.
+   */
   async function fetchData() {
     try {
       const res = await fetch("/api/categories")
@@ -37,6 +44,9 @@ export default function AdminCategoriesPage() {
     }
   }
 
+  /**
+   * Menghapus kategori tertentu berdasarkan ID via DELETE /api/categories/[id].
+   */
   async function handleDelete(categoryId: string) {
     try {
       const res = await fetch(`/api/categories/${categoryId}`, {
@@ -53,6 +63,9 @@ export default function AdminCategoriesPage() {
     }
   }
 
+  /**
+   * Menyaring daftar kategori berdasarkan kata kunci pencarian yang diketik pengguna.
+   */
   const filteredCategories = categories.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase())
   )
@@ -226,6 +239,9 @@ export default function AdminCategoriesPage() {
   )
 }
 
+/**
+ * Komponen Modal Form untuk Tambah atau Edit Kategori, termasuk pengunggahan gambar kategori.
+ */
 function CategoryFormModal({
   category,
   onClose,
@@ -243,6 +259,9 @@ function CategoryFormModal({
   const [saving, setSaving] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
 
+  /**
+   * Mengirimkan data form kategori ke API (POST untuk tambah baru, PUT untuk perbarui).
+   */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (isUploading) return;

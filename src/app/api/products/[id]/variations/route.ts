@@ -1,3 +1,10 @@
+/**
+ * CRUD ringan untuk variasi produk (subset dari ProductVariant — tanpa field price/buyPrice penuh).
+ * GET — Mengambil daftar variasi produk.
+ * POST (Admin) — Menambahkan variasi baru (maks 10).
+ * PUT (Admin) — Memperbarui data variasi.
+ * DELETE (Admin) — Menghapus variasi berdasarkan ID (atau semua dengan `variationId: "all"`).
+ */
 import { NextResponse } from "next/server"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"

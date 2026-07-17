@@ -14,6 +14,10 @@ const ReactQuill = dynamic(() => import("react-quill-new"), { ssr: false })
 
 const MAX_UPLOAD_SIZE = 3 * 1024 * 1024; // 3MB max after compression
 
+/**
+ * Mengompresi file gambar yang dipilih menjadi format WebP menggunakan Canvas API browser.
+ * Jika ukuran masih melebihi batas 3MB, akan dicoba dengan kualitas lebih rendah.
+ */
 const compressImage = async (file: File, maxWidth = 1080): Promise<File> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -73,6 +77,9 @@ const compressImage = async (file: File, maxWidth = 1080): Promise<File> => {
   });
 };
 
+/**
+ * Mengurai string JSON gambar produk menjadi array URL string.
+ */
 function getProductImages(images: string | null): string[] {
   if (!images) return []
   try {
@@ -101,6 +108,10 @@ interface Category {
   name: string
 }
 
+/**
+ * Komponen Utama Halaman Kelola Produk Admin yang menampilkan tabel seluruh produk,
+ * dilengkapi pencarian, filter kategori, paginasi, dan aksi tambah/ubah/hapus produk.
+ */
 export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([])
   const [categories, setCategories] = useState<Category[]>([])
@@ -132,6 +143,9 @@ export default function AdminProductsPage() {
     }
   }, [])
 
+  /**
+   * Mengambil data seluruh produk dan kategori dari API secara paralel.
+   */
   async function fetchData() {
     try {
       const [productsRes, categoriesRes] = await Promise.all([
@@ -177,6 +191,9 @@ export default function AdminProductsPage() {
     }
   }
 
+  /**
+   * Menghapus produk tertentu beserta seluruh variannya dari database via DELETE /api/products/[id].
+   */
   async function handleDelete(productId: string) {
     try {
       const res = await fetch(`/api/products/${productId}`, {
@@ -193,6 +210,9 @@ export default function AdminProductsPage() {
     }
   }
 
+  /**
+   * Menyaring daftar produk berdasarkan kata kunci pencarian (nama/SKU) dan kategori yang dipilih.
+   */
   const filteredProducts = products.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.sku?.toLowerCase().includes(search.toLowerCase())
     const matchesCategory = selectedCategory === "all" || p.category?.id === selectedCategory
@@ -477,6 +497,10 @@ export default function AdminProductsPage() {
   )
 }
 
+/**
+ * Komponen Modal Form untuk Tambah atau Edit Produk, termasuk input varian,
+ * pengunggahan foto produk (maks 5), upload video, dan pengaturan ukuran/stok tiap varian.
+ */
 function ProductFormModal({
   product,
   categories,
@@ -520,6 +544,10 @@ function ProductFormModal({
   const [uploadingVariantId, setUploadingVariantId] = useState<number | null>(null)
   const [uploadingTryOnId, setUploadingTryOnId] = useState<number | null>(null)
 
+  /**
+   * Mengirimkan data form produk dan variannya ke API.
+   * Menggunakan POST untuk produk baru dan PUT untuk perbarui produk yang sudah ada.
+   */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
@@ -1137,6 +1165,10 @@ function ProductFormModal({
   )
 }
 
+/**
+ * Komponen Modal Detail Produk yang menampilkan gambar produk (galeri),
+ * informasi kategori, harga, SKU, deskripsi, dan daftar varian beserta stoknya.
+ */
 function ProductDetailModal({
   product,
   onClose,
@@ -1275,6 +1307,10 @@ function ProductDetailModal({
   )
 }
 
+/**
+ * Komponen Dropdown Filter Kategori (CategorySelect) yang memungkinkan admin
+ * memfilter daftar produk berdasarkan kategori yang dipilih.
+ */
 function CategorySelect({
   categories,
   value,

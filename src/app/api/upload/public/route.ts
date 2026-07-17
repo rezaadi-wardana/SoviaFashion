@@ -1,3 +1,9 @@
+/**
+ * POST /api/upload/public
+ * Unggahan file publik (tanpa autentikasi) untuk Virtual Try-On.
+ * Mengonversi file gambar menjadi data URI base64 yang kompatibel dengan API Replicate,
+ * dan menyimpan salinan lokal untuk pengembangan.
+ */
 import { NextResponse } from "next/server"
 import { writeFile, mkdir } from "fs/promises"
 import { join } from "path"
