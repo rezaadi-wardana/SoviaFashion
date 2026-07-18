@@ -60,6 +60,7 @@ export default function RootLayout({
             `,
           }}
         />
+        <meta name="dicoding:email" content="Wardhana15.aw@gmail.com"></meta>
       </head>
       <body className="min-h-screen flex flex-col bg-sovia-50 font-sans">
         <Providers>
